@@ -85,13 +85,12 @@ export default function JobCard({ job, onOpen, onTrack, onReport, onApply, class
   return (
     <li
       className={cn(
-        'group surface lift relative flex cursor-pointer gap-4 overflow-hidden rounded-2xl border bg-card p-4 hover:border-primary/30 sm:p-5',
+        'group surface lift relative flex cursor-pointer gap-4 overflow-hidden rounded-xl border bg-card p-4 hover:border-foreground/20 sm:p-5',
         className
       )}
       style={style}
       onClick={() => onOpen(job)}
     >
-      <span className="lift-accent pointer-events-none absolute inset-y-0 left-0 w-0.5 bg-gradient-to-b from-primary to-brand-2 opacity-0 transition-opacity" />
       <CompanyAvatar name={job.company} className="mt-0.5 size-10 sm:size-11" />
 
       <div className="min-w-0 flex-1">

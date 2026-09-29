@@ -18,12 +18,21 @@ const localFile = process.env.DB_PATH || path.join(DATA_DIR, 'internhunt.db');
 /** Why Turso couldn't be used (shown by /api/health), or null. */
 export let dbError = null;
 let usingTurso = false;
+const SETUP_REV = '1';
 
 function setup(d) {
   try {
     d.exec('PRAGMA foreign_keys = ON;');
   } catch {
     /* not supported over a remote connection */
+  }
+  // Fast path for cold starts: once a database has been set up, skip the schema statements below.
+  // With Turso every one of them is a network write, which made the first request after idle slow.
+  // Bump SETUP_REV whenever the schema below changes.
+  try {
+    if (d.prepare("SELECT value FROM meta WHERE key = 'setup_rev'").get()?.value === SETUP_REV) return;
+  } catch {
+    /* fresh database: no meta table yet */
   }
   d.exec(`
 
@@ -124,6 +133,7 @@ function setup(d) {
         ON CONFLICT(key) DO UPDATE SET value = excluded.value;
     `);
   }
+  d.prepare("INSERT INTO meta (key, value) VALUES ('setup_rev', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value").run(SETUP_REV);
 }
 
 function open() {
