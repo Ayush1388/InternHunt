@@ -2,6 +2,7 @@
   "name": "internhunt",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "description": "Internships and entry-level tech jobs from trusted company job boards, in one place.",
   "scripts": {
     "setup": "npm install --prefix server && npm install --prefix client",

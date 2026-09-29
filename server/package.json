@@ -16,6 +16,7 @@
     "discover": "node src/cli/discover.js"
   },
   "dependencies": {
+    "@vercel/functions": "^3.9.9",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "fast-xml-parser": "^4.5.7"

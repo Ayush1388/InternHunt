@@ -7,10 +7,11 @@ import { classify } from './lib/classify.js';
 import { trustCheck } from './lib/trust.js';
 import { getJson, mapLimit, HttpError } from './lib/http.js';
 import { norm, sha1 } from './lib/text.js';
+import { WRITABLE_DIR } from './runtime.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const COMPANIES_PATH = process.env.COMPANIES_PATH || path.join(here, 'config', 'companies.json');
-export const DISCOVERED_PATH = process.env.DISCOVERED_PATH || path.join(here, 'config', 'discovered.json');
+export const DISCOVERED_PATH = process.env.DISCOVERED_PATH || path.join(WRITABLE_DIR || path.join(here, 'config'), 'discovered.json');
 
 /** companies.json (hand-picked) merged with discovered.json (from `npm run discover`). */
 export function loadCompanies() {

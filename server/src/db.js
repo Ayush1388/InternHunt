@@ -2,9 +2,10 @@ import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { WRITABLE_DIR } from './runtime.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = process.env.DATA_DIR || path.join(here, '..', 'data');
+const DATA_DIR = process.env.DATA_DIR || WRITABLE_DIR || path.join(here, '..', 'data');
 mkdirSync(DATA_DIR, { recursive: true });
 
 export const db = new DatabaseSync(process.env.DB_PATH || path.join(DATA_DIR, 'internhunt.db'));
