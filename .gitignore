@@ -1,0 +1,10 @@
+node_modules/
+client/dist/
+server/data/
+server/.env
+*.db
+*.db-*
+.DS_Store
+
+# Per-install data
+server/src/config/discovered.json

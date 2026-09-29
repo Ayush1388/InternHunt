@@ -1,0 +1,23 @@
+{
+  "name": "internhunt-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Fetches internships and entry-level tech jobs from official job-board APIs into one searchable place.",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "refresh": "node src/cli/refresh.js",
+    "seed:sample": "node src/cli/seedSample.js",
+    "test": "node --test test/*.test.js",
+    "discover": "node src/cli/discover.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "fast-xml-parser": "^4.5.7"
+  }
+}
