@@ -5,9 +5,10 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { db, getMeta, setMeta, companyKey, syncDb, dbInfo } from './db.js';
-import { refreshAll, isRefreshing } from './ingest.js';
+import { refreshAll, isRefreshing, fillDescription, enrichDescriptions } from './ingest.js';
 import { SOURCES, TRUST } from './sources/index.js';
-import { checkPrograms, programsView, removeUserProgram } from './programs.js';
+import { checkPrograms, programsView, removeUserProgram, governmentView, syncProgramListings } from './programs.js';
+import { CATEGORIES, LANGUAGES } from './lib/classify.js';
 import { addFromLink } from './addLink.js';
 import { discoverDefault, discoveryAgeDays } from './discovery.js';
 import { background, ON_VERCEL } from './runtime.js';
@@ -18,8 +19,8 @@ const PORT = Number(process.env.PORT || 5000);
 const REFRESH_HOURS = Number(process.env.REFRESH_HOURS || 6);
 const MANUAL_REFRESH_COOLDOWN_MIN = 10;
 
-const CATEGORIES = ['sde', 'web', 'data'];
-const LEVELS = ['intern', 'entry', 'unspecified'];
+const LEVELS = ['intern', 'job'];
+const EXPS = ['0', '1', '3', '5'];
 const LOC_TAGS = ['india_onsite', 'remote_india', 'remote_worldwide'];
 const STATUSES = ['saved', 'applied', 'interview', 'offer', 'rejected', 'no_reply'];
 const REPORT_REASONS = ['scam', 'fake', 'no_reply', 'expired'];
@@ -55,6 +56,12 @@ function toJob(r, full = false) {
     category: r.category,
     level: r.level,
     minYears: r.min_years,
+    exp: r.exp ?? 0,
+    languages: JSON.parse(r.languages || '[]'),
+    deadline: r.deadline || null,
+    closedAt: r.closed_at || null,
+    appStatus: r.app_status || null,
+    isProgram: r.source === 'program',
     employmentType: r.employment_type,
     salary: r.salary,
     tags: JSON.parse(r.tags || '[]'),
@@ -91,13 +98,29 @@ app.get('/api/jobs', (req, res) => {
   };
 
   const tracked = String(req.query.tracked || '');
-  if (req.query.showClosed !== '1' && !tracked) where.push('j.is_active = 1');
-  if (!tracked) where.push(HIDDEN_SQL);
+  const today = new Date().toISOString().slice(0, 10);
+  if (!tracked) {
+    where.push(HIDDEN_SQL);
+    const d = String(req.query.deadline || '');
+    if (d === 'ended') add('(j.is_active = 0 OR j.deadline < @today)', { today });
+    else if (req.query.showClosed !== '1') add('j.is_active = 1 AND (j.deadline IS NULL OR j.deadline >= @today)', { today });
+    if (d === 'week') add("j.deadline BETWEEN @today AND date(@today, '+7 days')", { today });
+    if (d === 'month') add("j.deadline BETWEEN @today AND date(@today, '+30 days')", { today });
+    if (d === 'has') where.push('j.deadline IS NOT NULL');
+  }
   if (req.query.companyOnly === '1') where.push("j.trust = 'company'");
+  if (req.query.type === 'programs') where.push("j.source = 'program'");
+  if (req.query.type === 'roles') where.push("j.source != 'program'");
+  inList('j.level', 'lvl', csv(req.query.kind || req.query.level, LEVELS));
   inList('j.category', 'cat', csv(req.query.category, CATEGORIES));
-  inList('j.level', 'lvl', csv(req.query.level, LEVELS));
+  inList('j.exp', 'exp', csv(req.query.exp, EXPS).map(Number));
   inList('j.loc_tag', 'loc', csv(req.query.loc, LOC_TAGS));
   inList('j.source', 'src', csv(req.query.source));
+  const langs = csv(req.query.lang, LANGUAGES);
+  if (langs.length) {
+    const keys = langs.map((_, i) => `lang${i}`);
+    add(`(${keys.map((k) => `j.languages LIKE @${k}`).join(' OR ')})`, Object.fromEntries(keys.map((k, i) => [k, `%"${langs[i]}"%`])));
+  }
   if (req.query.city) add('j.city = @city', { city: String(req.query.city) });
   if (tracked === 'any') where.push('t.status IS NOT NULL');
   else if (STATUSES.includes(tracked)) add('t.status = @tracked', { tracked });
@@ -115,9 +138,14 @@ app.get('/api/jobs', (req, res) => {
   const order =
     req.query.sort === 'company'
       ? 'j.company COLLATE NOCASE ASC, j.title ASC'
-      : tracked
-        ? 't.updated_at DESC'
-        : 'COALESCE(j.posted_at, j.first_seen) DESC';
+      : req.query.sort === 'deadline'
+        ? "CASE WHEN j.deadline IS NULL THEN 1 ELSE 0 END, j.deadline ASC, COALESCE(j.posted_at, j.first_seen) DESC"
+        : req.query.deadline === 'ended'
+          ? 'COALESCE(j.deadline, j.closed_at) DESC'
+          : tracked
+            ? 't.updated_at DESC'
+            : // Newest company postings first; programs (no posting date) after them, soonest last date first.
+              "CASE WHEN j.source = 'program' THEN 1 ELSE 0 END, CASE WHEN j.source = 'program' THEN COALESCE(j.deadline, '9999') END ASC, COALESCE(j.posted_at, j.first_seen) DESC";
   const limit = Math.min(Math.max(Number(req.query.limit) || 30, 1), 100);
   const page = Math.max(Number(req.query.page) || 1, 1);
 
@@ -132,11 +160,20 @@ app.get('/api/jobs', (req, res) => {
   res.json({ total, page, limit, jobs: rows.map((r) => toJob(r)) });
 });
 
-app.get('/api/jobs/:id', (req, res) => {
-  const row = db
+const jobById = (id) =>
+  db
     .prepare(`SELECT j.*, t.status, t.notes, t.updated_at AS tracked_at, ${NO_REPLY_SQL} FROM jobs j LEFT JOIN tracking t ON t.job_id = j.id WHERE j.id = ?`)
-    .get(req.params.id);
+    .get(id);
+
+app.get('/api/jobs/:id', async (req, res) => {
+  let row = jobById(req.params.id);
   if (!row) return res.status(404).json({ error: 'Job not found' });
+  // Some sources list jobs without descriptions: fetch this one now (bounded so the page never hangs).
+  if (!row.description) {
+    const timeout = new Promise((resolve) => setTimeout(() => resolve(''), 8000));
+    const got = await Promise.race([fillDescription(row).catch(() => ''), timeout]);
+    if (got) row = jobById(req.params.id);
+  }
   res.json(toJob(row, true));
 });
 
@@ -188,6 +225,40 @@ app.delete('/api/jobs/:id/track', (req, res) => {
   res.json({ ok: true });
 });
 
+// Counts for the filter panel of one tab (internships or jobs), over what's currently open.
+app.get('/api/facets', (req, res) => {
+  const kind = LEVELS.includes(req.query.kind) ? req.query.kind : 'intern';
+  const today = new Date().toISOString().slice(0, 10);
+  const base = `FROM jobs j WHERE j.level = @kind AND ${HIDDEN_SQL}`;
+  const open = `${base} AND j.is_active = 1 AND (j.deadline IS NULL OR j.deadline >= @today)`;
+  const p = { kind, today };
+  const count = (col) =>
+    Object.fromEntries(db.prepare(`SELECT ${col} AS k, COUNT(*) AS n ${open} GROUP BY ${col}`).all(p).map((r) => [r.k, r.n]));
+  const byLanguage = {};
+  for (const r of db.prepare(`SELECT j.languages ${open} AND j.languages != '[]'`).all(p)) {
+    for (const l of JSON.parse(r.languages)) byLanguage[l] = (byLanguage[l] || 0) + 1;
+  }
+  const n = (sql, extra = {}) => db.prepare(`SELECT COUNT(*) AS n ${sql}`).get({ ...p, ...extra }).n;
+  res.json({
+    total: n(open),
+    programs: n(`${open} AND j.source = 'program'`),
+    newToday: n(`${open} AND j.first_seen >= datetime('now', '-1 day')`),
+    byCategory: count('category'),
+    byExp: count('exp'),
+    byLocation: count('loc_tag'),
+    byLanguage,
+    cities: db.prepare(`SELECT city, COUNT(*) AS n ${open} AND city IS NOT NULL GROUP BY city ORDER BY n DESC LIMIT 15`).all(p),
+    closingThisWeek: n(`${open} AND j.deadline BETWEEN @today AND date(@today, '+7 days')`),
+    closingThisMonth: n(`${open} AND j.deadline BETWEEN @today AND date(@today, '+30 days')`),
+    withDeadline: n(`${open} AND j.deadline IS NOT NULL`),
+    ended: n(`${base} AND (j.is_active = 0 OR j.deadline < @today)`),
+  });
+});
+
+app.get('/api/government', (req, res) => {
+  res.json({ programs: governmentView() });
+});
+
 app.get('/api/meta', (req, res) => {
   const count = (col) =>
     Object.fromEntries(
@@ -207,6 +278,7 @@ app.get('/api/meta', (req, res) => {
     newToday: db
       .prepare(`SELECT COUNT(*) AS n FROM jobs j WHERE j.is_active = 1 AND ${HIDDEN_SQL} AND j.first_seen >= datetime('now', '-1 day')`)
       .get().n,
+    byKind: count('level'),
     byCategory: count('category'),
     byTrust: count('trust'),
     blockedCompanies: db.prepare('SELECT COUNT(*) AS n FROM blocked_companies').get().n,
@@ -278,6 +350,7 @@ app.post('/api/refresh', (req, res) => {
 const runRefresh = () =>
   refreshAll()
     .then(() => checkPrograms())
+    .then(() => enrichDescriptions())
     .catch((err) => console.error('[refresh] failed', err));
 
 // Vercel Cron: GET /api/cron/refresh (see vercel.json). Vercel sends "Authorization: Bearer $CRON_SECRET" when set.
@@ -312,6 +385,15 @@ function refreshIfStale() {
   if (claimed && Date.now() - Date.parse(claimed) < 10 * 60000) return;
   setMeta('refresh_claimed', new Date().toISOString());
   background(runRefresh());
+}
+
+// Programs are listings too; make sure they exist before the first refresh has run.
+if (!db.prepare("SELECT 1 FROM jobs WHERE source = 'program' LIMIT 1").get()) {
+  try {
+    syncProgramListings();
+  } catch (err) {
+    console.error('[programs] could not list programs', err.message);
+  }
 }
 
 // On Vercel the app is exported as a serverless function (api/index.js) instead of listening on a port.

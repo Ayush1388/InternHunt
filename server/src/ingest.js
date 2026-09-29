@@ -3,7 +3,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { db, setMeta, transaction, companyKey } from './db.js';
 import { SOURCES, TRUST, BOARD_TYPES } from './sources/index.js';
-import { classify } from './lib/classify.js';
+import { classify, experienceBucket, detectLanguages, extractMinYears } from './lib/classify.js';
+import { extractDeadline } from './lib/dates.js';
 import { trustCheck } from './lib/trust.js';
 import { getJson, mapLimit, HttpError } from './lib/http.js';
 import { norm, sha1 } from './lib/text.js';
@@ -61,25 +62,30 @@ export function selectRelevant(rawJobs, { now = Date.now(), blocked = null } = {
 const upsert = db.prepare(`
   INSERT INTO jobs (id, dedup_key, source, target_key, company, title, description, url, locations, loc_tag, city,
                     category, level, min_years, employment_type, salary, tags, posted_at, first_seen, last_seen, is_active,
-                    trust, flags, reposts, company_key)
+                    trust, flags, reposts, company_key, exp, languages, deadline, app_status, closed_at)
   VALUES (@id, @dedup_key, @source, @target_key, @company, @title, @description, @url, @locations, @loc_tag, @city,
-          @category, @level, @min_years, @employment_type, @salary, @tags, @posted_at, @now, @now, 1,
-          @trust, @flags, @reposts, @company_key)
+          @category, @level, @min_years, @employment_type, @salary, @tags, @posted_at, @now, @now, @is_active,
+          @trust, @flags, @reposts, @company_key, @exp, @languages, @deadline, @app_status, @closed_at)
   ON CONFLICT(id) DO UPDATE SET
     dedup_key = excluded.dedup_key, company = excluded.company, title = excluded.title,
-    description = excluded.description, url = excluded.url, locations = excluded.locations,
+    url = excluded.url, locations = excluded.locations,
     loc_tag = excluded.loc_tag, city = excluded.city, category = excluded.category, level = excluded.level,
     min_years = excluded.min_years, employment_type = excluded.employment_type, salary = excluded.salary,
     tags = excluded.tags, posted_at = COALESCE(excluded.posted_at, jobs.posted_at),
-    last_seen = excluded.last_seen, is_active = 1, trust = excluded.trust, flags = excluded.flags,
-    reposts = excluded.reposts, company_key = excluded.company_key
+    last_seen = excluded.last_seen, is_active = excluded.is_active, trust = excluded.trust, flags = excluded.flags,
+    reposts = excluded.reposts, company_key = excluded.company_key, exp = excluded.exp, languages = excluded.languages,
+    deadline = COALESCE(excluded.deadline, jobs.deadline), app_status = excluded.app_status,
+    description = CASE WHEN excluded.description = '' THEN jobs.description ELSE excluded.description END,
+    closed_at = excluded.closed_at
 `);
 // Same company + title + location seen before under a different posting id that has since closed.
 const countReposts = db.prepare('SELECT COUNT(*) AS n FROM jobs WHERE dedup_key = ? AND id != ? AND is_active = 0');
 const findDuplicate = db.prepare(
   'SELECT id FROM jobs WHERE dedup_key = ? AND id != ? AND target_key != ? AND is_active = 1 LIMIT 1'
 );
-const closeMissing = db.prepare('UPDATE jobs SET is_active = 0 WHERE target_key = ? AND last_seen < ? AND is_active = 1');
+const closeMissing = db.prepare(
+  'UPDATE jobs SET is_active = 0, closed_at = @now WHERE target_key = @key AND last_seen < @now AND is_active = 1'
+);
 const recordRun = db.prepare(`
   INSERT INTO source_runs (target_key, source, label, ok, error, fetched, kept, blocked, finished_at)
   VALUES (@target_key, @source, @label, @ok, @error, @fetched, @kept, @blocked, @finished_at)
@@ -126,12 +132,62 @@ export function storeTargetJobs(target, jobs, { now = new Date().toISOString(), 
         flags: JSON.stringify(flags),
         reposts,
         company_key: companyKey(j.company || target.label),
+        exp: j.exp ?? 0,
+        languages: JSON.stringify(j.languages || []),
+        deadline: j.deadline || null,
+        app_status: j.appStatus || null,
+        is_active: j.isActive === false ? 0 : 1,
+        closed_at: j.isActive === false ? j.closedAt || now : null,
       });
       stored++;
     }
-    if (closeOthers) closeMissing.run(target.key, now);
+    if (closeOthers) closeMissing.run({ key: target.key, now });
   });
   return { stored, duplicates };
+}
+
+// ---------- Descriptions some sources only give per posting ----------
+const saveDetail = db.prepare(
+  'UPDATE jobs SET description = @description, exp = @exp, languages = @languages, min_years = @min_years, deadline = COALESCE(deadline, @deadline) WHERE id = @id'
+);
+
+/** Fetch and store the description of a job whose source lists postings without one. Returns it ('' if unavailable). */
+export async function fillDescription(row) {
+  if (row.description) return row.description;
+  const source = SOURCES.find((s) => s.id === row.source);
+  if (!source?.detail) return '';
+  const description = String((await source.detail(row)) || '').slice(0, 15000);
+  if (!description) return '';
+  const tags = JSON.parse(row.tags || '[]');
+  saveDetail.run({
+    id: row.id,
+    description,
+    exp: experienceBucket({ title: row.title, description }, row.level),
+    languages: JSON.stringify(detectLanguages({ title: row.title, tags, description })),
+    min_years: extractMinYears(description),
+    deadline: extractDeadline(description),
+  });
+  return description;
+}
+
+/** After a refresh, fill in a batch of missing descriptions (newest first) so filters and cards have them. */
+export async function enrichDescriptions({ limit = 60, log = console.log } = {}) {
+  const ids = SOURCES.filter((s) => s.detail).map((s) => `'${s.id}'`).join(',');
+  if (!ids) return 0;
+  const rows = db
+    .prepare(`SELECT * FROM jobs WHERE is_active = 1 AND (description IS NULL OR description = '') AND source IN (${ids})
+              ORDER BY COALESCE(posted_at, first_seen) DESC LIMIT ?`)
+    .all(limit);
+  let filled = 0;
+  await mapLimit(rows, 4, async (row) => {
+    try {
+      if (await fillDescription(row)) filled++;
+    } catch {
+      /* try again next refresh */
+    }
+  });
+  if (rows.length) log(`[refresh] filled ${filled}/${rows.length} missing descriptions`);
+  return filled;
 }
 
 let running = null;

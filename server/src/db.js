@@ -97,13 +97,33 @@ function setup(d) {
 
   // Columns added after the first release: add them to existing databases.
   const cols = new Set(d.prepare('PRAGMA table_info(jobs)').all().map((c) => c.name));
-  for (const [name, type] of [['trust', "TEXT NOT NULL DEFAULT 'company'"], ['flags', "TEXT NOT NULL DEFAULT '[]'"], ['reposts', 'INTEGER NOT NULL DEFAULT 0'], ['company_key', "TEXT NOT NULL DEFAULT ''"]]) {
+  for (const [name, type] of [
+    ['trust', "TEXT NOT NULL DEFAULT 'company'"], ['flags', "TEXT NOT NULL DEFAULT '[]'"], ['reposts', 'INTEGER NOT NULL DEFAULT 0'],
+    ['company_key', "TEXT NOT NULL DEFAULT ''"], ['exp', 'INTEGER NOT NULL DEFAULT 0'], ['languages', "TEXT NOT NULL DEFAULT '[]'"],
+    ['deadline', 'TEXT'], ['closed_at', 'TEXT'], ['app_status', 'TEXT'],
+  ]) {
     if (!cols.has(name)) d.exec(`ALTER TABLE jobs ADD COLUMN ${name} ${type}`);
   }
   const runCols = new Set(d.prepare('PRAGMA table_info(source_runs)').all().map((c) => c.name));
   if (!runCols.has('blocked')) d.exec('ALTER TABLE source_runs ADD COLUMN blocked INTEGER NOT NULL DEFAULT 0');
   d.exec("UPDATE jobs SET company_key = lower(trim(company)) WHERE company_key = ''");
   d.exec('CREATE INDEX IF NOT EXISTS idx_jobs_company ON jobs(company_key)');
+  d.exec('CREATE INDEX IF NOT EXISTS idx_jobs_browse ON jobs(level, is_active, category, exp)');
+
+  // v2: levels became intern/job (+ experience bucket) and roles got more specific. Map old rows so
+  // the app works right away; the next refresh (forced below) reclassifies everything properly.
+  const version = d.prepare("SELECT value FROM meta WHERE key = 'schema_version'").get()?.value;
+  if (version !== '2') {
+    d.exec(`
+      UPDATE jobs SET level = 'job' WHERE level IN ('entry', 'unspecified');
+      UPDATE jobs SET category = 'software' WHERE category = 'sde';
+      UPDATE jobs SET category = 'fullstack' WHERE category = 'web';
+      UPDATE jobs SET closed_at = last_seen WHERE is_active = 0 AND closed_at IS NULL;
+      DELETE FROM meta WHERE key = 'last_refresh';
+      INSERT INTO meta (key, value) VALUES ('schema_version', '2')
+        ON CONFLICT(key) DO UPDATE SET value = excluded.value;
+    `);
+  }
 }
 
 function open() {

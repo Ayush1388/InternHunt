@@ -4,19 +4,54 @@ export function initials(name = '') {
   return ((words[0]?.[0] || '?') + (words[1]?.[0] || '')).toUpperCase();
 }
 
-// Deterministic grayscale shade (0–5) per company so avatars vary without adding colour.
-export function shadeIndex(name = '') {
+// Deterministic index per company name so avatars vary but stay stable.
+export function shadeIndex(name = '', n = 6) {
   let h = 0;
   for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-  return h % 6;
+  return h % n;
 }
 
+const todayIST = () => new Date(Date.now() + 5.5 * 3600000).toISOString().slice(0, 10);
+
+/** Whole days from today (IST) to a YYYY-MM-DD date: 0 = today, 1 = tomorrow, -1 = yesterday. */
 export function daysUntil(date) {
-  return Math.ceil((Date.parse(`${date}T23:59:59+05:30`) - Date.now()) / 86400000);
+  return Math.round((Date.parse(`${date}T00:00:00Z`) - Date.parse(`${todayIST()}T00:00:00Z`)) / 86400000);
 }
 
-export function shortDate(date) {
-  return new Date(`${date}T00:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+export function shortDate(date, withYear = false) {
+  const d = new Date(`${String(date).slice(0, 10)}T00:00:00`);
+  const opts = { day: 'numeric', month: 'short' };
+  if (withYear || d.getFullYear() !== new Date().getFullYear()) opts.year = 'numeric';
+  return d.toLocaleDateString('en-IN', opts);
+}
+
+/**
+ * How a listing's application window reads right now.
+ * tone: 'urgent' (closes within 7 days) | 'open' | 'ended' | 'rolling' | 'none'
+ */
+export function deadlineInfo(job) {
+  const estimated = (job.flags || []).includes('deadline_estimated');
+  const ended = !job.isActive || (job.deadline && daysUntil(job.deadline) < 0);
+  if (ended) {
+    const on = job.deadline && daysUntil(job.deadline) < 0 ? job.deadline : job.closedAt;
+    if (!on) return { tone: 'ended', label: 'Ended' };
+    const d = daysUntil(String(on).slice(0, 10));
+    return { tone: 'ended', label: d === 0 ? 'Ended today' : d === -1 ? 'Ended yesterday' : `Ended ${shortDate(on)}`, date: on };
+  }
+  if (job.deadline) {
+    const d = daysUntil(job.deadline);
+    const when = d === 0 ? 'today' : d === 1 ? 'tomorrow' : shortDate(job.deadline);
+    return {
+      tone: d <= 7 ? 'urgent' : 'open',
+      label: `${estimated ? 'Usually closes' : 'Closes'} ${when}`,
+      short: d === 0 ? 'Today' : d === 1 ? 'Tomorrow' : shortDate(job.deadline),
+      left: d <= 7 ? (d === 0 ? 'last day' : `${d} day${d === 1 ? '' : 's'} left`) : null,
+      date: job.deadline,
+      estimated,
+    };
+  }
+  if (job.appStatus === 'rolling') return { tone: 'rolling', label: 'Rolling — apply anytime' };
+  return { tone: 'none', label: 'No last date listed' };
 }
 
 export function istDay(iso) {

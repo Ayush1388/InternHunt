@@ -1,5 +1,5 @@
 {
-  "_readme": "Internship programs, hiring challenges and fresher drives that are announced on official pages rather than as normal job posts. InternHunt checks each official page on every refresh (at most daily) and shows when it last changed, any upcoming deadline it can find on the page, and whether it looks open. Only official pages are listed here. Add one with { id, name, org, category, url, window, stipend, eligibility, watch }.",
+  "_readme": "Internship programs, hiring challenges and fresher drives that are announced on official pages rather than as normal job posts. InternHunt checks each official page on every refresh (at most daily) and shows when it last changed, any upcoming deadline it can find on the page, and whether it looks open. Only official pages are listed here. Add one with { id, name, org, category, url, window, stipend, eligibility, watch }. Optional: windows [[startMonth, endMonth], ...] (the usual application months, used when the page gives no date), rolling: true (always accepting), monthlyDays [from, to] (accepts on those days each month), kind 'intern'|'job' and role (a role category) for non-government programs, which are listed alongside internships/jobs. Government programs have their own section.",
   "programs": [
     {
       "id": "aicte-nip",
@@ -11,7 +11,8 @@
       "stipend": "Declared upfront per internship",
       "eligibility": "Students of AICTE-approved colleges (register with your college details)",
       "note": "Free to use. Internships count towards Academic Bank of Credits. The single biggest official internship source in India.",
-      "watch": false
+      "watch": false,
+      "rolling": true
     },
     {
       "id": "pmis",
@@ -46,7 +47,11 @@
       "window": "Applications accepted on the 1st–10th of every month",
       "stipend": "See guidelines",
       "eligibility": "UG/PG students and research scholars at recognised universities",
-      "watch": true
+      "watch": true,
+      "monthlyDays": [
+        1,
+        10
+      ]
     },
     {
       "id": "fssai",
@@ -57,7 +62,8 @@
       "window": "Quarterly batches (Jan–Mar, Apr–Jun, Jul–Sep, Oct–Dec)",
       "stipend": "₹10,000/month",
       "eligibility": "Mainly food / nutrition and related fields — check the advertisement for your branch",
-      "watch": true
+      "watch": true,
+      "rolling": true
     },
     {
       "id": "isro",
@@ -68,7 +74,8 @@
       "window": "Through each ISRO centre's website",
       "stipend": "None (unpaid)",
       "eligibility": "Indian citizens, min 60% / 6.32 CGPA; engineering students after 6th semester for projects",
-      "watch": true
+      "watch": true,
+      "rolling": true
     },
     {
       "id": "nicsi",
@@ -91,7 +98,15 @@
       "stipend": "Fellowship with stipend",
       "eligibility": "UG/PG students incl. engineering — 8 weeks with a scientist",
       "note": "The page address changes each year (fellowship2026 → fellowship2027).",
-      "watch": true
+      "watch": true,
+      "windows": [
+        [
+          11,
+          12
+        ]
+      ],
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "surge-iitk",
@@ -102,7 +117,15 @@
       "window": "Applications usually open around Jan–Feb",
       "stipend": "Stipend provided",
       "eligibility": "UG students from institutions across India",
-      "watch": true
+      "watch": true,
+      "windows": [
+        [
+          1,
+          2
+        ]
+      ],
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "google-step",
@@ -113,7 +136,15 @@
       "window": "Usually opens around Sep–Oct for next summer",
       "stipend": "Paid",
       "eligibility": "First/second-year CS undergraduates",
-      "watch": true
+      "watch": true,
+      "windows": [
+        [
+          9,
+          10
+        ]
+      ],
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "google-india-students",
@@ -125,7 +156,10 @@
       "stipend": "Paid",
       "eligibility": "Students — see each role",
       "note": "Google has no public job feed, so check this search directly.",
-      "watch": false
+      "watch": false,
+      "rolling": true,
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "gs-summer-analyst",
@@ -136,7 +170,15 @@
       "window": "Usually opens mid-year for the next summer",
       "stipend": "Paid",
       "eligibility": "Penultimate-year students",
-      "watch": true
+      "watch": true,
+      "windows": [
+        [
+          6,
+          8
+        ]
+      ],
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "jpmc-cfg",
@@ -147,7 +189,9 @@
       "window": "Hackathon; top performers get interview opportunities",
       "stipend": "—",
       "eligibility": "Students — India edition announced on this page",
-      "watch": true
+      "watch": true,
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "jpmc-india-jobs",
@@ -158,7 +202,10 @@
       "window": "Rolling",
       "stipend": "Paid",
       "eligibility": "See each role",
-      "watch": false
+      "watch": false,
+      "rolling": true,
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "flipkart-campus",
@@ -169,7 +216,15 @@
       "window": "GRiD usually runs mid-year",
       "stipend": "Internship offers and prizes for top teams",
       "eligibility": "Engineering students",
-      "watch": true
+      "watch": true,
+      "windows": [
+        [
+          6,
+          8
+        ]
+      ],
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "walmart-sparkathon",
@@ -180,7 +235,9 @@
       "window": "Announced on the page",
       "stipend": "—",
       "eligibility": "Engineering students",
-      "watch": true
+      "watch": true,
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "samsung-prism",
@@ -191,7 +248,9 @@
       "window": "Through partner colleges",
       "stipend": "—",
       "eligibility": "Students of Samsung PRISM partner colleges (ask your college)",
-      "watch": true
+      "watch": true,
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "tcs-nqt",
@@ -202,7 +261,10 @@
       "window": "Several drives a year",
       "stipend": "Full-time fresher roles (Ninja / Digital / Prime)",
       "eligibility": "Final-year and recent graduates — batch years on the page",
-      "watch": true
+      "watch": true,
+      "rolling": true,
+      "kind": "job",
+      "role": "software"
     },
     {
       "id": "infosys-grads",
@@ -213,7 +275,10 @@
       "window": "Rolling / drives",
       "stipend": "Full-time fresher roles",
       "eligibility": "Graduates — see page",
-      "watch": true
+      "watch": true,
+      "rolling": true,
+      "kind": "job",
+      "role": "software"
     },
     {
       "id": "wipro-elite",
@@ -224,7 +289,9 @@
       "window": "Yearly drive",
       "stipend": "Full-time fresher roles",
       "eligibility": "Final-year BE/BTech/ME/MTech — batch on page",
-      "watch": true
+      "watch": true,
+      "kind": "job",
+      "role": "software"
     },
     {
       "id": "cognizant-genc",
@@ -235,7 +302,10 @@
       "window": "Drives through the year",
       "stipend": "Full-time fresher roles (GenC / Next / Pro)",
       "eligibility": "Graduates — see page",
-      "watch": true
+      "watch": true,
+      "rolling": true,
+      "kind": "job",
+      "role": "software"
     },
     {
       "id": "accenture-entry",
@@ -246,7 +316,10 @@
       "window": "Rolling / drives",
       "stipend": "Full-time fresher roles",
       "eligibility": "Graduates — see page",
-      "watch": true
+      "watch": true,
+      "rolling": true,
+      "kind": "job",
+      "role": "software"
     },
     {
       "id": "gsoc",
@@ -258,7 +331,15 @@
       "stipend": "USD stipend by project size and country (about $1,500–$6,600)",
       "eligibility": "18+, students or open-source beginners worldwide",
       "note": "Pick an organisation early (Jan–Feb) and start contributing before applications open.",
-      "watch": true
+      "watch": true,
+      "windows": [
+        [
+          3,
+          3
+        ]
+      ],
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "lfx",
@@ -271,7 +352,10 @@
       "eligibility": "Students and early-career developers worldwide",
       "note": "Open LFX projects are listed live below this card.",
       "live": "lfx",
-      "watch": true
+      "watch": true,
+      "rolling": true,
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "outreachy",
@@ -282,7 +366,19 @@
       "window": "Two cohorts a year: applications ~Jan–Feb (May cohort) and ~Aug–Sep (Dec cohort)",
       "stipend": "$7,000",
       "eligibility": "People underrepresented in tech; check the eligibility rules",
-      "watch": true
+      "watch": true,
+      "windows": [
+        [
+          1,
+          2
+        ],
+        [
+          8,
+          9
+        ]
+      ],
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "mlh-fellowship",
@@ -293,7 +389,10 @@
       "window": "Several batches a year (spring, summer, fall)",
       "stipend": "Need-based educational stipend",
       "eligibility": "Students and recent graduates worldwide, 18+",
-      "watch": true
+      "watch": true,
+      "rolling": true,
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "summer-of-bitcoin",
@@ -304,7 +403,15 @@
       "window": "Applications usually open around Jan–Feb",
       "stipend": "Paid in Bitcoin (~$3,000)",
       "eligibility": "University students worldwide",
-      "watch": true
+      "watch": true,
+      "windows": [
+        [
+          1,
+          2
+        ]
+      ],
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "c4gt",
@@ -315,7 +422,15 @@
       "window": "Summer mentoring; applications usually around April",
       "stipend": "Stipend for selected contributors",
       "eligibility": "Indian students and developers",
-      "watch": true
+      "watch": true,
+      "windows": [
+        [
+          4,
+          4
+        ]
+      ],
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "gssoc",
@@ -326,7 +441,15 @@
       "window": "Registrations usually around Feb–Mar",
       "stipend": "Certificates, swag, prizes (unpaid)",
       "eligibility": "Open to all; beginner-friendly",
-      "watch": true
+      "watch": true,
+      "windows": [
+        [
+          2,
+          3
+        ]
+      ],
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "season-of-kde",
@@ -337,7 +460,15 @@
       "window": "Applications in Dec–Jan; work Jan–Mar",
       "stipend": "Certificate and swag (unpaid)",
       "eligibility": "Open to all",
-      "watch": true
+      "watch": true,
+      "windows": [
+        [
+          12,
+          1
+        ]
+      ],
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "season-of-docs",
@@ -348,7 +479,9 @@
       "window": "Announced yearly",
       "stipend": "Paid via the open-source organisation",
       "eligibility": "Technical writers",
-      "watch": true
+      "watch": true,
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "fossee",
@@ -359,7 +492,15 @@
       "window": "Applications usually Feb–Mar",
       "stipend": "Stipend-based",
       "eligibility": "Indian UG/PG students",
-      "watch": true
+      "watch": true,
+      "windows": [
+        [
+          2,
+          3
+        ]
+      ],
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "esoc",
@@ -370,7 +511,15 @@
       "window": "Batches from ~Feb to Apr",
       "stipend": "Project-dependent",
       "eligibility": "Contributors worldwide",
-      "watch": true
+      "watch": true,
+      "windows": [
+        [
+          2,
+          4
+        ]
+      ],
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "igalia",
@@ -381,7 +530,10 @@
       "window": "Rolling openings",
       "stipend": "Paid (about $7,000)",
       "eligibility": "Students and new contributors worldwide",
-      "watch": true
+      "watch": true,
+      "rolling": true,
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "osre",
@@ -392,7 +544,15 @@
       "window": "Summer; proposals usually Feb–Apr",
       "stipend": "Paid",
       "eligibility": "Students worldwide",
-      "watch": true
+      "watch": true,
+      "windows": [
+        [
+          2,
+          4
+        ]
+      ],
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "hacktoberfest",
@@ -404,7 +564,15 @@
       "stipend": "Digital rewards (not an internship)",
       "eligibility": "Everyone",
       "note": "A good first step towards GSoC / LFX / Outreachy.",
-      "watch": true
+      "watch": true,
+      "windows": [
+        [
+          10,
+          10
+        ]
+      ],
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "spark-iitr",
@@ -415,7 +583,15 @@
       "window": "Applications usually around Jan–Feb",
       "stipend": "Stipend provided",
       "eligibility": "UG students from institutions across India",
-      "watch": true
+      "watch": true,
+      "windows": [
+        [
+          1,
+          2
+        ]
+      ],
+      "kind": "intern",
+      "role": "software"
     },
     {
       "id": "msr-india-rf",
@@ -426,7 +602,10 @@
       "window": "Rolling / yearly cycle",
       "stipend": "Paid",
       "eligibility": "Recent BTech/MTech graduates (a strong option right after graduation)",
-      "watch": true
+      "watch": true,
+      "rolling": true,
+      "kind": "intern",
+      "role": "ml"
     },
     {
       "id": "meity-wblp",
@@ -437,7 +616,8 @@
       "window": "Rolling; projects listed on the portal",
       "stipend": "Paid",
       "eligibility": "7th/8th-semester engineering students and BTech/MCA graduates of the last 3 years",
-      "watch": true
+      "watch": true,
+      "rolling": true
     },
     {
       "id": "drdo",
@@ -448,7 +628,8 @@
       "window": "Labs post notices through the year",
       "stipend": "Varies by lab",
       "eligibility": "Engineering students — see each lab notice",
-      "watch": true
+      "watch": true,
+      "rolling": true
     },
     {
       "id": "explore-microsoft",
@@ -459,7 +640,15 @@
       "window": "Usually opens in the second half of the year for next summer",
       "stipend": "Paid",
       "eligibility": "First- and second-year undergrads; 8 weeks at India campuses",
-      "watch": true
+      "watch": true,
+      "windows": [
+        [
+          7,
+          12
+        ]
+      ],
+      "kind": "intern",
+      "role": "software"
     }
   ]
 }

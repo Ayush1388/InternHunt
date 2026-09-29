@@ -1,10 +1,11 @@
 import { getJson, postJson, sleep } from '../lib/http.js';
+import { htmlToText } from '../lib/text.js';
 
 // Workday career sites expose the JSON their own search page uses (not an official API).
 // Many large employers with Indian offices use Workday. Add one in companies.json from any
 // job URL like https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/...
 //   { "host": "nvidia.wd5.myworkdayjobs.com", "tenant": "nvidia", "site": "NVIDIAExternalCareerSite", "name": "NVIDIA" }
-// The list endpoint has no descriptions, so we search for early-career keywords only.
+// The list endpoint has no descriptions; `detail` fetches one posting's description when needed.
 const SEARCHES = ['intern', 'internship', 'graduate', 'entry level', 'associate software engineer', 'fresher'];
 const PAGES_PER_SEARCH = 3;
 
@@ -54,6 +55,14 @@ export default {
         },
       };
     }),
+  async detail(row) {
+    const [, tenant, site] = row.target_key.split(':');
+    const rest = row.id.slice('workday:'.length); // "<host>:<externalPath>"
+    const host = rest.slice(0, rest.indexOf(':'));
+    const externalPath = rest.slice(rest.indexOf(':') + 1);
+    const d = await getJson(`https://${host}/wday/cxs/${tenant}/${site}${externalPath}`);
+    return htmlToText(d?.jobPostingInfo?.jobDescription || '');
+  },
   parse(raw, target) {
     return (raw?.jobPostings || []).map((p) => ({
       source: 'workday',

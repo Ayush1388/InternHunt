@@ -26,7 +26,7 @@ function Ring({ value, max, size = 132 }) {
         fill="none"
         strokeWidth="10"
         strokeLinecap="round"
-        className="stroke-foreground transition-[stroke-dashoffset] duration-700 ease-out"
+        className="stroke-primary transition-[stroke-dashoffset] duration-700 ease-out"
         strokeDasharray={c}
         strokeDashoffset={c * (1 - pct)}
       />
@@ -130,7 +130,7 @@ export default function Applications({ meta, version, onOpen, onTrack, onReport 
               <div
                 key={d}
                 title={d}
-                className={cn('aspect-square rounded-[5px] border transition-colors', on ? 'border-transparent bg-foreground' : 'bg-muted/60')}
+                className={cn('aspect-square rounded-[5px] border transition-colors', on ? 'border-transparent bg-primary' : 'bg-muted/60')}
               />
             ))}
           </div>

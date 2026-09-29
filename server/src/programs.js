@@ -9,7 +9,11 @@ import { fileURLToPath } from 'node:url';
 import { db } from './db.js';
 import { getText, getJson, mapLimit } from './lib/http.js';
 import { htmlToText, sha1 } from './lib/text.js';
-import { DISCOVERED_PATH } from './ingest.js';
+import { DISCOVERED_PATH, storeTargetJobs } from './ingest.js';
+import { classifyCategory, detectLanguages } from './lib/classify.js';
+import { extractDeadline } from './lib/dates.js';
+
+export { extractDeadline };
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const PROGRAMS_PATH = path.join(here, 'config', 'programs.json');
@@ -122,42 +126,6 @@ async function refreshLiveFeeds(programs, log) {
   }
 }
 
-const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
-const MON = '(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t(?:ember)?)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)';
-const DATE_RES = [
-  { re: new RegExp(`\\b(\\d{1,2})(?:st|nd|rd|th)?[\\s-]+(?:of\\s+)?${MON}\\.?,?[\\s-]+(\\d{4})\\b`, 'gi'), f: (m) => [m[3], m[2], m[1]] },
-  { re: new RegExp(`\\b${MON}\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?,?\\s+(\\d{4})\\b`, 'gi'), f: (m) => [m[3], m[1], m[2]] },
-  { re: /\b(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})\b/g, f: (m) => [m[3], Number(m[2]), m[1]] }, // dd/mm/yyyy (Indian format)
-];
-const DEADLINE_WORDS = /(last date|deadline|apply by|apply before|closes? on|closing date|applications? close|till|until|due date|registration (ends|closes)|last day)/i;
-
-function toDate([y, mon, d]) {
-  const month = typeof mon === 'number' ? mon - 1 : MONTHS.indexOf(String(mon).slice(0, 3).toLowerCase());
-  const date = new Date(Date.UTC(Number(y), month, Number(d)));
-  return month >= 0 && month < 12 && date.getUTCDate() === Number(d) ? date : null;
-}
-
-/** Nearest future date that appears right after a deadline phrase, as YYYY-MM-DD, or null. */
-export function extractDeadline(text = '', now = new Date()) {
-  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-  let best = null;
-  const lower = text;
-  let m;
-  const kw = new RegExp(DEADLINE_WORDS.source, 'gi');
-  while ((m = kw.exec(lower)) !== null) {
-    const windowText = lower.slice(m.index, m.index + 120);
-    for (const { re, f } of DATE_RES) {
-      re.lastIndex = 0;
-      let d;
-      while ((d = re.exec(windowText)) !== null) {
-        const date = toDate(f(d));
-        if (date && date.getTime() >= today && date.getTime() - today < 400 * 86400000 && (!best || date < best)) best = date;
-      }
-    }
-  }
-  return best ? best.toISOString().slice(0, 10) : null;
-}
-
 /** 'open' | 'closed' | null, from wording on the page. */
 export function detectStatus(text = '') {
   if (/\b(applications?|registrations?|portal)\s+(are\s+|is\s+|has\s+been\s+|have\s+been\s+)?(now\s+)?closed\b|\bno longer accepting\b/i.test(text)) return 'closed';
@@ -211,6 +179,168 @@ export async function checkPrograms({ force = false, log = console.log, onlyIds 
     checked++;
   });
   if (checked) log(`[programs] checked ${checked} official pages`);
+  const { stored } = syncProgramListings();
+  log(`[programs] ${stored} program listings`);
+}
+
+const DAY = 86400000;
+const ymd = (d) => d.toISOString().slice(0, 10);
+const startOfDay = (d) => new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+
+/** Each application window [startMonth, endMonth] as concrete date ranges around `year`. */
+function windowRanges(windows, year) {
+  const out = [];
+  for (const y of [year - 1, year, year + 1]) {
+    for (const [a, b] of windows) {
+      const start = new Date(Date.UTC(y, a - 1, 1));
+      const end = new Date(Date.UTC(b < a ? y + 1 : y, b, 0)); // last day of month b
+      out.push({ start, end });
+    }
+  }
+  return out.sort((x, y) => x.start - y.start);
+}
+
+/**
+ * Whether a program is accepting applications, and until when.
+ * status: 'open' | 'closed' | 'rolling' | 'unknown'. Dates the official page states win; otherwise the
+ * program's usual window is used and `estimated` is true.
+ */
+export function programStatus(p, state = {}, now = new Date()) {
+  const today = startOfDay(now);
+  const t = ymd(today);
+  const out = { status: 'unknown', deadline: null, estimated: false, opensOn: null, endedOn: null };
+  if (state.deadline && state.deadline >= t) return { ...out, status: 'open', deadline: state.deadline };
+
+  let usual = null;
+  if (p.monthlyDays) {
+    const [from, to] = p.monthlyDays;
+    const y = today.getUTCFullYear();
+    const m = today.getUTCMonth();
+    const day = today.getUTCDate();
+    if (day >= from && day <= to) usual = { status: 'open', deadline: ymd(new Date(Date.UTC(y, m, to))) };
+    else if (day < from) usual = { status: 'closed', opensOn: ymd(new Date(Date.UTC(y, m, from))), endedOn: ymd(new Date(Date.UTC(y, m - 1, to))) };
+    else usual = { status: 'closed', opensOn: ymd(new Date(Date.UTC(y, m + 1, from))), endedOn: ymd(new Date(Date.UTC(y, m, to))) };
+  } else if (p.windows?.length) {
+    const ranges = windowRanges(p.windows, today.getUTCFullYear());
+    const cur = ranges.find((r) => r.start <= today && today <= r.end);
+    const prev = ranges.filter((r) => r.end < today).pop();
+    const next = ranges.find((r) => r.start > today);
+    usual = cur
+      ? { status: 'open', deadline: ymd(cur.end) }
+      : { status: 'closed', endedOn: prev ? ymd(prev.end) : null, opensOn: next ? ymd(next.start) : null };
+  }
+
+  if (state.status === 'closed') return { ...out, status: 'closed', opensOn: usual?.status === 'closed' ? usual.opensOn : null, endedOn: usual?.endedOn || null };
+  if (usual?.status === 'open' && state.status !== 'open') return { ...out, ...usual, estimated: true };
+  if (state.status === 'open') return { ...out, status: 'open', deadline: usual?.status === 'open' ? usual.deadline : null, estimated: usual?.status === 'open' };
+  if (p.rolling) return { ...out, status: 'rolling' };
+  if (usual) return { ...out, ...usual, estimated: true };
+  return out;
+}
+
+const CATEGORY_LABEL = {
+  company_program: 'Company program', fresher_drive: 'Fresher hiring drive', open_source: 'Open-source program',
+  research: 'Research internship', added: 'Program you added',
+};
+
+function programText(p, st) {
+  const lines = [p.window, '', 'About', `${CATEGORY_LABEL[p.category] || 'Program'} run by ${p.org}.`];
+  if (st.status === 'closed' && st.opensOn) {
+    const next = new Date(`${st.opensOn}T00:00:00Z`).toLocaleDateString('en-IN', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+    lines.push(`Applications are closed now; the next round usually opens in ${next}.`);
+  }
+  if (p.eligibility) lines.push('', 'Eligibility', p.eligibility);
+  if (p.stipend) lines.push('', 'Stipend / pay', p.stipend);
+  if (p.note) lines.push('', 'Good to know', p.note);
+  if (st.estimated) lines.push('', 'Dates shown are the usual application window. Check the official page for this year\'s exact dates.');
+  return lines.join('\n');
+}
+
+/**
+ * Non-government programs are internships or jobs too, so they're stored as listings (source 'program')
+ * that the same filters, deadlines and tracker apply to. LFX projects open right now are listed one by one.
+ */
+export function syncProgramListings(now = new Date()) {
+  const state = Object.fromEntries(db.prepare('SELECT * FROM programs_state').all().map((s) => [s.id, s]));
+  const t = ymd(startOfDay(now));
+  const jobs = [];
+  for (const p of loadPrograms()) {
+    if (p.category === 'government') continue;
+    const st = programStatus(p, state[p.id], now);
+    const remote = p.category === 'open_source';
+    jobs.push({
+      source: 'program',
+      sourceJobId: p.id,
+      company: p.org,
+      title: p.name,
+      description: programText(p, st),
+      url: p.url,
+      locations: [remote ? 'Remote' : 'India'],
+      locTag: remote ? 'remote_worldwide' : 'india_onsite',
+      city: null,
+      category: p.role || 'software',
+      level: p.kind || 'intern',
+      exp: 0,
+      languages: [],
+      minYears: null,
+      deadline: st.deadline,
+      employmentType: CATEGORY_LABEL[p.category] || 'Program',
+      salary: p.stipend && p.stipend !== '—' ? p.stipend : null,
+      tags: [CATEGORY_LABEL[p.category] || 'Program'],
+      postedAt: null,
+      trust: 'company',
+      flags: st.estimated && st.deadline ? ['deadline_estimated'] : [],
+      appStatus: st.status,
+      isActive: st.status !== 'closed',
+      closedAt: st.endedOn,
+    });
+    if (p.live) {
+      const items = db.prepare('SELECT data FROM program_items WHERE program_id = ?').all(p.id).map((r) => JSON.parse(r.data));
+      for (const it of items) {
+        if (it.deadline && it.deadline < t) continue;
+        const skills = it.skills || [];
+        jobs.push({
+          source: 'program',
+          sourceJobId: `${p.id}:${it.id}`,
+          company: it.org || p.org,
+          title: `${it.title} (${p.name})`,
+          description: [`${p.name} project${it.org ? ` with ${it.org}` : ''}. Paid, remote mentorship.`, '',
+            'Skills needed', skills.join(', ') || 'See the project page', '', 'When', p.window].join('\n'),
+          url: it.url,
+          locations: ['Remote'],
+          locTag: 'remote_worldwide',
+          city: null,
+          category: classifyCategory(it.title, skills) || 'software',
+          level: 'intern',
+          exp: 0,
+          languages: detectLanguages({ title: it.title, tags: skills }),
+          minYears: null,
+          deadline: it.deadline || null,
+          employmentType: 'Open-source mentorship',
+          salary: p.stipend && p.stipend !== '—' ? p.stipend : null,
+          tags: skills.slice(0, 6),
+          postedAt: null,
+          trust: 'company',
+          flags: [],
+          appStatus: 'open',
+        });
+      }
+    }
+  }
+  return storeTargetJobs({ key: 'programs', label: 'Programs' }, jobs, { now: now.toISOString() });
+}
+
+/** Government programs with whether they're accepting applications now. Open ones first. */
+export function governmentView(now = new Date()) {
+  const state = Object.fromEntries(db.prepare('SELECT * FROM programs_state').all().map((s) => [s.id, s]));
+  const order = { open: 0, rolling: 1, unknown: 2, closed: 3 };
+  return loadPrograms()
+    .filter((p) => p.category === 'government')
+    .map((p) => {
+      const s = state[p.id] || {};
+      return { ...p, ...programStatus(p, s, now), checkedAt: s.checked_at || null, changedAt: s.changed_at || null, error: s.error || null };
+    })
+    .sort((a, b) => order[a.status] - order[b.status] || (a.deadline || '9999').localeCompare(b.deadline || '9999'));
 }
 
 /** Programs with their latest state, plus careers pages discovery couldn't read. */

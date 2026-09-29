@@ -1,8 +1,8 @@
-import { toIso } from '../lib/text.js';
+import { toIso, htmlToText } from '../lib/text.js';
 import { getJson, sleep } from '../lib/http.js';
 
 // Microsoft's careers site (apply.careers.microsoft.com) serves search results as public JSON.
-// The list has no descriptions, so level comes from the title (e.g. "Software Engineer Intern").
+// The list has no descriptions; `detail` fetches one position's description when needed.
 const QUERIES = ['intern', 'internship', 'software engineer', 'new grad', 'data scientist', 'research intern'];
 const PAGES = 5;
 
@@ -26,6 +26,16 @@ export default {
   label: 'Microsoft',
   minIntervalMinutes: 180,
   targets: () => [{ key: 'microsoft', label: 'Microsoft (careers.microsoft.com)', company: 'Microsoft', fetch: fetchAll }],
+  async detail(row) {
+    const id = row.id.split(':')[1];
+    const qs = new URLSearchParams({ position_id: id, domain: 'microsoft.com', hl: 'en' });
+    const res = await getJson(`https://apply.careers.microsoft.com/api/pcsx/position_details?${qs}`);
+    const d = res?.data || res || {};
+    const parts = [d.jobDescription, d.job_description, d.description, d.qualifications, d.responsibilities].filter(
+      (x) => typeof x === 'string' && x.trim()
+    );
+    return htmlToText(parts.join('\n'));
+  },
   parse(raw) {
     return (raw?.positions || [])
       .filter((p) => (p.standardizedLocations || []).includes('IN') || (p.locations || []).some((l) => /india/i.test(l)))

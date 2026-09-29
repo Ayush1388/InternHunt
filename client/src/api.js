@@ -15,6 +15,8 @@ async function request(path, options = {}) {
 
 export const api = {
   jobs: (params) => request(`/jobs?${new URLSearchParams(params)}`),
+  facets: (kind) => request(`/facets?kind=${kind}`),
+  government: () => request('/government'),
   job: (id) => request(`/jobs/${encodeURIComponent(id)}`),
   meta: () => request('/meta'),
   refresh: () => request('/refresh', { method: 'POST' }),
@@ -31,8 +33,8 @@ export const api = {
 };
 
 export const LABELS = {
-  category: { sde: 'SDE / Software', web: 'Web / Full-stack', data: 'Data / ML' },
-  level: { intern: 'Internship', entry: 'Entry-level', unspecified: 'Level not stated' },
+  level: { intern: 'Internship', job: 'Job' },
+  exp: { 0: 'No experience', 1: '1+ years', 3: '3+ years', 5: '5+ years' },
   loc: { india_onsite: 'India · on-site/hybrid', remote_india: 'Remote · India/APAC', remote_worldwide: 'Remote · worldwide' },
   status: { saved: 'Saved', applied: 'Applied', interview: 'Interviewing', offer: 'Offer', rejected: 'Rejected', no_reply: 'No reply' },
   trust: {
@@ -44,6 +46,7 @@ export const LABELS = {
     open_long: 'Open 45+ days — may be a ghost job',
     reposted: 'Reposted after closing',
     thin_description: 'Very short description',
+    deadline_estimated: 'Last date is the usual one — confirm on the official page',
   },
   reportReasons: {
     scam: 'Scam — asks for money or personal details',
@@ -56,7 +59,7 @@ export const LABELS = {
     personio: 'Personio', smartrecruiters: 'SmartRecruiters', workday: 'Workday', amazon: 'amazon.jobs',
     microsoft: 'Microsoft Careers', hn: 'HN Who is Hiring',
     weworkremotely: 'We Work Remotely', remotive: 'Remotive', remoteok: 'Remote OK',
-    workingnomads: 'Working Nomads', themuse: 'The Muse',
+    workingnomads: 'Working Nomads', themuse: 'The Muse', program: 'Official program page',
   },
 };
 

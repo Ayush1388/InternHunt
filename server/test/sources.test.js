@@ -35,7 +35,7 @@ test('working nomads and the muse', () => {
 
 test('company ATS boards: workable, recruitee, personio, workday', () => {
   assert.deepEqual(kept('workable').map((j) => [j.level, j.city]), [['intern', 'Noida']]);
-  assert.deepEqual(kept('recruitee').map((j) => [j.level, j.city]), [['entry', 'Chennai']]);
+  assert.deepEqual(kept('recruitee').map((j) => [j.level, j.city]), [['job', 'Chennai']]);
   assert.deepEqual(kept('personio').map((j) => [j.level, j.city]), [['intern', 'Pune']]);
   const wd = kept('workday');
   assert.equal(wd.length, 1);

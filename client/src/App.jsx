@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
-import { Briefcase, Command as CommandIcon, Landmark, ListChecks, Plus, RefreshCw, Search, ServerCog } from 'lucide-react';
+import { Briefcase, CalendarClock, Command as CommandIcon, GraduationCap, Landmark, ListChecks, Plus, RefreshCw, Search, ServerCog } from 'lucide-react';
 import { api, store, timeAgo } from '@/api';
 import { cn } from '@/lib/utils';
 import { compact } from '@/lib/format';
@@ -10,28 +10,46 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { ThemeToggle } from '@/components/theme';
 import Browse from '@/components/Browse';
 import Applications from '@/components/Applications';
-import Programs from '@/components/Programs';
+import Government from '@/components/Government';
 import JobSheet from '@/components/JobSheet';
 import AddLinkDialog from '@/components/AddLinkDialog';
 import SourcesSheet from '@/components/SourcesSheet';
 import CommandMenu from '@/components/CommandMenu';
 
-const DEFAULT_FILTERS = { q: '', category: [], level: ['intern', 'entry'], loc: [], city: '', source: '', companyOnly: false, sort: 'newest', hideApplied: true };
+const DEFAULT_FILTERS = {
+  q: '', type: '', deadline: '', category: [], exp: [], lang: [], loc: [], city: '', companyOnly: false, sort: 'newest', hideApplied: true,
+};
 const PAGE_SIZE = 30;
 const TABS = [
-  { id: 'browse', label: 'Browse', icon: Briefcase },
-  { id: 'applications', label: 'Applications', icon: ListChecks },
-  { id: 'programs', label: 'Programs', icon: Landmark },
+  { id: 'intern', label: 'Internships', short: 'Interns', icon: GraduationCap },
+  { id: 'job', label: 'Jobs', short: 'Jobs', icon: Briefcase },
+  { id: 'government', label: 'Government', short: 'Govt', icon: Landmark },
+  { id: 'applications', label: 'Tracker', short: 'Tracker', icon: ListChecks },
 ];
+const HERO = {
+  intern: { title: 'internships', sub: 'From company careers pages and official programs — with last dates, requirements and scam filtering.' },
+  job: { title: 'jobs', sub: 'Fresher to 5+ years, from companies’ own hiring systems. Filter by role, language and experience.' },
+  government: { title: 'Government programs', sub: 'Official internships from ministries and PSUs, with whether each one is accepting applications right now.' },
+  applications: { title: 'Your pipeline', sub: 'Every application in one place. Small steps, every day.' },
+};
 
-function toParams(f, page) {
-  const p = { page, limit: PAGE_SIZE };
+function loadFilters(kind) {
+  const saved = store.get(`ih.filters.${kind}`, {});
+  const f = { ...DEFAULT_FILTERS, ...saved, q: '' };
+  for (const k of ['category', 'exp', 'lang', 'loc']) if (!Array.isArray(f[k])) f[k] = [];
+  return f;
+}
+
+function toParams(kind, f, page) {
+  const p = { kind, page, limit: PAGE_SIZE };
   if (f.q.trim()) p.q = f.q.trim();
+  if (f.type) p.type = f.type;
+  if (f.deadline) p.deadline = f.deadline;
   if (f.category.length) p.category = f.category.join(',');
-  if (f.level.length) p.level = f.level.join(',');
+  if (kind === 'job' && f.exp.length) p.exp = f.exp.join(',');
+  if (f.lang.length) p.lang = f.lang.join(',');
   if (f.loc.length) p.loc = f.loc.join(',');
   if (f.city) p.city = f.city;
-  if (f.source) p.source = f.source;
   if (f.sort !== 'newest') p.sort = f.sort;
   if (f.hideApplied) p.hideApplied = '1';
   if (f.companyOnly) p.companyOnly = '1';
@@ -41,7 +59,7 @@ function toParams(f, page) {
 function Logo() {
   return (
     <div className="flex items-center gap-2.5">
-      <div className="grid size-8 place-items-center rounded-lg bg-foreground text-background shadow-sm">
+      <div className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-primary to-brand-2 text-white shadow-sm shadow-primary/30">
         <svg viewBox="0 0 32 32" className="size-5" aria-hidden="true">
           <path d="M9 23V9h3v14zm6 0V9h3l4.2 8.1V9H25v14h-2.8L18 14.9V23z" fill="currentColor" />
         </svg>
@@ -52,8 +70,19 @@ function Logo() {
 }
 
 export default function App() {
-  const [tab, setTab] = useState(() => store.get('ih.tab', 'browse'));
-  const [filters, setFilters] = useState(() => ({ ...DEFAULT_FILTERS, ...store.get('ih.filters', {}), q: '' }));
+  const [tab, setTab] = useState(() => {
+    const t = store.get('ih.tab', 'intern');
+    return { browse: 'intern', programs: 'government' }[t] || (TABS.some((x) => x.id === t) ? t : 'intern');
+  });
+  const [allFilters, setAllFilters] = useState(() => ({ intern: loadFilters('intern'), job: loadFilters('job') }));
+  const kind = tab === 'job' ? 'job' : 'intern';
+  const isListTab = tab === 'intern' || tab === 'job';
+  const filters = allFilters[kind];
+  const setFilters = useCallback(
+    (update) => setAllFilters((all) => ({ ...all, [kind]: typeof update === 'function' ? update(all[kind]) : update })),
+    [kind]
+  );
+  const [facets, setFacets] = useState({});
   const [query, setQuery] = useState('');
   const [meta, setMeta] = useState(null);
   const [jobs, setJobs] = useState([]);
@@ -71,6 +100,10 @@ export default function App() {
   const requestId = useRef(0);
 
   const loadMeta = useCallback(() => api.meta().then(setMeta).catch(() => {}), []);
+  const loadFacets = useCallback(
+    () => ['intern', 'job'].forEach((k) => api.facets(k).then((f) => setFacets((all) => ({ ...all, [k]: f }))).catch(() => {})),
+    []
+  );
 
   const loadJobs = useCallback(
     async (nextPage = 1) => {
@@ -78,32 +111,42 @@ export default function App() {
       setLoading(true);
       setError('');
       try {
-        const res = await api.jobs(toParams({ ...filters, q: query }, nextPage));
+        if (!isListTab) return;
+        const res = await api.jobs(toParams(kind, { ...filters, q: query }, nextPage));
         if (id !== requestId.current) return;
         setJobs((prev) => (nextPage === 1 ? res.jobs : [...prev, ...res.jobs]));
         setTotal(res.total);
         setPage(nextPage);
       } catch (e) {
-        if (id === requestId.current) setError(`Couldn't reach the server — is it running? (${e.message})`);
+        if (id === requestId.current) setError(`Couldn't reach the server. ${e.message}`);
       } finally {
         if (id === requestId.current) setLoading(false);
       }
     },
-    [filters, query]
+    [filters, query, kind, isListTab]
   );
 
   useEffect(() => {
     const t = setTimeout(() => setQuery(filters.q), 250);
     return () => clearTimeout(t);
   }, [filters.q]);
-  useEffect(() => store.set('ih.filters', { ...filters, q: '' }), [filters]);
+  useEffect(() => {
+    store.set('ih.filters.intern', { ...allFilters.intern, q: '' });
+    store.set('ih.filters.job', { ...allFilters.job, q: '' });
+  }, [allFilters]);
+  useEffect(() => {
+    setQuery(filters.q);
+    setJobs([]);
+    setTotal(0);
+  }, [kind]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => store.set('ih.tab', tab), [tab]);
   useEffect(() => {
     loadJobs(1);
   }, [loadJobs]);
   useEffect(() => {
     loadMeta();
-  }, [loadMeta]);
+    loadFacets();
+  }, [loadMeta, loadFacets]);
 
   // Poll while a server refresh is running.
   useEffect(() => {
@@ -113,6 +156,7 @@ export default function App() {
       if (m && !m.refreshing) {
         setMeta(m);
         loadJobs(1);
+        loadFacets();
         const s = m.lastSummary;
         toast(s ? `Refreshed — ${s.stored} relevant roles from ${s.fetched.toLocaleString('en-IN')} postings` : 'Refreshed');
       }
@@ -133,12 +177,12 @@ export default function App() {
       if (typing) return;
       if (e.key === '/') {
         e.preventDefault();
-        setTab('browse');
+        setTab((t) => (t === 'job' ? 'job' : 'intern'));
         setTimeout(() => searchRef.current?.focus(), 0);
       } else if (e.key === 'g') {
         gPressed = Date.now();
       } else if (Date.now() - gPressed < 800) {
-        const map = { b: 'browse', a: 'applications', p: 'programs' };
+        const map = { i: 'intern', j: 'job', p: 'government', a: 'applications', t: 'applications' };
         if (map[e.key]) setTab(map[e.key]);
         gPressed = 0;
       }
@@ -171,6 +215,7 @@ export default function App() {
       if (status === 'saved' && !prev.status) toast('Saved', { description: job.title });
       if (status === 'applied' && prev.status !== 'applied') toast('Marked as applied', { description: `${job.company} · keep the streak going` });
       loadMeta();
+      loadFacets();
       setVersion((v) => v + 1);
     } catch (e) {
       patchJob(job.id, prev);
@@ -193,6 +238,7 @@ export default function App() {
         });
       }
       loadMeta();
+      loadFacets();
       setVersion((v) => v + 1);
     } catch (e) {
       toast(`Couldn't report: ${e.message}`);
@@ -223,21 +269,21 @@ export default function App() {
       <header className="sticky top-0 z-40 border-b border-border/60 bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/55">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:px-6">
           <Logo />
-          <nav className="ml-4 hidden items-center gap-1 md:flex" aria-label="Main">
+          <nav className="ml-4 hidden items-center gap-0.5 rounded-full border bg-muted/40 p-1 md:flex" aria-label="Main">
             {TABS.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 onClick={() => setTab(id)}
                 aria-current={tab === id ? 'page' : undefined}
                 className={cn(
-                  'relative flex h-8 items-center gap-2 rounded-md px-3 text-sm transition-colors',
-                  tab === id ? 'bg-accent text-foreground' : 'text-muted-foreground hover:text-foreground'
+                  'relative flex h-8 items-center gap-2 rounded-full px-3.5 text-sm font-medium transition-all duration-200',
+                  tab === id ? 'bg-card text-foreground shadow-sm ring-1 ring-border' : 'text-muted-foreground hover:text-foreground'
                 )}
               >
-                <Icon className="size-4" />
+                <Icon className={cn('size-4', tab === id && 'text-primary')} />
                 {label}
                 {id === 'applications' && trackedTotal > 0 && (
-                  <span className="rounded-full bg-foreground px-1.5 text-[10px] font-semibold tabular text-background">{trackedTotal}</span>
+                  <span className="rounded-full bg-primary px-1.5 text-[10px] font-semibold tabular text-primary-foreground">{trackedTotal}</span>
                 )}
               </button>
             ))}
@@ -282,56 +328,70 @@ export default function App() {
       </header>
 
       <main className="mx-auto max-w-6xl px-4 pb-28 sm:px-6 md:pb-16">
-        <section className="flex flex-wrap items-end justify-between gap-6 pt-10 pb-8 sm:pt-14">
+        <section key={tab} className="flex flex-wrap items-end justify-between gap-6 pt-10 pb-8 sm:pt-14">
           <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-500">
-            {tab === 'browse' && (
-              <>
-                <h1 className="text-gradient text-4xl font-semibold tracking-tighter sm:text-5xl">
-                  <span className="tabular">{compact(meta?.total || 0)}</span> open roles
-                </h1>
-                <p className="mt-3 text-muted-foreground">
-                  Internships and fresher roles from companies' own careers pages — filtered for scams.
-                </p>
-              </>
+            {isListTab ? (
+              <h1 className="text-4xl font-semibold tracking-tighter sm:text-5xl">
+                <span className="text-brand tabular">{compact(facets[kind]?.total || 0)}</span>{' '}
+                <span className="text-gradient">open {HERO[tab].title}</span>
+              </h1>
+            ) : (
+              <h1 className="text-gradient text-4xl font-semibold tracking-tighter sm:text-5xl">{HERO[tab].title}</h1>
             )}
-            {tab === 'applications' && (
-              <>
-                <h1 className="text-gradient text-4xl font-semibold tracking-tighter sm:text-5xl">Your pipeline</h1>
-                <p className="mt-3 text-muted-foreground">Every application in one place. Small steps, every day.</p>
-              </>
-            )}
-            {tab === 'programs' && (
-              <>
-                <h1 className="text-gradient text-4xl font-semibold tracking-tighter sm:text-5xl">Programs & drives</h1>
-                <p className="mt-3 text-muted-foreground">Open source, government, research and hiring drives — from official pages only.</p>
-              </>
+            <p className="mt-3 max-w-xl text-muted-foreground">{HERO[tab].sub}</p>
+            {isListTab && (
+              <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+                {facets[kind]?.closingThisWeek > 0 && (
+                  <button
+                    onClick={() => setFilters((f) => ({ ...f, deadline: f.deadline === 'week' ? '' : 'week' }))}
+                    className={cn(
+                      'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 transition-colors',
+                      filters.deadline === 'week' ? 'border-urgent/50 bg-urgent/10' : 'bg-card hover:border-urgent/40'
+                    )}
+                  >
+                    <CalendarClock className="size-3.5 text-urgent" />
+                    <span className="font-semibold tabular text-urgent">{facets[kind].closingThisWeek}</span> closing this week
+                  </button>
+                )}
+                {facets[kind]?.programs > 0 && (
+                  <button
+                    onClick={() => setFilters((f) => ({ ...f, type: f.type === 'programs' ? '' : 'programs' }))}
+                    className={cn(
+                      'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 transition-colors',
+                      filters.type === 'programs' ? 'border-primary/50 bg-primary/10' : 'bg-card hover:border-primary/40'
+                    )}
+                  >
+                    <span className="font-semibold tabular text-primary">{facets[kind].programs}</span> programs & drives
+                  </button>
+                )}
+                {facets[kind]?.newToday > 0 && (
+                  <span className="inline-flex items-center gap-2 rounded-full border bg-card px-3 py-1 text-muted-foreground">
+                    <span className="relative flex size-2">
+                      <span className="absolute inline-flex size-full animate-ping rounded-full bg-success/60" />
+                      <span className="relative inline-flex size-2 rounded-full bg-success" />
+                    </span>
+                    <span className="tabular text-foreground">{facets[kind].newToday}</span> new today
+                  </span>
+                )}
+              </div>
             )}
           </div>
-          {tab === 'browse' && (
-            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-              {meta?.newToday > 0 && (
-                <span className="flex items-center gap-2">
-                  <span className="relative flex size-2">
-                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-foreground/50" />
-                    <span className="relative inline-flex size-2 rounded-full bg-foreground" />
-                  </span>
-                  <span className="tabular text-foreground">{meta.newToday}</span> new today
-                </span>
-              )}
-              <Button variant="outline" size="sm" onClick={refresh} disabled={meta?.refreshing}>
-                <RefreshCw className={cn(meta?.refreshing && 'animate-spin')} />
-                {meta?.refreshing ? 'Refreshing' : meta?.lastRefresh ? `Updated ${timeAgo(meta.lastRefresh)}` : 'Refresh'}
-              </Button>
-            </div>
+          {isListTab && (
+            <Button variant="outline" size="sm" className="rounded-full" onClick={refresh} disabled={meta?.refreshing}>
+              <RefreshCw className={cn(meta?.refreshing && 'animate-spin')} />
+              {meta?.refreshing ? 'Refreshing' : meta?.lastRefresh ? `Updated ${timeAgo(meta.lastRefresh)}` : 'Refresh'}
+            </Button>
           )}
         </section>
 
-        {tab === 'browse' && (
+        {isListTab && (
           <Browse
+            key={kind}
             ref={searchRef}
+            kind={kind}
             filters={filters}
             setFilters={setFilters}
-            meta={meta}
+            facets={facets[kind]}
             jobs={jobs}
             total={total}
             loading={loading}
@@ -345,13 +405,13 @@ export default function App() {
             onReset={() => setFilters({ ...DEFAULT_FILTERS })}
           />
         )}
+        {tab === 'government' && <Government />}
         {tab === 'applications' && (
           <Applications meta={meta} version={version} onOpen={openJob} onTrack={onTrack} onReport={onReport} />
         )}
-        {tab === 'programs' && <Programs version={version} />}
 
         <footer className="mt-20 border-t pt-6 text-xs leading-relaxed text-muted-foreground">
-          Roles come straight from companies' own hiring systems
+          Roles come straight from companies' own hiring systems and official program pages
           {meta?.attributions?.length ? `, plus ${meta.attributions.join(', ')}` : ''}. Scam-like, agency and evergreen postings are
           filtered out. A real employer never asks you to pay.
         </footer>
@@ -359,15 +419,15 @@ export default function App() {
 
       {/* Mobile tab bar */}
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/80 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden" aria-label="Main">
-        <div className="grid grid-cols-3">
-          {TABS.map(({ id, label, icon: Icon }) => (
+        <div className="grid grid-cols-4">
+          {TABS.map(({ id, short, icon: Icon }) => (
             <button
               key={id}
               onClick={() => setTab(id)}
-              className={cn('flex flex-col items-center gap-1 py-2.5 text-[11px] transition-colors', tab === id ? 'text-foreground' : 'text-muted-foreground')}
+              className={cn('flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-colors', tab === id ? 'text-primary' : 'text-muted-foreground')}
             >
               <Icon className="size-5" />
-              {label}
+              {short}
             </button>
           ))}
         </div>
@@ -379,17 +439,19 @@ export default function App() {
         onOpenChange={setAddOpen}
         onAdded={(r) => {
           setVersion((v) => v + 1);
-          if (r.kind === 'company') setTimeout(() => { loadJobs(1); loadMeta(); }, 8000);
+          if (r.kind === 'company' || r.kind === 'program') setTimeout(() => { loadJobs(1); loadMeta(); loadFacets(); }, 8000);
         }}
       />
-      <SourcesSheet open={sourcesOpen} onOpenChange={setSourcesOpen} meta={meta} onChanged={() => { loadMeta(); loadJobs(1); }} />
+      <SourcesSheet open={sourcesOpen} onOpenChange={setSourcesOpen} meta={meta} onChanged={() => { loadMeta(); loadJobs(1); loadFacets(); }} />
       <CommandMenu
         open={cmdOpen}
         onOpenChange={setCmdOpen}
         go={setTab}
         applyPreset={(patch) => {
-          setTab('browse');
-          setFilters({ ...DEFAULT_FILTERS, level: ['intern', 'entry'], ...patch });
+          const target = patch.kind || (tab === 'job' ? 'job' : 'intern');
+          const { kind: _k, ...rest } = patch;
+          setTab(target);
+          setAllFilters((all) => ({ ...all, [target]: { ...DEFAULT_FILTERS, ...rest } }));
         }}
         onOpenJob={openJob}
         onAdd={() => setAddOpen(true)}
