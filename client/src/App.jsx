@@ -328,7 +328,7 @@ export default function App() {
       </header>
 
       <main className="mx-auto max-w-6xl px-4 pb-28 sm:px-6 md:pb-16">
-        <section key={tab} className="flex flex-wrap items-end justify-between gap-6 pt-10 pb-8 sm:pt-14">
+        <section key={`hero-${tab}`} className="flex flex-wrap items-end justify-between gap-6 pt-10 pb-8 sm:pt-14">
           <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-500">
             {isListTab ? (
               <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
@@ -385,7 +385,7 @@ export default function App() {
 
         {isListTab && (
           <Browse
-            key={kind}
+            key={`browse-${kind}`}
             ref={searchRef}
             kind={kind}
             filters={filters}
