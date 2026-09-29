@@ -18,7 +18,7 @@ const localFile = process.env.DB_PATH || path.join(DATA_DIR, 'internhunt.db');
 /** Why Turso couldn't be used (shown by /api/health), or null. */
 export let dbError = null;
 let usingTurso = false;
-const SETUP_REV = '1';
+const SETUP_REV = '2';
 
 function setup(d) {
   try {
@@ -102,6 +102,50 @@ function setup(d) {
       key   TEXT PRIMARY KEY,
       value TEXT
     );
+
+    -- Accounts (Google sign-in). id is Google's stable user id ("sub").
+    CREATE TABLE IF NOT EXISTS users (
+      id         TEXT PRIMARY KEY,
+      email      TEXT NOT NULL,
+      name       TEXT,
+      picture    TEXT,
+      created_at TEXT NOT NULL,
+      last_login TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS sessions (
+      token_hash TEXT PRIMARY KEY,               -- sha256 of the token the browser holds
+      user_id    TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      expires_at TEXT NOT NULL
+    );
+
+    -- Per-person tracker and reports (the older tracking / job_reports / blocked_companies tables
+    -- were shared by every visitor and are no longer used).
+    CREATE TABLE IF NOT EXISTS user_tracking (
+      user_id    TEXT NOT NULL,
+      job_id     TEXT NOT NULL,
+      status     TEXT NOT NULL,                  -- saved | applied | interview | offer | rejected | no_reply
+      notes      TEXT,
+      updated_at TEXT NOT NULL,
+      PRIMARY KEY (user_id, job_id)
+    );
+    CREATE TABLE IF NOT EXISTS user_reports (
+      user_id     TEXT NOT NULL,
+      job_id      TEXT NOT NULL,
+      company_key TEXT NOT NULL,
+      reason      TEXT NOT NULL,                 -- scam | fake | no_reply | expired
+      created_at  TEXT NOT NULL,
+      PRIMARY KEY (user_id, job_id, reason)
+    );
+    CREATE INDEX IF NOT EXISTS idx_user_reports_company ON user_reports(company_key, reason);
+    CREATE TABLE IF NOT EXISTS user_blocked (
+      user_id     TEXT NOT NULL,
+      company_key TEXT NOT NULL,
+      company     TEXT NOT NULL,
+      reason      TEXT NOT NULL,
+      created_at  TEXT NOT NULL,
+      PRIMARY KEY (user_id, company_key)
+    );
   `);
 
   // Columns added after the first release: add them to existing databases.
@@ -181,10 +225,11 @@ function prepare(sql) {
       return v === undefined ? null : typeof v === 'boolean' ? Number(v) : v;
     });
   };
+  // Bind as one array: a lone NULL argument would be read as a (bad) parameter object.
   return {
-    run: (...args) => stmt.run(...bind(args)),
-    get: (...args) => stmt.get(...bind(args)),
-    all: (...args) => stmt.all(...bind(args)),
+    run: (...args) => stmt.run(bind(args)),
+    get: (...args) => stmt.get(bind(args)),
+    all: (...args) => stmt.all(bind(args)),
   };
 }
 
@@ -192,6 +237,7 @@ export const db = {
   prepare,
   exec: (sql) => raw.exec(sql),
   sync: () => raw.sync(),
+  close: () => raw.close(),
 };
 
 export const dbInfo = () => ({ database: usingTurso ? 'turso' : 'local', error: dbError });

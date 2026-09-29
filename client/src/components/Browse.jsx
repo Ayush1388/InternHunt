@@ -1,6 +1,7 @@
-import { forwardRef } from 'react';
-import { Inbox, Search, SlidersHorizontal, X } from 'lucide-react';
-import { LABELS } from '@/api';
+import { forwardRef, useEffect, useRef, useState } from 'react';
+import { ChevronDown, ChevronUp, Inbox, Search, SlidersHorizontal, X } from 'lucide-react';
+import { api, LABELS } from '@/api';
+import CompanyAvatar from '@/components/CompanyAvatar';
 import { ROLES, ROLE, DEADLINES } from '@/lib/roles';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
@@ -100,10 +101,99 @@ function RoleBar({ filters, setFilters, facets }) {
   );
 }
 
+/**
+ * A company with several open roles, collapsed into one box. Opening it loads every matching role
+ * (same filters); a second click, or the "Hide" button at the bottom, closes it again.
+ */
+function CompanyGroup({ group, listParams, withPatch, isHidden, onOpen, onTrack, onReport, onApply }) {
+  const [open, setOpen] = useState(false);
+  const [roles, setRoles] = useState(null);
+  const [loadError, setLoadError] = useState('');
+  const headerRef = useRef(null);
+  const paramsKey = JSON.stringify(listParams);
+
+  useEffect(() => {
+    setRoles(null); // filters changed: reload when next opened
+  }, [paramsKey]);
+  useEffect(() => {
+    if (!open || roles) return;
+    setLoadError('');
+    api
+      .jobs({ ...listParams, company: group.companyKey, page: 1, limit: 100 })
+      .then((r) => setRoles(r.jobs))
+      .catch((e) => setLoadError(e.message));
+  }, [open, roles, paramsKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const close = () => {
+    setOpen(false);
+    // Closing from the bottom of a long list: bring the company back into view.
+    const top = headerRef.current?.getBoundingClientRect().top;
+    if (top !== undefined && top < 0) headerRef.current.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  };
+
+  const titles = group.jobs.map((j) => j.title);
+  const more = group.count - titles.length;
+  const shown = (roles || group.jobs).map(withPatch).filter((j) => !isHidden(j));
+
+  return (
+    <li className="scroll-mt-20 rounded-lg border bg-card surface" ref={headerRef}>
+      <button
+        type="button"
+        onClick={() => (open ? close() : setOpen(true))}
+        aria-expanded={open}
+        className="flex w-full items-center gap-3 rounded-lg px-4 py-4 text-left transition-colors hover:bg-accent/40 sm:px-5"
+      >
+        <CompanyAvatar name={group.company} className="size-9" />
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-baseline gap-x-2">
+            <span className="truncate text-sm font-semibold">{group.company}</span>
+            <span className="text-sm text-muted-foreground tabular">{group.count} open roles</span>
+          </div>
+          {!open && (
+            <p className="mt-0.5 truncate text-[13px] text-muted-foreground">
+              {titles.join(' · ')}
+              {more > 0 && ` · +${more} more`}
+            </p>
+          )}
+        </div>
+        <span className="hidden shrink-0 text-xs font-medium text-muted-foreground sm:inline">{open ? 'Hide roles' : 'Show all'}</span>
+        <ChevronDown className={cn('size-4 shrink-0 text-muted-foreground transition-transform', open && 'rotate-180')} />
+      </button>
+
+      {open && (
+        <div className="border-t px-3 pt-3 pb-3 sm:px-4">
+          {loadError ? (
+            <p className="px-1 py-3 text-sm text-destructive">Couldn't load the roles: {loadError}</p>
+          ) : !roles ? (
+            <JobListSkeleton rows={Math.min(group.count, 3)} />
+          ) : (
+            <ul className="space-y-3">
+              {shown.map((job) => (
+                <JobCard key={job.id} job={job} onOpen={onOpen} onTrack={onTrack} onReport={onReport} onApply={onApply} />
+              ))}
+            </ul>
+          )}
+          <button
+            type="button"
+            onClick={close}
+            className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <ChevronUp className="size-4" /> Hide {group.company}'s roles
+          </button>
+        </div>
+      )}
+    </li>
+  );
+}
+
 const Browse = forwardRef(function Browse(
-  { kind, filters, setFilters, facets, jobs, total, loading, error, hasMore, onMore, onOpen, onTrack, onReport, onApply, onReset },
+  {
+    kind, filters, setFilters, facets, groups, total, totalGroups, listParams, withPatch, isHidden,
+    loading, error, hasMore, onMore, onOpen, onTrack, onReport, onApply, onReset,
+  },
   searchRef
 ) {
+  const visible = groups.filter((g) => !(g.count === 1 ? isHidden(withPatch(g.jobs[0])) : isHidden({ company: g.company })));
   const chips = activeChips(filters);
   const removeChip = ([field, value]) =>
     setFilters((f) => ({
@@ -157,7 +247,9 @@ const Browse = forwardRef(function Browse(
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <span className="text-sm text-muted-foreground tabular">
-              {loading && !jobs.length ? 'Loading…' : `${total.toLocaleString('en-IN')} ${total === 1 ? noun : `${noun}s`}`}
+              {loading && !groups.length
+                ? 'Loading…'
+                : `${total.toLocaleString('en-IN')} ${total === 1 ? noun : `${noun}s`} · ${totalGroups.toLocaleString('en-IN')} ${totalGroups === 1 ? 'company' : 'companies'}`}
             </span>
             {chips.map((c) => (
               <Badge
@@ -186,9 +278,9 @@ const Browse = forwardRef(function Browse(
           <div className="mt-4">
             {error ? (
               <EmptyState title="Can't reach the server">{error}</EmptyState>
-            ) : loading && !jobs.length ? (
+            ) : loading && !groups.length ? (
               <JobListSkeleton />
-            ) : jobs.length === 0 ? (
+            ) : visible.length === 0 ? (
               facets?.total || facets?.ended ? (
                 <EmptyState title={`No ${noun}s match`} action={<Button variant="outline" onClick={onReset}>Reset filters</Button>}>
                   Try another role, fewer languages, or a wider location.
@@ -200,24 +292,37 @@ const Browse = forwardRef(function Browse(
               )
             ) : (
               <ul className="space-y-3">
-                {jobs.map((job, i) => (
-                  <JobCard
-                    key={job.id}
-                    job={job}
-                    onOpen={onOpen}
-                    onTrack={onTrack}
-                    onReport={onReport}
-                    onApply={onApply}
-                    className="animate-in fade-in-0 slide-in-from-bottom-1 fill-mode-both"
-                    style={{ animationDelay: `${Math.min(i, 10) * 25}ms` }}
-                  />
-                ))}
+                {visible.map((g) =>
+                  g.count === 1 ? (
+                    <JobCard
+                      key={g.jobs[0].id}
+                      job={withPatch(g.jobs[0])}
+                      onOpen={onOpen}
+                      onTrack={onTrack}
+                      onReport={onReport}
+                      onApply={onApply}
+                      className="animate-in fade-in-0 fill-mode-both"
+                    />
+                  ) : (
+                    <CompanyGroup
+                      key={g.companyKey}
+                      group={g}
+                      listParams={listParams}
+                      withPatch={withPatch}
+                      isHidden={isHidden}
+                      onOpen={onOpen}
+                      onTrack={onTrack}
+                      onReport={onReport}
+                      onApply={onApply}
+                    />
+                  )
+                )}
               </ul>
             )}
             {hasMore && (
               <div className="mt-6 flex justify-center">
-                <Button variant="outline" className="rounded-full" onClick={onMore} disabled={loading}>
-                  {loading ? 'Loading…' : `Show more · ${(total - jobs.length).toLocaleString('en-IN')} left`}
+                <Button variant="outline" onClick={onMore} disabled={loading}>
+                  {loading ? 'Loading…' : `Show more · ${(totalGroups - groups.length).toLocaleString('en-IN')} more companies`}
                 </Button>
               </div>
             )}

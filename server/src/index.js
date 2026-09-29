@@ -12,6 +12,7 @@ import { CATEGORIES, LANGUAGES } from './lib/classify.js';
 import { addFromLink } from './addLink.js';
 import { discoverDefault, discoveryAgeDays } from './discovery.js';
 import { background, ON_VERCEL } from './runtime.js';
+import { GOOGLE_CLIENT_ID, attachUser, requireUser, signIn, signOut, verifyGoogleIdToken } from './auth.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -24,10 +25,14 @@ const EXPS = ['0', '1', '3', '5'];
 const LOC_TAGS = ['india_onsite', 'remote_india', 'remote_worldwide'];
 const STATUSES = ['saved', 'applied', 'interview', 'offer', 'rejected', 'no_reply'];
 const REPORT_REASONS = ['scam', 'fake', 'no_reply', 'expired'];
-// Jobs hidden from browsing: companies you blocked, and jobs you reported as scam/fake/expired.
-const HIDDEN_SQL = `j.company_key NOT IN (SELECT company_key FROM blocked_companies)
-  AND j.id NOT IN (SELECT job_id FROM job_reports WHERE reason IN ('scam','fake','expired'))`;
-const NO_REPLY_SQL = `(SELECT COUNT(DISTINCT job_id) FROM job_reports r WHERE r.company_key = j.company_key AND r.reason = 'no_reply') AS company_no_reply`;
+// Jobs hidden from the signed-in person's browsing: companies they blocked, and jobs they reported
+// as scam/fake/expired. Uses @uid (NULL when signed out, which hides nothing).
+const HIDDEN_SQL = `j.company_key NOT IN (SELECT company_key FROM user_blocked WHERE user_id = @uid)
+  AND j.id NOT IN (SELECT job_id FROM user_reports WHERE user_id = @uid AND reason IN ('scam','fake','expired'))`;
+// "Applied, never heard back" is shared: everyone sees how many people a company ghosted.
+const NO_REPLY_SQL = `(SELECT COUNT(DISTINCT job_id) FROM user_reports r WHERE r.company_key = j.company_key AND r.reason = 'no_reply') AS company_no_reply`;
+// The signed-in person's tracker row for each job.
+const TRACK_JOIN = 'LEFT JOIN user_tracking t ON t.job_id = j.id AND t.user_id = @uid';
 
 const app = express();
 app.use(cors());
@@ -35,6 +40,30 @@ app.use(express.json({ limit: '100kb' }));
 app.use('/api', (req, res, next) => {
   syncDb();
   next();
+});
+app.use('/api', attachUser);
+
+// ---------- Accounts ----------
+app.get('/api/auth/config', (req, res) => {
+  res.json({ googleClientId: GOOGLE_CLIENT_ID || null });
+});
+
+app.post('/api/auth/google', async (req, res) => {
+  try {
+    const claims = await verifyGoogleIdToken(req.body?.credential);
+    res.json(signIn(claims));
+  } catch (err) {
+    res.status(401).json({ error: `Sign-in failed: ${err.message}` });
+  }
+});
+
+app.get('/api/auth/me', (req, res) => {
+  res.json({ user: req.user });
+});
+
+app.post('/api/auth/logout', (req, res) => {
+  signOut(req.sessionToken);
+  res.json({ ok: true });
 });
 
 // Counts and the government list change only when data is refreshed, so let Vercel's CDN serve
@@ -93,9 +122,10 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-app.get('/api/jobs', (req, res) => {
+/** WHERE clause, parameters and ORDER BY for a job list request (shared by the flat and grouped views). */
+function jobQuery(req) {
   const where = [];
-  const params = {};
+  const params = { uid: req.user?.id ?? null };
   const add = (sql, values) => {
     where.push(sql);
     Object.assign(params, values);
@@ -120,6 +150,7 @@ app.get('/api/jobs', (req, res) => {
   if (req.query.companyOnly === '1') where.push("j.trust = 'company'");
   if (req.query.type === 'programs') where.push("j.source = 'program'");
   if (req.query.type === 'roles') where.push("j.source != 'program'");
+  if (req.query.company) add('j.company_key = @company', { company: companyKey(req.query.company) });
   inList('j.level', 'lvl', csv(req.query.kind || req.query.level, LEVELS));
   inList('j.category', 'cat', csv(req.query.category, CATEGORIES));
   inList('j.exp', 'exp', csv(req.query.exp, EXPS).map(Number));
@@ -155,84 +186,128 @@ app.get('/api/jobs', (req, res) => {
             ? 't.updated_at DESC'
             : // Newest company postings first; programs (no posting date) after them, soonest last date first.
               "CASE WHEN j.source = 'program' THEN 1 ELSE 0 END, CASE WHEN j.source = 'program' THEN COALESCE(j.deadline, '9999') END ASC, COALESCE(j.posted_at, j.first_seen) DESC";
+  // Same ordering for company groups, using each group's best job.
+  const groupOrder =
+    req.query.sort === 'company'
+      ? 'company COLLATE NOCASE ASC'
+      : req.query.sort === 'deadline'
+        ? 'CASE WHEN soonest IS NULL THEN 1 ELSE 0 END, soonest ASC, newest DESC'
+        : req.query.deadline === 'ended'
+          ? 'newest DESC'
+          : 'programs_only ASC, newest DESC';
+  return { whereSql, params, order, groupOrder, from: `FROM jobs j ${TRACK_JOIN}` };
+}
+
+const SELECT_JOB = `SELECT j.*, t.status, t.notes, t.updated_at AS tracked_at, ${NO_REPLY_SQL}`;
+
+app.get('/api/jobs', (req, res) => {
+  const { whereSql, params, order, groupOrder, from } = jobQuery(req);
   const limit = Math.min(Math.max(Number(req.query.limit) || 30, 1), 100);
   const page = Math.max(Number(req.query.page) || 1, 1);
-
-  const from = 'FROM jobs j LEFT JOIN tracking t ON t.job_id = j.id';
   const total = db.prepare(`SELECT COUNT(*) AS n ${from} ${whereSql}`).get(params).n;
-  const rows = db
-    .prepare(
-      `SELECT j.*, t.status, t.notes, t.updated_at AS tracked_at, ${NO_REPLY_SQL} ${from} ${whereSql} ORDER BY ${order} LIMIT @limit OFFSET @offset`
-    )
-    .all({ ...params, limit, offset: (page - 1) * limit });
 
+  // Grouped view: one entry per company (a page of companies), each with its roles count and
+  // its first few roles. The client loads the rest of a company's roles when it's expanded.
+  if (req.query.group === 'company') {
+    const totalGroups = db.prepare(`SELECT COUNT(DISTINCT j.company_key) AS n ${from} ${whereSql}`).get(params).n;
+    const groups = db
+      .prepare(
+        `SELECT j.company_key AS company_key, MAX(j.company) AS company, COUNT(*) AS n,
+                MAX(COALESCE(j.posted_at, j.first_seen)) AS newest, MIN(j.deadline) AS soonest,
+                MIN(CASE WHEN j.source = 'program' THEN 1 ELSE 0 END) AS programs_only
+         ${from} ${whereSql} GROUP BY j.company_key ORDER BY ${groupOrder} LIMIT @limit OFFSET @offset`
+      )
+      .all({ ...params, limit, offset: (page - 1) * limit });
+    const firstRoles = db.prepare(`${SELECT_JOB} ${from} ${whereSql} ${whereSql ? 'AND' : 'WHERE'} j.company_key = @groupKey ORDER BY ${order} LIMIT 3`);
+    return res.json({
+      total,
+      totalGroups,
+      page,
+      limit,
+      groups: groups.map((g) => ({
+        companyKey: g.company_key,
+        company: g.company,
+        count: g.n,
+        jobs: firstRoles.all({ ...params, groupKey: g.company_key }).map((r) => toJob(r)),
+      })),
+    });
+  }
+
+  const rows = db
+    .prepare(`${SELECT_JOB} ${from} ${whereSql} ORDER BY ${order} LIMIT @limit OFFSET @offset`)
+    .all({ ...params, limit, offset: (page - 1) * limit });
   res.json({ total, page, limit, jobs: rows.map((r) => toJob(r)) });
 });
 
-const jobById = (id) =>
-  db
-    .prepare(`SELECT j.*, t.status, t.notes, t.updated_at AS tracked_at, ${NO_REPLY_SQL} FROM jobs j LEFT JOIN tracking t ON t.job_id = j.id WHERE j.id = ?`)
-    .get(id);
+const jobById = (id, uid) => db.prepare(`${SELECT_JOB} FROM jobs j ${TRACK_JOIN} WHERE j.id = @id`).get({ id, uid: uid ?? null });
 
 app.get('/api/jobs/:id', async (req, res) => {
-  let row = jobById(req.params.id);
+  let row = jobById(req.params.id, req.user?.id);
   if (!row) return res.status(404).json({ error: 'Job not found' });
   // Some sources list jobs without descriptions: fetch this one now (bounded so the page never hangs).
   if (!row.description) {
     const timeout = new Promise((resolve) => setTimeout(() => resolve(''), 8000));
     const got = await Promise.race([fillDescription(row).catch(() => ''), timeout]);
-    if (got) row = jobById(req.params.id);
+    if (got) row = jobById(req.params.id, req.user?.id);
   }
   res.json(toJob(row, true));
 });
 
-app.put('/api/jobs/:id/track', (req, res) => {
+const saveTracking = (uid, jobId, status, notes, now) =>
+  db
+    .prepare(
+      `INSERT INTO user_tracking (user_id, job_id, status, notes, updated_at) VALUES (?, ?, ?, ?, ?)
+       ON CONFLICT(user_id, job_id) DO UPDATE SET status = excluded.status, notes = excluded.notes, updated_at = excluded.updated_at`
+    )
+    .run(uid, jobId, status, notes, now);
+
+app.put('/api/jobs/:id/track', requireUser, (req, res) => {
   const { status, notes = '' } = req.body || {};
   if (!STATUSES.includes(status)) return res.status(400).json({ error: `status must be one of ${STATUSES.join(', ')}` });
   if (!db.prepare('SELECT 1 FROM jobs WHERE id = ?').get(req.params.id)) return res.status(404).json({ error: 'Job not found' });
-  db.prepare(
-    `INSERT INTO tracking (job_id, status, notes, updated_at) VALUES (?, ?, ?, ?)
-     ON CONFLICT(job_id) DO UPDATE SET status = excluded.status, notes = excluded.notes, updated_at = excluded.updated_at`
-  ).run(req.params.id, status, String(notes).slice(0, 2000), new Date().toISOString());
+  saveTracking(req.user.id, req.params.id, status, String(notes).slice(0, 2000), new Date().toISOString());
   res.json({ ok: true });
 });
 
-// Report a job. scam/fake → the whole company is blocked; no_reply → marked on your tracker and
-// shown as a warning on that company's other jobs; expired → hidden.
-app.post('/api/jobs/:id/report', (req, res) => {
+app.delete('/api/jobs/:id/track', requireUser, (req, res) => {
+  db.prepare('DELETE FROM user_tracking WHERE user_id = ? AND job_id = ?').run(req.user.id, req.params.id);
+  res.json({ ok: true });
+});
+
+// Report a job (signed in). scam/fake → the whole company is hidden for you; expired → that job is
+// hidden for you; no_reply → marked on your tracker, and counted as a warning everyone sees on that
+// company's other jobs.
+app.post('/api/jobs/:id/report', requireUser, (req, res) => {
   const reason = req.body?.reason;
   if (!REPORT_REASONS.includes(reason)) return res.status(400).json({ error: `reason must be one of ${REPORT_REASONS.join(', ')}` });
   const job = db.prepare('SELECT id, company FROM jobs WHERE id = ?').get(req.params.id);
   if (!job) return res.status(404).json({ error: 'Job not found' });
+  const uid = req.user.id;
   const now = new Date().toISOString();
   const key = companyKey(job.company);
-  db.prepare('INSERT OR IGNORE INTO job_reports (job_id, company_key, reason, created_at) VALUES (?, ?, ?, ?)').run(job.id, key, reason, now);
+  db.prepare('INSERT OR IGNORE INTO user_reports (user_id, job_id, company_key, reason, created_at) VALUES (?, ?, ?, ?, ?)').run(uid, job.id, key, reason, now);
   if (reason === 'scam' || reason === 'fake') {
-    db.prepare('INSERT OR IGNORE INTO blocked_companies (company_key, company, reason, created_at) VALUES (?, ?, ?, ?)').run(key, job.company, reason, now);
+    db.prepare('INSERT OR IGNORE INTO user_blocked (user_id, company_key, company, reason, created_at) VALUES (?, ?, ?, ?, ?)').run(uid, key, job.company, reason, now);
   }
-  if (reason === 'no_reply') {
-    db.prepare(
-      `INSERT INTO tracking (job_id, status, notes, updated_at) VALUES (?, 'no_reply', '', ?)
-       ON CONFLICT(job_id) DO UPDATE SET status = 'no_reply', updated_at = excluded.updated_at`
-    ).run(job.id, now);
-  }
+  if (reason === 'no_reply') saveTracking(uid, job.id, 'no_reply', '', now);
   res.json({ ok: true, blockedCompany: reason === 'scam' || reason === 'fake' ? job.company : null });
 });
 
 app.get('/api/blocked', (req, res) => {
-  res.json(db.prepare('SELECT company_key AS key, company, reason, created_at AS createdAt FROM blocked_companies ORDER BY created_at DESC').all());
+  if (!req.user) return res.json([]);
+  res.json(
+    db
+      .prepare('SELECT company_key AS key, company, reason, created_at AS createdAt FROM user_blocked WHERE user_id = ? ORDER BY created_at DESC')
+      .all(req.user.id)
+  );
 });
 
-app.delete('/api/blocked/:key', (req, res) => {
-  db.prepare('DELETE FROM blocked_companies WHERE company_key = ?').run(req.params.key);
-  db.prepare("DELETE FROM job_reports WHERE company_key = ? AND reason IN ('scam','fake')").run(req.params.key);
+app.delete('/api/blocked/:key', requireUser, (req, res) => {
+  db.prepare('DELETE FROM user_blocked WHERE user_id = ? AND company_key = ?').run(req.user.id, req.params.key);
+  db.prepare("DELETE FROM user_reports WHERE user_id = ? AND company_key = ? AND reason IN ('scam','fake')").run(req.user.id, req.params.key);
   res.json({ ok: true });
 });
 
-app.delete('/api/jobs/:id/track', (req, res) => {
-  db.prepare('DELETE FROM tracking WHERE job_id = ?').run(req.params.id);
-  res.json({ ok: true });
-});
 
 // Counts for the filter panel of one tab (internships or jobs), over what's currently open.
 app.get('/api/facets', cdnCache, (req, res) => {
@@ -240,7 +315,7 @@ app.get('/api/facets', cdnCache, (req, res) => {
   const today = new Date().toISOString().slice(0, 10);
   const base = `FROM jobs j WHERE j.level = @kind AND ${HIDDEN_SQL}`;
   const open = `${base} AND j.is_active = 1 AND (j.deadline IS NULL OR j.deadline >= @today)`;
-  const p = { kind, today };
+  const p = { kind, today, uid: null }; // shared counts (CDN-cached), so no one's personal hides
   const count = (col) =>
     Object.fromEntries(db.prepare(`SELECT ${col} AS k, COUNT(*) AS n ${open} GROUP BY ${col}`).all(p).map((r) => [r.k, r.n]));
   const byLanguage = {};
@@ -269,28 +344,29 @@ app.get('/api/government', cdnCache, (req, res) => {
 });
 
 app.get('/api/meta', (req, res) => {
+  const p = { uid: req.user?.id ?? null };
   const count = (col) =>
     Object.fromEntries(
-      db.prepare(`SELECT ${col} AS k, COUNT(*) AS n FROM jobs j WHERE j.is_active = 1 AND ${HIDDEN_SQL} GROUP BY ${col}`).all().map((r) => [r.k, r.n])
+      db.prepare(`SELECT ${col} AS k, COUNT(*) AS n FROM jobs j WHERE j.is_active = 1 AND ${HIDDEN_SQL} GROUP BY ${col}`).all(p).map((r) => [r.k, r.n])
     );
   const cities = db
     .prepare(
       `SELECT city, COUNT(*) AS n FROM jobs j WHERE j.is_active = 1 AND ${HIDDEN_SQL} AND city IS NOT NULL GROUP BY city ORDER BY n DESC LIMIT 15`
     )
-    .all();
+    .all(p);
   const trackedCounts = Object.fromEntries(
-    db.prepare('SELECT status AS k, COUNT(*) AS n FROM tracking GROUP BY status').all().map((r) => [r.k, r.n])
+    db.prepare('SELECT status AS k, COUNT(*) AS n FROM user_tracking WHERE user_id = @uid GROUP BY status').all(p).map((r) => [r.k, r.n])
   );
   const runs = db.prepare('SELECT * FROM source_runs ORDER BY ok ASC, source, label').all();
   res.json({
-    total: db.prepare(`SELECT COUNT(*) AS n FROM jobs j WHERE j.is_active = 1 AND ${HIDDEN_SQL}`).get().n,
+    total: db.prepare(`SELECT COUNT(*) AS n FROM jobs j WHERE j.is_active = 1 AND ${HIDDEN_SQL}`).get(p).n,
     newToday: db
       .prepare(`SELECT COUNT(*) AS n FROM jobs j WHERE j.is_active = 1 AND ${HIDDEN_SQL} AND j.first_seen >= datetime('now', '-1 day')`)
-      .get().n,
+      .get(p).n,
     byKind: count('level'),
     byCategory: count('category'),
     byTrust: count('trust'),
-    blockedCompanies: db.prepare('SELECT COUNT(*) AS n FROM blocked_companies').get().n,
+    blockedCompanies: db.prepare('SELECT COUNT(*) AS n FROM user_blocked WHERE user_id = @uid').get(p).n,
     byLevel: count('level'),
     byLocation: count('loc_tag'),
     bySource: count('source'),
