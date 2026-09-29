@@ -82,98 +82,107 @@ export default function JobCard({ job, onOpen, onTrack, onReport, onApply, class
   const saved = Boolean(job.status);
   const snippet = preview(job.snippet);
 
+  // Wellfound-style box: company header, then the role with its facts, actions on the right.
   return (
     <li
-      className={cn(
-        'group surface lift relative flex cursor-pointer gap-4 overflow-hidden rounded-xl border bg-card p-4 hover:border-foreground/20 sm:p-5',
-        className
-      )}
+      className={cn('group surface lift cursor-pointer rounded-lg border bg-card hover:border-foreground/25', className)}
       style={style}
       onClick={() => onOpen(job)}
     >
-      <CompanyAvatar name={job.company} className="mt-0.5 size-10 sm:size-11" />
-
-      <div className="min-w-0 flex-1">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug tracking-tight transition-colors group-hover:text-primary sm:text-base">
-              {job.title}
-              {isNew && (
-                <span className="ml-2 inline-flex -translate-y-px items-center rounded-full bg-primary/10 px-1.5 py-px align-middle text-[10px] font-semibold uppercase tracking-wide text-primary">
-                  New
-                </span>
-              )}
-            </h3>
-            <p className="mt-1 flex flex-wrap items-center gap-x-1.5 text-sm text-muted-foreground">
-              <span className="truncate font-medium text-foreground/80">{job.company}</span>
-              <span className="text-muted-foreground/40">·</span>
-              <span className="inline-flex min-w-0 items-center gap-1">
-                {job.locTag === 'india_onsite' ? <MapPin className="size-3.5 shrink-0" /> : <Globe className="size-3.5 shrink-0" />}
-                <span className="truncate">{placeOf(job)}</span>
-              </span>
-              {!job.isProgram && (
-                <>
-                  <span className="text-muted-foreground/40">·</span>
-                  <span className="tabular">{timeAgo(job.postedAt || job.firstSeen)}</span>
-                </>
-              )}
-            </p>
+      <div className="flex items-center gap-3 px-4 pt-4 sm:px-5">
+        <CompanyAvatar name={job.company} className="size-9" />
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm font-semibold">{job.company}</div>
+          <div className="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
+            <TrustMark job={job} withLabel />
           </div>
-          <Deadline job={job} className="hidden shrink-0 sm:block" />
         </div>
-
-        {snippet && <p className="mt-2.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">{snippet}</p>}
-
-        <div className="mt-3 flex flex-wrap items-center gap-1.5">
-          <RoleChip category={job.category} />
-          <ExpChip job={job} />
-          <ProgramChip job={job} />
-          {job.languages?.slice(0, 3).map((l) => (
-            <span key={l} className="rounded-md border px-1.5 py-0.5 font-mono text-[11px] text-foreground/70">{l}</span>
-          ))}
-          {job.languages?.length > 3 && <span className="text-[11px] text-muted-foreground">+{job.languages.length - 3}</span>}
-          {job.salary && (
-            <Badge variant="outline" className="max-w-56 font-normal">
-              <Wallet /> <span className="truncate">{job.salary}</span>
-            </Badge>
-          )}
-          {warnings.length > 0 && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="inline-flex items-center gap-1 rounded-md border border-warning/40 px-1.5 py-0.5 text-xs text-warning">
-                  <TriangleAlert className="size-3" /> {warnings.length}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                {warnings.map((w) => (
-                  <div key={w}>{w}</div>
-                ))}
-              </TooltipContent>
-            </Tooltip>
-          )}
-          <Deadline job={job} compact className="ml-auto sm:hidden" />
-          <span className="ml-auto hidden sm:inline-flex">
-            <TrustMark job={job} />
-          </span>
-        </div>
+        <Deadline job={job} className="hidden shrink-0 sm:block" />
       </div>
 
-      <div className="-mr-1.5 -mt-1 flex shrink-0 flex-col items-end gap-0.5 sm:mt-0 sm:mr-0 sm:gap-1.5" onClick={(e) => e.stopPropagation()}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-pressed={saved}
-              aria-label={saved ? LABELS.status[job.status] : 'Save'}
-              onClick={() => onTrack(job, saved ? null : 'saved')}
-              className={cn(saved && 'text-primary')}
-            >
-              {saved ? <BookmarkCheck className="fill-current" /> : <Bookmark />}
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>{saved ? `${LABELS.status[job.status]} — click to remove` : 'Save'}</TooltipContent>
-        </Tooltip>
+      <div className="mx-4 mt-3 mb-4 flex gap-4 rounded-md border bg-background/60 p-3 sm:mx-5 sm:p-4">
+        <div className="min-w-0 flex-1">
+          <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug group-hover:underline group-hover:underline-offset-4">
+            {job.title}
+            {isNew && (
+              <span className="ml-2 inline-flex -translate-y-px items-center rounded-sm border px-1 align-middle text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                New
+              </span>
+            )}
+          </h3>
+          <p className="mt-1 flex flex-wrap items-center gap-x-1.5 text-[13px] text-muted-foreground">
+            <span className="inline-flex min-w-0 items-center gap-1">
+              {job.locTag === 'india_onsite' ? <MapPin className="size-3.5 shrink-0" /> : <Globe className="size-3.5 shrink-0" />}
+              <span className="truncate">{placeOf(job)}</span>
+            </span>
+            {job.salary && (
+              <>
+                <span aria-hidden="true">·</span>
+                <span className="inline-flex max-w-56 items-center gap-1 truncate"><Wallet className="size-3.5 shrink-0" /> {job.salary}</span>
+              </>
+            )}
+            {!job.isProgram && (
+              <>
+                <span aria-hidden="true">·</span>
+                <span className="tabular">{timeAgo(job.postedAt || job.firstSeen)}</span>
+              </>
+            )}
+          </p>
+
+          {snippet && <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">{snippet}</p>}
+
+          <div className="mt-3 flex flex-wrap items-center gap-1.5">
+            <RoleChip category={job.category} />
+            <ExpChip job={job} />
+            <ProgramChip job={job} />
+            {job.languages?.slice(0, 3).map((l) => (
+              <span key={l} className="rounded-sm border px-1.5 py-0.5 font-mono text-[11px] text-foreground/70">{l}</span>
+            ))}
+            {job.languages?.length > 3 && <span className="text-[11px] text-muted-foreground">+{job.languages.length - 3}</span>}
+            {warnings.length > 0 && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="inline-flex items-center gap-1 rounded-sm border border-warning/40 px-1.5 py-0.5 text-xs text-warning">
+                    <TriangleAlert className="size-3" /> {warnings.length}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {warnings.map((w) => (
+                    <div key={w}>{w}</div>
+                  ))}
+                </TooltipContent>
+              </Tooltip>
+            )}
+            <Deadline job={job} compact className="ml-auto sm:hidden" />
+          </div>
+        </div>
+
+      <div className="flex shrink-0 flex-col items-end gap-2" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center gap-1.5">
+          <Button
+            variant="outline"
+            size="sm"
+            aria-pressed={saved}
+            onClick={() => onTrack(job, saved ? null : 'saved')}
+            className="hidden sm:inline-flex"
+          >
+            {saved ? <BookmarkCheck className="fill-current" /> : <Bookmark />}
+            {saved ? LABELS.status[job.status] : 'Save'}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-pressed={saved}
+            aria-label={saved ? LABELS.status[job.status] : 'Save'}
+            onClick={() => onTrack(job, saved ? null : 'saved')}
+            className="sm:hidden"
+          >
+            {saved ? <BookmarkCheck className="fill-current" /> : <Bookmark />}
+          </Button>
+          <Button size="sm" onClick={() => onApply(job)} className="hidden sm:inline-flex">
+            Apply <ArrowUpRight />
+          </Button>
+        </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon-sm" aria-label="More">
@@ -194,6 +203,7 @@ export default function JobCard({ job, onOpen, onTrack, onReport, onApply, class
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
+      </div>
       </div>
     </li>
   );

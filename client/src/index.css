@@ -6,59 +6,60 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
-  Flat, neutral surfaces (plain greys, no glow or gradients) with one calm ocean-blue accent for
-  actions and focus. Colour is otherwise reserved for meaning: red = closing soon, green = open.
+  Minimal monochrome: warm paper white (or warm near-black in dark mode), ink for text and actions,
+  greys for everything else. The only colours are meaning: red = closing soon, green = open.
 */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(0.982 0.002 250);
-  --foreground: oklch(0.2 0.01 250);
+  --radius: 0.5rem;
+  --background: oklch(0.982 0.004 85);
+  --foreground: oklch(0.19 0.004 85);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.01 250);
+  --card-foreground: oklch(0.19 0.004 85);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.01 250);
-  --primary: oklch(0.5 0.12 240);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.955 0.003 250);
-  --secondary-foreground: oklch(0.24 0.01 250);
-  --muted: oklch(0.955 0.003 250);
-  --muted-foreground: oklch(0.48 0.012 250);
-  --accent: oklch(0.945 0.004 250);
-  --accent-foreground: oklch(0.22 0.01 250);
-  --destructive: oklch(0.55 0.16 27);
-  --border: oklch(0.91 0.004 250);
-  --input: oklch(0.88 0.005 250);
-  --ring: oklch(0.5 0.12 240);
-  --urgent: oklch(0.55 0.19 27);
-  --success: oklch(0.52 0.12 155);
-  --warning: oklch(0.62 0.14 65);
+  --popover-foreground: oklch(0.19 0.004 85);
+  --primary: oklch(0.19 0.004 85);
+  --primary-foreground: oklch(0.985 0.004 85);
+  --secondary: oklch(0.955 0.004 85);
+  --secondary-foreground: oklch(0.22 0.004 85);
+  --muted: oklch(0.955 0.004 85);
+  --muted-foreground: oklch(0.5 0.006 85);
+  --accent: oklch(0.95 0.005 85);
+  --accent-foreground: oklch(0.19 0.004 85);
+  --destructive: oklch(0.53 0.17 27);
+  --border: oklch(0.905 0.005 85);
+  --input: oklch(0.87 0.006 85);
+  --ring: oklch(0.45 0.004 85);
+  --urgent: oklch(0.53 0.17 27);
+  --success: oklch(0.5 0.11 150);
+  --warning: oklch(0.6 0.12 65);
 }
 
 .dark {
-  --background: oklch(0.16 0.004 250);
-  --foreground: oklch(0.94 0.003 250);
-  --card: oklch(0.195 0.005 250);
-  --card-foreground: oklch(0.94 0.003 250);
-  --popover: oklch(0.21 0.005 250);
-  --popover-foreground: oklch(0.94 0.003 250);
-  --primary: oklch(0.72 0.11 235);
-  --primary-foreground: oklch(0.17 0.02 240);
-  --secondary: oklch(0.25 0.005 250);
-  --secondary-foreground: oklch(0.93 0.003 250);
-  --muted: oklch(0.24 0.005 250);
-  --muted-foreground: oklch(0.68 0.01 250);
-  --accent: oklch(0.26 0.006 250);
-  --accent-foreground: oklch(0.95 0.003 250);
+  --background: oklch(0.155 0.003 85);
+  --foreground: oklch(0.94 0.004 85);
+  --card: oklch(0.185 0.003 85);
+  --card-foreground: oklch(0.94 0.004 85);
+  --popover: oklch(0.2 0.003 85);
+  --popover-foreground: oklch(0.94 0.004 85);
+  --primary: oklch(0.94 0.004 85);
+  --primary-foreground: oklch(0.17 0.003 85);
+  --secondary: oklch(0.24 0.003 85);
+  --secondary-foreground: oklch(0.93 0.004 85);
+  --muted: oklch(0.23 0.003 85);
+  --muted-foreground: oklch(0.66 0.006 85);
+  --accent: oklch(0.25 0.004 85);
+  --accent-foreground: oklch(0.95 0.004 85);
   --destructive: oklch(0.66 0.15 27);
-  --border: oklch(1 0 0 / 9%);
-  --input: oklch(1 0 0 / 13%);
-  --ring: oklch(0.72 0.11 235);
-  --urgent: oklch(0.7 0.16 27);
-  --success: oklch(0.72 0.13 155);
-  --warning: oklch(0.8 0.13 75);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 14%);
+  --ring: oklch(0.7 0.004 85);
+  --urgent: oklch(0.7 0.15 27);
+  --success: oklch(0.72 0.12 150);
+  --warning: oklch(0.8 0.12 75);
 }
 
 @theme inline {
+  --font-serif: 'Instrument Serif', ui-serif, Georgia, serif;
   --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
   --radius-sm: calc(var(--radius) - 4px);

@@ -17,7 +17,7 @@ export function JobListSkeleton({ rows = 5 }) {
   return (
     <ul className="space-y-3">
       {[...Array(rows)].map((_, i) => (
-        <li key={i} className="flex gap-4 rounded-2xl border bg-card p-5">
+        <li key={i} className="flex gap-4 rounded-lg border bg-card p-5">
           <Skeleton className="size-11 rounded-xl" />
           <div className="flex-1 space-y-2.5">
             <Skeleton className="h-4 w-2/3" />
@@ -36,7 +36,7 @@ export function JobListSkeleton({ rows = 5 }) {
 
 export function EmptyState({ icon: Icon = Inbox, title, children, action }) {
   return (
-    <div className="flex flex-col items-center rounded-2xl border border-dashed px-6 py-16 text-center">
+    <div className="flex flex-col items-center rounded-lg border border-dashed px-6 py-16 text-center">
       <div className="mb-4 grid size-12 place-items-center rounded-full border bg-muted/50">
         <Icon className="size-5 text-muted-foreground" />
       </div>
@@ -118,7 +118,7 @@ const Browse = forwardRef(function Browse(
 
       <div className="grid gap-8 lg:grid-cols-[272px_1fr]">
         <aside className="hidden lg:block">
-          <div className="scrollbar-thin sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-2xl border bg-card/60 p-5 backdrop-blur">
+          <div className="scrollbar-thin sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-lg border bg-card p-5">
             <FiltersPanel kind={kind} filters={filters} setFilters={setFilters} facets={facets} onReset={onReset} />
           </div>
         </aside>

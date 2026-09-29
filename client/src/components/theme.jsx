@@ -1,54 +1,38 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { Moon, Sun, Monitor } from 'lucide-react';
+import { Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { store } from '@/api';
 
-const ThemeContext = createContext({ theme: 'dark', resolved: 'dark', setTheme: () => {} });
-
-function systemTheme() {
-  return window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-}
+// Light is the default. The key is new ('ih.mode') because the old one stored the old dark default
+// for every visitor; index.html reads the same key before first paint.
+const KEY = 'ih.mode';
+const ThemeContext = createContext({ theme: 'light', resolved: 'light', setTheme: () => {} });
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState(() => store.get('ih.theme', 'dark'));
-  const [resolved, setResolved] = useState(() => (theme === 'system' ? systemTheme() : theme));
+  const [theme, setTheme] = useState(() => (store.get(KEY, 'light') === 'dark' ? 'dark' : 'light'));
 
   useEffect(() => {
-    const apply = () => {
-      const r = theme === 'system' ? systemTheme() : theme;
-      setResolved(r);
-      document.documentElement.classList.toggle('dark', r === 'dark');
-    };
-    apply();
-    store.set('ih.theme', theme);
-    if (theme !== 'system') return;
-    const mq = window.matchMedia('(prefers-color-scheme: light)');
-    mq.addEventListener?.('change', apply);
-    return () => mq.removeEventListener?.('change', apply);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    store.set(KEY, theme);
   }, [theme]);
 
-  return <ThemeContext.Provider value={{ theme, resolved, setTheme }}>{children}</ThemeContext.Provider>;
+  return <ThemeContext.Provider value={{ theme, resolved: theme, setTheme }}>{children}</ThemeContext.Provider>;
 }
 
 export const useTheme = () => useContext(ThemeContext);
 
 export function ThemeToggle() {
-  const { theme, resolved, setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
+  const next = theme === 'dark' ? 'light' : 'dark';
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Theme">
-          {resolved === 'dark' ? <Moon /> : <Sun />}
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button variant="ghost" size="icon" aria-label={`Switch to ${next} mode`} onClick={() => setTheme(next)}>
+          {theme === 'dark' ? <Sun /> : <Moon />}
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuRadioGroup value={theme} onValueChange={setTheme}>
-          <DropdownMenuRadioItem value="dark"><Moon /> Dark</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="light"><Sun /> Light</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="system"><Monitor /> System</DropdownMenuRadioItem>
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </TooltipTrigger>
+      <TooltipContent>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</TooltipContent>
+    </Tooltip>
   );
 }

@@ -21,7 +21,6 @@ function StatusPill({ p }) {
       <div className="flex shrink-0 flex-col items-end gap-1">
         <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-success/10 px-2.5 py-1 text-xs font-semibold text-success">
           <span className="relative flex size-1.5">
-            <span className="absolute inline-flex size-full animate-ping rounded-full bg-success/60" />
             <span className="relative inline-flex size-1.5 rounded-full bg-success" />
           </span>
           Open
@@ -68,12 +67,12 @@ function ProgramCard({ p, i }) {
   const line = statusLine(p);
   return (
     <li
-      className="surface lift group flex flex-col rounded-2xl border bg-card p-5 animate-in fade-in-0 slide-in-from-bottom-1 fill-mode-both hover:border-primary/30"
+      className="surface lift group flex flex-col rounded-lg border bg-card p-5 animate-in fade-in-0 fill-mode-both hover:border-foreground/25"
       style={{ animationDelay: `${Math.min(i, 10) * 30}ms` }}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-3">
-          <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-sm">
+          <div className="grid size-10 shrink-0 place-items-center rounded-md border bg-background text-foreground">
             <Landmark className="size-5" />
           </div>
           <div className="min-w-0">
@@ -133,7 +132,7 @@ export default function Government() {
     return (
       <div className="grid gap-4 md:grid-cols-2">
         {[...Array(4)].map((_, i) => (
-          <Skeleton key={i} className="h-56 rounded-2xl" />
+          <Skeleton key={i} className="h-56 rounded-lg" />
         ))}
       </div>
     );
