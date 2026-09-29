@@ -34,9 +34,15 @@ app.use(cors());
 app.use(express.json({ limit: '100kb' }));
 app.use('/api', (req, res, next) => {
   syncDb();
-  if (ON_VERCEL) refreshIfStale();
   next();
 });
+
+// Counts and the government list change only when data is refreshed, so let Vercel's CDN serve
+// them for a minute (and a stale copy while it re-fetches) instead of recomputing every page load.
+const cdnCache = (req, res, next) => {
+  res.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=600');
+  next();
+};
 
 const csv = (v, allowed) =>
   String(v || '')
@@ -226,7 +232,7 @@ app.delete('/api/jobs/:id/track', (req, res) => {
 });
 
 // Counts for the filter panel of one tab (internships or jobs), over what's currently open.
-app.get('/api/facets', (req, res) => {
+app.get('/api/facets', cdnCache, (req, res) => {
   const kind = LEVELS.includes(req.query.kind) ? req.query.kind : 'intern';
   const today = new Date().toISOString().slice(0, 10);
   const base = `FROM jobs j WHERE j.level = @kind AND ${HIDDEN_SQL}`;
@@ -255,7 +261,7 @@ app.get('/api/facets', (req, res) => {
   });
 });
 
-app.get('/api/government', (req, res) => {
+app.get('/api/government', cdnCache, (req, res) => {
   res.json({ programs: governmentView() });
 });
 
@@ -374,18 +380,8 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: `Server error: ${err.message}` });
 });
 
-// Serverless functions can't run timers, so on Vercel a request starts a refresh when the data is
-// older than REFRESH_HOURS (plus the daily cron in vercel.json as a backup).
-function refreshIfStale() {
-  if (isRefreshing() || process.env.DISABLE_AUTO_REFRESH === '1') return;
-  const last = getMeta('last_refresh');
-  if (last && Date.now() - Date.parse(last) < REFRESH_HOURS * 3600000) return;
-  // Another instance may already be refreshing: the claim is shared through the database.
-  const claimed = getMeta('refresh_claimed');
-  if (claimed && Date.now() - Date.parse(claimed) < 10 * 60000) return;
-  setMeta('refresh_claimed', new Date().toISOString());
-  background(runRefresh());
-}
+// On Vercel, data is refreshed by the cron in vercel.json and the Refresh button, never as a side
+// effect of a visitor's request: a refresh scrapes every source and would stall the pages being served.
 
 // Programs are listings too; make sure they exist before the first refresh has run.
 if (!db.prepare("SELECT 1 FROM jobs WHERE source = 'program' LIMIT 1").get()) {

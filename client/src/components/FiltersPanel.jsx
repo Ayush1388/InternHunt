@@ -1,6 +1,6 @@
 import { RotateCcw } from 'lucide-react';
 import { LABELS } from '@/api';
-import { ROLES, EXPERIENCE, LANGUAGES, DEADLINES } from '@/lib/roles';
+import { EXPERIENCE, LANGUAGES, DEADLINES } from '@/lib/roles';
 import { cn } from '@/lib/utils';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -80,27 +80,20 @@ export default function FiltersPanel({ kind, filters, setFilters, facets, onRese
         </div>
       </Section>
 
-      <Section title="Role">
-        <ToggleGroup type="multiple" value={filters.category} onValueChange={(v) => set({ category: v })}>
-          {ROLES.map(({ id, short, icon: Icon }) => (
-            <ToggleGroupItem key={id} value={id}>
-              <Icon className="size-3.5" /> {short} <Count n={facets?.byCategory?.[id]} />
+      <Section title="Experience asked">
+        <ToggleGroup type="multiple" value={filters.exp} onValueChange={(v) => set({ exp: v })}>
+          {EXPERIENCE.map((e) => (
+            <ToggleGroupItem
+              key={e.id}
+              value={e.id}
+              title={e.hint}
+              className={cn(!facets?.byExp?.[e.id] && !filters.exp.includes(e.id) && 'opacity-50')}
+            >
+              {e.label} <Count n={facets?.byExp?.[e.id]} />
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
       </Section>
-
-      {kind === 'job' && (
-        <Section title="Experience asked">
-          <ToggleGroup type="multiple" value={filters.exp} onValueChange={(v) => set({ exp: v })}>
-            {EXPERIENCE.map((e) => (
-              <ToggleGroupItem key={e.id} value={e.id} title={e.hint}>
-                {e.label} <Count n={facets?.byExp?.[e.id]} />
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
-        </Section>
-      )}
 
       <Section title="Language">
         <ToggleGroup type="multiple" value={filters.lang} onValueChange={(v) => set({ lang: v })}>

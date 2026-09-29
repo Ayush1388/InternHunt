@@ -46,7 +46,7 @@ function toParams(kind, f, page) {
   if (f.type) p.type = f.type;
   if (f.deadline) p.deadline = f.deadline;
   if (f.category.length) p.category = f.category.join(',');
-  if (kind === 'job' && f.exp.length) p.exp = f.exp.join(',');
+  if (f.exp.length) p.exp = f.exp.join(',');
   if (f.lang.length) p.lang = f.lang.join(',');
   if (f.loc.length) p.loc = f.loc.join(',');
   if (f.city) p.city = f.city;
@@ -59,7 +59,7 @@ function toParams(kind, f, page) {
 function Logo() {
   return (
     <div className="flex items-center gap-2.5">
-      <div className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-primary to-brand-2 text-white shadow-sm shadow-primary/30">
+      <div className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
         <svg viewBox="0 0 32 32" className="size-5" aria-hidden="true">
           <path d="M9 23V9h3v14zm6 0V9h3l4.2 8.1V9H25v14h-2.8L18 14.9V23z" fill="currentColor" />
         </svg>
@@ -331,12 +331,11 @@ export default function App() {
         <section key={tab} className="flex flex-wrap items-end justify-between gap-6 pt-10 pb-8 sm:pt-14">
           <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-500">
             {isListTab ? (
-              <h1 className="text-4xl font-semibold tracking-tighter sm:text-5xl">
-                <span className="text-brand tabular">{compact(facets[kind]?.total || 0)}</span>{' '}
-                <span className="text-gradient">open {HERO[tab].title}</span>
+              <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
+                <span className="tabular text-primary">{compact(facets[kind]?.total || 0)}</span> open {HERO[tab].title}
               </h1>
             ) : (
-              <h1 className="text-gradient text-4xl font-semibold tracking-tighter sm:text-5xl">{HERO[tab].title}</h1>
+              <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{HERO[tab].title}</h1>
             )}
             <p className="mt-3 max-w-xl text-muted-foreground">{HERO[tab].sub}</p>
             {isListTab && (
