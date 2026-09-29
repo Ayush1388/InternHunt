@@ -1,0 +1,4680 @@
+{
+  "_readme": "Companies that hire interns/freshers in India. `npm run discover` (also run automatically once a week) opens each careers page, detects which hiring system it uses (Greenhouse, Lever, Ashby, Workable, Recruitee, Personio, SmartRecruiters, Workday) and adds it to discovered.json. Companies whose careers site can't be read automatically are listed under Programs → 'Check these careers pages directly'. Add any company here: { \"name\": ..., \"careers\": ..., \"domain\": ... }.",
+  "companies": [
+    {
+      "name": "Google",
+      "careers": "https://www.google.com/about/careers/applications/jobs/results/?location=India&target_level=INTERN_AND_APPRENTICE",
+      "domain": "google.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Apple",
+      "careers": "https://jobs.apple.com/en-in/search?location=india-INDC",
+      "domain": "apple.com",
+      "group": "MNC"
+    },
+    {
+      "name": "LinkedIn",
+      "careers": "https://careers.linkedin.com/",
+      "domain": "linkedin.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Razorpay",
+      "careers": "https://razorpay.com/jobs/",
+      "domain": "razorpay.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "PhonePe",
+      "careers": "https://www.phonepe.com/careers/",
+      "domain": "phonepe.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Paytm",
+      "careers": "https://paytm.com/careers/",
+      "domain": "paytm.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "CRED",
+      "careers": "https://careers.cred.club/",
+      "domain": "cred.club",
+      "group": "Fintech"
+    },
+    {
+      "name": "Groww",
+      "careers": "https://groww.in/careers",
+      "domain": "groww.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "Zerodha",
+      "careers": "https://zerodha.com/careers/",
+      "domain": "zerodha.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Upstox",
+      "careers": "https://upstox.com/careers/",
+      "domain": "upstox.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Juspay",
+      "careers": "https://juspay.in/careers",
+      "domain": "juspay.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "Cashfree Payments",
+      "careers": "https://www.cashfree.com/careers/",
+      "domain": "cashfree.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Pine Labs",
+      "careers": "https://www.pinelabs.com/careers",
+      "domain": "pinelabs.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "BharatPe",
+      "careers": "https://bharatpe.com/careers",
+      "domain": "bharatpe.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "MobiKwik",
+      "careers": "https://www.mobikwik.com/careers",
+      "domain": "mobikwik.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Slice",
+      "careers": "https://www.sliceit.com/careers",
+      "domain": "sliceit.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Jupiter",
+      "careers": "https://jupiter.money/careers/",
+      "domain": "jupiter.money",
+      "group": "Fintech"
+    },
+    {
+      "name": "Fi Money",
+      "careers": "https://fi.money/careers",
+      "domain": "fi.money",
+      "group": "Fintech"
+    },
+    {
+      "name": "Setu",
+      "careers": "https://setu.co/careers",
+      "domain": "setu.co",
+      "group": "Fintech"
+    },
+    {
+      "name": "Smallcase",
+      "careers": "https://www.smallcase.com/careers",
+      "domain": "smallcase.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "INDmoney",
+      "careers": "https://www.indmoney.com/careers",
+      "domain": "indmoney.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Navi",
+      "careers": "https://navi.com/careers",
+      "domain": "navi.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Acko",
+      "careers": "https://www.acko.com/careers/",
+      "domain": "acko.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Go Digit",
+      "careers": "https://www.godigit.com/careers",
+      "domain": "godigit.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "PolicyBazaar",
+      "careers": "https://www.policybazaar.com/careers/",
+      "domain": "policybazaar.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Clear (ClearTax)",
+      "careers": "https://clear.in/careers",
+      "domain": "clear.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "Khatabook",
+      "careers": "https://khatabook.com/careers",
+      "domain": "khatabook.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "OkCredit",
+      "careers": "https://okcredit.in/careers",
+      "domain": "okcredit.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "CoinDCX",
+      "careers": "https://coindcx.com/careers",
+      "domain": "coindcx.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "CoinSwitch",
+      "careers": "https://coinswitch.co/careers",
+      "domain": "coinswitch.co",
+      "group": "Fintech"
+    },
+    {
+      "name": "Zeta",
+      "careers": "https://www.zeta.tech/in/careers/",
+      "domain": "zeta.tech",
+      "group": "Fintech"
+    },
+    {
+      "name": "Swiggy",
+      "careers": "https://careers.swiggy.com/",
+      "domain": "swiggy.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Zomato",
+      "careers": "https://www.zomato.com/careers",
+      "domain": "zomato.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Blinkit",
+      "careers": "https://blinkit.com/careers",
+      "domain": "blinkit.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Zepto",
+      "careers": "https://www.zeptonow.com/careers",
+      "domain": "zeptonow.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Meesho",
+      "careers": "https://www.meesho.io/jobs",
+      "domain": "meesho.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Flipkart",
+      "careers": "https://www.flipkartcareers.com/",
+      "domain": "flipkart.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Myntra",
+      "careers": "https://careers.myntra.com/",
+      "domain": "myntra.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Nykaa",
+      "careers": "https://careers.nykaa.com/",
+      "domain": "nykaa.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Lenskart",
+      "careers": "https://www.lenskart.com/careers",
+      "domain": "lenskart.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Licious",
+      "careers": "https://www.licious.in/careers",
+      "domain": "licious.in",
+      "group": "Consumer"
+    },
+    {
+      "name": "Urban Company",
+      "careers": "https://www.urbancompany.com/careers",
+      "domain": "urbancompany.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Ola",
+      "careers": "https://www.olacabs.com/careers",
+      "domain": "olacabs.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Rapido",
+      "careers": "https://www.rapido.bike/Careers",
+      "domain": "rapido.bike",
+      "group": "Consumer"
+    },
+    {
+      "name": "MakeMyTrip",
+      "careers": "https://careers.makemytrip.com/",
+      "domain": "makemytrip.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "OYO",
+      "careers": "https://www.oyorooms.com/careers/",
+      "domain": "oyorooms.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Cars24",
+      "careers": "https://www.cars24.com/careers/",
+      "domain": "cars24.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Spinny",
+      "careers": "https://www.spinny.com/careers/",
+      "domain": "spinny.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Delhivery",
+      "careers": "https://www.delhivery.com/careers",
+      "domain": "delhivery.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Shiprocket",
+      "careers": "https://www.shiprocket.in/careers/",
+      "domain": "shiprocket.in",
+      "group": "Consumer"
+    },
+    {
+      "name": "Dream11 (Dream Sports)",
+      "careers": "https://www.dreamsports.group/careers",
+      "domain": "dreamsports.group",
+      "group": "Consumer"
+    },
+    {
+      "name": "Games24x7",
+      "careers": "https://www.games24x7.com/careers/",
+      "domain": "games24x7.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "MPL",
+      "careers": "https://www.mpl.live/careers",
+      "domain": "mpl.live",
+      "group": "Consumer"
+    },
+    {
+      "name": "ShareChat",
+      "careers": "https://sharechat.com/careers",
+      "domain": "sharechat.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "InMobi",
+      "careers": "https://www.inmobi.com/company/careers",
+      "domain": "inmobi.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Ather Energy",
+      "careers": "https://www.atherenergy.com/careers",
+      "domain": "atherenergy.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "PharmEasy",
+      "careers": "https://pharmeasy.in/careers",
+      "domain": "pharmeasy.in",
+      "group": "Consumer"
+    },
+    {
+      "name": "Tata 1mg",
+      "careers": "https://www.1mg.com/careers",
+      "domain": "1mg.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Practo",
+      "careers": "https://www.practo.com/company/careers",
+      "domain": "practo.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Cult.fit",
+      "careers": "https://www.cult.fit/careers",
+      "domain": "cult.fit",
+      "group": "Consumer"
+    },
+    {
+      "name": "PhysicsWallah",
+      "careers": "https://www.pw.live/careers",
+      "domain": "pw.live",
+      "group": "Edtech"
+    },
+    {
+      "name": "Unacademy",
+      "careers": "https://unacademy.com/careers",
+      "domain": "unacademy.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "upGrad",
+      "careers": "https://www.upgrad.com/careers/",
+      "domain": "upgrad.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "Scaler",
+      "careers": "https://www.scaler.com/careers/",
+      "domain": "scaler.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "Eruditus",
+      "careers": "https://eruditus.com/careers/",
+      "domain": "eruditus.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "Freshworks",
+      "careers": "https://www.freshworks.com/company/careers/",
+      "domain": "freshworks.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Zoho",
+      "careers": "https://www.zoho.com/careers/",
+      "domain": "zoho.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Postman",
+      "careers": "https://www.postman.com/company/careers/",
+      "domain": "postman.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "BrowserStack",
+      "careers": "https://www.browserstack.com/careers",
+      "domain": "browserstack.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Chargebee",
+      "careers": "https://www.chargebee.com/careers/",
+      "domain": "chargebee.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Hasura",
+      "careers": "https://hasura.io/careers/",
+      "domain": "hasura.io",
+      "group": "SaaS"
+    },
+    {
+      "name": "Atlan",
+      "careers": "https://atlan.com/careers/",
+      "domain": "atlan.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Druva",
+      "careers": "https://www.druva.com/company/careers",
+      "domain": "druva.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Innovaccer",
+      "careers": "https://innovaccer.com/careers",
+      "domain": "innovaccer.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Icertis",
+      "careers": "https://www.icertis.com/company/careers/",
+      "domain": "icertis.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Darwinbox",
+      "careers": "https://darwinbox.com/careers",
+      "domain": "darwinbox.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Sprinklr",
+      "careers": "https://www.sprinklr.com/careers/",
+      "domain": "sprinklr.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "LeadSquared",
+      "careers": "https://www.leadsquared.com/careers/",
+      "domain": "leadsquared.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Whatfix",
+      "careers": "https://whatfix.com/careers/",
+      "domain": "whatfix.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "MoEngage",
+      "careers": "https://www.moengage.com/careers/",
+      "domain": "moengage.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "WebEngage",
+      "careers": "https://webengage.com/careers/",
+      "domain": "webengage.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "CleverTap",
+      "careers": "https://clevertap.com/careers/",
+      "domain": "clevertap.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Capillary Technologies",
+      "careers": "https://www.capillarytech.com/careers/",
+      "domain": "capillarytech.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Mindtickle",
+      "careers": "https://www.mindtickle.com/careers/",
+      "domain": "mindtickle.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Hevo Data",
+      "careers": "https://hevodata.com/careers/",
+      "domain": "hevodata.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Rocketlane",
+      "careers": "https://www.rocketlane.com/careers",
+      "domain": "rocketlane.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "SuperOps",
+      "careers": "https://superops.com/careers",
+      "domain": "superops.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Plivo",
+      "careers": "https://www.plivo.com/careers/",
+      "domain": "plivo.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Exotel",
+      "careers": "https://exotel.com/careers/",
+      "domain": "exotel.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Gupshup",
+      "careers": "https://www.gupshup.io/careers",
+      "domain": "gupshup.io",
+      "group": "SaaS"
+    },
+    {
+      "name": "Yellow.ai",
+      "careers": "https://yellow.ai/careers/",
+      "domain": "yellow.ai",
+      "group": "AI"
+    },
+    {
+      "name": "Haptik",
+      "careers": "https://www.haptik.ai/careers",
+      "domain": "haptik.ai",
+      "group": "AI"
+    },
+    {
+      "name": "Observe.AI",
+      "careers": "https://www.observe.ai/careers",
+      "domain": "observe.ai",
+      "group": "AI"
+    },
+    {
+      "name": "Uniphore",
+      "careers": "https://www.uniphore.com/careers/",
+      "domain": "uniphore.com",
+      "group": "AI"
+    },
+    {
+      "name": "Sarvam AI",
+      "careers": "https://www.sarvam.ai/careers",
+      "domain": "sarvam.ai",
+      "group": "AI"
+    },
+    {
+      "name": "Krutrim",
+      "careers": "https://www.olakrutrim.com/careers",
+      "domain": "olakrutrim.com",
+      "group": "AI"
+    },
+    {
+      "name": "Fractal Analytics",
+      "careers": "https://fractal.ai/careers/",
+      "domain": "fractal.ai",
+      "group": "AI"
+    },
+    {
+      "name": "Tiger Analytics",
+      "careers": "https://www.tigeranalytics.com/careers/",
+      "domain": "tigeranalytics.com",
+      "group": "AI"
+    },
+    {
+      "name": "Mu Sigma",
+      "careers": "https://www.mu-sigma.com/careers",
+      "domain": "mu-sigma.com",
+      "group": "AI"
+    },
+    {
+      "name": "InVideo",
+      "careers": "https://invideo.io/careers",
+      "domain": "invideo.io",
+      "group": "SaaS"
+    },
+    {
+      "name": "Adobe",
+      "careers": "https://careers.adobe.com/",
+      "domain": "adobe.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Salesforce",
+      "careers": "https://careers.salesforce.com/",
+      "domain": "salesforce.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Atlassian",
+      "careers": "https://www.atlassian.com/company/careers/all-jobs",
+      "domain": "atlassian.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Uber",
+      "careers": "https://www.uber.com/in/en/careers/",
+      "domain": "uber.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Intuit",
+      "careers": "https://jobs.intuit.com/",
+      "domain": "intuit.com",
+      "group": "MNC"
+    },
+    {
+      "name": "PayPal",
+      "careers": "https://careers.pypl.com/",
+      "domain": "paypal.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Visa",
+      "careers": "https://www.visa.co.in/careers.html",
+      "domain": "visa.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Mastercard",
+      "careers": "https://careers.mastercard.com/",
+      "domain": "mastercard.com",
+      "group": "MNC"
+    },
+    {
+      "name": "American Express",
+      "careers": "https://www.americanexpress.com/en-us/careers/",
+      "domain": "americanexpress.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Walmart Global Tech India",
+      "careers": "https://careers.walmart.com/",
+      "domain": "walmart.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Target India",
+      "careers": "https://india.target.com/careers",
+      "domain": "target.com",
+      "group": "MNC"
+    },
+    {
+      "name": "NVIDIA",
+      "careers": "https://www.nvidia.com/en-in/about-nvidia/careers/",
+      "domain": "nvidia.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Intel",
+      "careers": "https://jobs.intel.com/",
+      "domain": "intel.com",
+      "group": "MNC"
+    },
+    {
+      "name": "AMD",
+      "careers": "https://careers.amd.com/",
+      "domain": "amd.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Qualcomm",
+      "careers": "https://careers.qualcomm.com/",
+      "domain": "qualcomm.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Texas Instruments",
+      "careers": "https://careers.ti.com/",
+      "domain": "ti.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Cisco",
+      "careers": "https://jobs.cisco.com/",
+      "domain": "cisco.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Oracle",
+      "careers": "https://careers.oracle.com/",
+      "domain": "oracle.com",
+      "group": "MNC"
+    },
+    {
+      "name": "SAP Labs India",
+      "careers": "https://jobs.sap.com/",
+      "domain": "sap.com",
+      "group": "MNC"
+    },
+    {
+      "name": "IBM",
+      "careers": "https://www.ibm.com/careers",
+      "domain": "ibm.com",
+      "group": "MNC"
+    },
+    {
+      "name": "ServiceNow",
+      "careers": "https://careers.servicenow.com/",
+      "domain": "servicenow.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Workday",
+      "careers": "https://www.workday.com/en-us/company/careers/overview.html",
+      "domain": "workday.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Autodesk",
+      "careers": "https://www.autodesk.com/careers",
+      "domain": "autodesk.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Cadence",
+      "careers": "https://www.cadence.com/en_US/home/company/careers.html",
+      "domain": "cadence.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Synopsys",
+      "careers": "https://careers.synopsys.com/",
+      "domain": "synopsys.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Nutanix",
+      "careers": "https://www.nutanix.com/company/careers",
+      "domain": "nutanix.com",
+      "group": "MNC"
+    },
+    {
+      "name": "NetApp",
+      "careers": "https://careers.netapp.com/",
+      "domain": "netapp.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Zscaler",
+      "careers": "https://www.zscaler.com/careers",
+      "domain": "zscaler.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Palo Alto Networks",
+      "careers": "https://jobs.paloaltonetworks.com/",
+      "domain": "paloaltonetworks.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Juniper Networks",
+      "careers": "https://careers.juniper.net/",
+      "domain": "juniper.net",
+      "group": "MNC"
+    },
+    {
+      "name": "Arista Networks",
+      "careers": "https://www.arista.com/en/careers",
+      "domain": "arista.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Snowflake",
+      "careers": "https://careers.snowflake.com/",
+      "domain": "snowflake.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Confluent",
+      "careers": "https://www.confluent.io/careers/",
+      "domain": "confluent.io",
+      "group": "MNC"
+    },
+    {
+      "name": "Samsung R&D India",
+      "careers": "https://research.samsung.com/careers",
+      "domain": "samsung.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Siemens",
+      "careers": "https://jobs.siemens.com/",
+      "domain": "siemens.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Bosch",
+      "careers": "https://www.bosch.in/careers/",
+      "domain": "bosch.in",
+      "group": "MNC"
+    },
+    {
+      "name": "Honeywell",
+      "careers": "https://careers.honeywell.com/",
+      "domain": "honeywell.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Philips",
+      "careers": "https://www.careers.philips.com/",
+      "domain": "philips.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Expedia Group",
+      "careers": "https://careers.expediagroup.com/",
+      "domain": "expediagroup.com",
+      "group": "MNC"
+    },
+    {
+      "name": "Goldman Sachs",
+      "careers": "https://www.goldmansachs.com/careers/",
+      "domain": "goldmansachs.com",
+      "group": "Finance"
+    },
+    {
+      "name": "JPMorgan Chase",
+      "careers": "https://careers.jpmorgan.com/in/en/home",
+      "domain": "jpmorgan.com",
+      "group": "Finance"
+    },
+    {
+      "name": "Morgan Stanley",
+      "careers": "https://www.morganstanley.com/people-opportunities",
+      "domain": "morganstanley.com",
+      "group": "Finance"
+    },
+    {
+      "name": "D. E. Shaw India",
+      "careers": "https://www.deshawindia.com/careers",
+      "domain": "deshawindia.com",
+      "group": "Finance"
+    },
+    {
+      "name": "Tower Research Capital",
+      "careers": "https://www.tower-research.com/open-positions",
+      "domain": "tower-research.com",
+      "group": "Finance"
+    },
+    {
+      "name": "Wells Fargo",
+      "careers": "https://www.wellsfargojobs.com/",
+      "domain": "wellsfargo.com",
+      "group": "Finance"
+    },
+    {
+      "name": "Deutsche Bank",
+      "careers": "https://careers.db.com/",
+      "domain": "db.com",
+      "group": "Finance"
+    },
+    {
+      "name": "Barclays",
+      "careers": "https://search.jobs.barclays/",
+      "domain": "barclays.com",
+      "group": "Finance"
+    },
+    {
+      "name": "Deloitte India",
+      "careers": "https://www2.deloitte.com/in/en/careers.html",
+      "domain": "deloitte.com",
+      "group": "Services"
+    },
+    {
+      "name": "EY India",
+      "careers": "https://www.ey.com/en_in/careers",
+      "domain": "ey.com",
+      "group": "Services"
+    },
+    {
+      "name": "PwC India",
+      "careers": "https://www.pwc.in/careers.html",
+      "domain": "pwc.in",
+      "group": "Services"
+    },
+    {
+      "name": "KPMG India",
+      "careers": "https://kpmg.com/in/en/careers.html",
+      "domain": "kpmg.com",
+      "group": "Services"
+    },
+    {
+      "name": "TCS",
+      "careers": "https://www.tcs.com/careers/india",
+      "domain": "tcs.com",
+      "group": "Services"
+    },
+    {
+      "name": "Infosys",
+      "careers": "https://www.infosys.com/careers/",
+      "domain": "infosys.com",
+      "group": "Services"
+    },
+    {
+      "name": "Wipro",
+      "careers": "https://careers.wipro.com/",
+      "domain": "wipro.com",
+      "group": "Services"
+    },
+    {
+      "name": "HCLTech",
+      "careers": "https://www.hcltech.com/careers",
+      "domain": "hcltech.com",
+      "group": "Services"
+    },
+    {
+      "name": "Tech Mahindra",
+      "careers": "https://careers.techmahindra.com/",
+      "domain": "techmahindra.com",
+      "group": "Services"
+    },
+    {
+      "name": "Cognizant",
+      "careers": "https://careers.cognizant.com/india-en/",
+      "domain": "cognizant.com",
+      "group": "Services"
+    },
+    {
+      "name": "Accenture",
+      "careers": "https://www.accenture.com/in-en/careers",
+      "domain": "accenture.com",
+      "group": "Services"
+    },
+    {
+      "name": "Capgemini",
+      "careers": "https://www.capgemini.com/in-en/careers/",
+      "domain": "capgemini.com",
+      "group": "Services"
+    },
+    {
+      "name": "LTIMindtree",
+      "careers": "https://www.ltimindtree.com/careers/",
+      "domain": "ltimindtree.com",
+      "group": "Services"
+    },
+    {
+      "name": "Persistent Systems",
+      "careers": "https://www.persistent.com/careers/",
+      "domain": "persistent.com",
+      "group": "Services"
+    },
+    {
+      "name": "Thoughtworks",
+      "careers": "https://www.thoughtworks.com/careers",
+      "domain": "thoughtworks.com",
+      "group": "Services"
+    },
+    {
+      "name": "Publicis Sapient",
+      "careers": "https://careers.publicissapient.com/",
+      "domain": "publicissapient.com",
+      "group": "Services"
+    },
+    {
+      "name": "Nagarro",
+      "careers": "https://www.nagarro.com/en/careers",
+      "domain": "nagarro.com",
+      "group": "Services"
+    },
+    {
+      "name": "EPAM",
+      "careers": "https://www.epam.com/careers",
+      "domain": "epam.com",
+      "group": "Services"
+    },
+    {
+      "name": "Paytm Money",
+      "domain": "paytmmoney.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Angel One",
+      "domain": "angelone.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "5paisa",
+      "domain": "5paisa.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Dhan",
+      "domain": "dhan.co",
+      "group": "Fintech"
+    },
+    {
+      "name": "Kite by Zerodha Rainmatter",
+      "domain": "rainmatter.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Scripbox",
+      "domain": "scripbox.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Kuvera",
+      "domain": "kuvera.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "ET Money",
+      "domain": "etmoney.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Jar",
+      "domain": "myjar.app",
+      "group": "Fintech"
+    },
+    {
+      "name": "Fampay",
+      "domain": "famapp.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "Uni Cards",
+      "domain": "uni.club",
+      "group": "Fintech"
+    },
+    {
+      "name": "OneCard",
+      "domain": "getonecard.app",
+      "group": "Fintech"
+    },
+    {
+      "name": "Kiwi",
+      "domain": "gokiwi.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "Stashfin",
+      "domain": "stashfin.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "KreditBee",
+      "domain": "kreditbee.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "MoneyView",
+      "domain": "moneyview.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "Lendingkart",
+      "domain": "lendingkart.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Indifi",
+      "domain": "indifi.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "FlexiLoans",
+      "domain": "flexiloans.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Capital Float",
+      "domain": "capitalfloat.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Aye Finance",
+      "domain": "ayefinance.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Kinara Capital",
+      "domain": "kinaracapital.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Vivriti Capital",
+      "domain": "vivriticapital.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Yubi (CredAvenue)",
+      "domain": "go-yubi.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Perfios",
+      "domain": "perfios.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "M2P Fintech",
+      "domain": "m2pfintech.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Signzy",
+      "domain": "signzy.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "IDfy",
+      "domain": "idfy.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "HyperVerge",
+      "domain": "hyperverge.co",
+      "group": "Fintech"
+    },
+    {
+      "name": "Decentro",
+      "domain": "decentro.tech",
+      "group": "Fintech"
+    },
+    {
+      "name": "Open Financial",
+      "domain": "open.money",
+      "group": "Fintech"
+    },
+    {
+      "name": "EnKash",
+      "domain": "enkash.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Rupifi",
+      "domain": "rupifi.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Easebuzz",
+      "domain": "easebuzz.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "PayU India",
+      "domain": "payu.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "BillDesk",
+      "domain": "billdesk.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Paytm Payments Services",
+      "domain": "paytmpayments.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Instamojo",
+      "domain": "instamojo.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Innoviti",
+      "domain": "innoviti.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Mswipe",
+      "domain": "mswipe.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Airpay",
+      "domain": "airpay.co.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "Neo Wealth",
+      "domain": "neo-wealth.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Dezerv",
+      "domain": "dezerv.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "Groww Asset Management",
+      "domain": "growwmf.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "Zolve",
+      "domain": "zolve.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Niyo",
+      "domain": "goniyo.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Freo",
+      "domain": "freo.money",
+      "group": "Fintech"
+    },
+    {
+      "name": "PaySense",
+      "domain": "gopaysense.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Credgenics",
+      "domain": "credgenics.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Spocto",
+      "domain": "spocto.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Lentra",
+      "domain": "lentra.ai",
+      "group": "Fintech"
+    },
+    {
+      "name": "Kaleidofin",
+      "domain": "kaleidofin.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "InsuranceDekho",
+      "domain": "insurancedekho.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Turtlemint",
+      "domain": "turtlemint.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Plum",
+      "domain": "plumhq.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Onsurity",
+      "domain": "onsurity.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "RenewBuy",
+      "domain": "renewbuy.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Bajaj Finserv",
+      "domain": "bajajfinserv.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "HDFC Bank",
+      "domain": "hdfcbank.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "ICICI Bank",
+      "domain": "icicibank.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Axis Bank",
+      "domain": "axisbank.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Kotak Mahindra Bank",
+      "domain": "kotak.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "Yes Bank",
+      "domain": "yesbank.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "IDFC First Bank",
+      "domain": "idfcfirstbank.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "AU Small Finance Bank",
+      "domain": "aubank.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "NPCI",
+      "domain": "npci.org.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "CAMS",
+      "domain": "camsonline.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "KFintech",
+      "domain": "kfintech.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "NSE",
+      "domain": "nseindia.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "BSE",
+      "domain": "bseindia.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "CDSL",
+      "domain": "cdslindia.com",
+      "group": "Fintech"
+    },
+    {
+      "name": "NSDL",
+      "domain": "nsdl.co.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "Protean eGov",
+      "domain": "proteantech.in",
+      "group": "Fintech"
+    },
+    {
+      "name": "Tata Neu",
+      "domain": "tataneu.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "BigBasket",
+      "domain": "bigbasket.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "JioMart",
+      "domain": "jiomart.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Dunzo",
+      "domain": "dunzo.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Country Delight",
+      "domain": "countrydelight.in",
+      "group": "Consumer"
+    },
+    {
+      "name": "FreshToHome",
+      "domain": "freshtohome.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Milkbasket",
+      "domain": "milkbasket.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Udaan",
+      "domain": "udaan.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Jumbotail",
+      "domain": "jumbotail.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "ElasticRun",
+      "domain": "elastic.run",
+      "group": "Consumer"
+    },
+    {
+      "name": "Ninjacart",
+      "domain": "ninjacart.in",
+      "group": "Consumer"
+    },
+    {
+      "name": "DealShare",
+      "domain": "dealshare.in",
+      "group": "Consumer"
+    },
+    {
+      "name": "CityMall",
+      "domain": "citymall.live",
+      "group": "Consumer"
+    },
+    {
+      "name": "Snapdeal",
+      "domain": "snapdeal.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "ShopClues",
+      "domain": "shopclues.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Purplle",
+      "domain": "purplle.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Mamaearth (Honasa)",
+      "domain": "honasa.in",
+      "group": "Consumer"
+    },
+    {
+      "name": "boAt",
+      "domain": "boat-lifestyle.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Noise",
+      "domain": "gonoise.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Sugar Cosmetics",
+      "domain": "sugarcosmetics.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Bewakoof",
+      "domain": "bewakoof.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "The Souled Store",
+      "domain": "thesouledstore.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "FirstCry",
+      "domain": "firstcry.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Pepperfry",
+      "domain": "pepperfry.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Livspace",
+      "domain": "livspace.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Urban Ladder",
+      "domain": "urbanladder.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Wakefit",
+      "domain": "wakefit.co",
+      "group": "Consumer"
+    },
+    {
+      "name": "Rebel Foods",
+      "domain": "rebelfoods.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "EatSure",
+      "domain": "eatsure.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Magicpin",
+      "domain": "magicpin.in",
+      "group": "Consumer"
+    },
+    {
+      "name": "Nearbuy",
+      "domain": "nearbuy.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "BookMyShow",
+      "domain": "bookmyshow.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "District by Zomato",
+      "domain": "district.in",
+      "group": "Consumer"
+    },
+    {
+      "name": "Paytm Insider",
+      "domain": "insider.in",
+      "group": "Consumer"
+    },
+    {
+      "name": "Ajio",
+      "domain": "ajio.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Tata CLiQ",
+      "domain": "tatacliq.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Reliance Retail",
+      "domain": "relianceretail.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Titan Company",
+      "domain": "titancompany.in",
+      "group": "Consumer"
+    },
+    {
+      "name": "CaratLane",
+      "domain": "caratlane.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Bluestone",
+      "domain": "bluestone.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Giva",
+      "domain": "giva.co",
+      "group": "Consumer"
+    },
+    {
+      "name": "Zivame",
+      "domain": "zivame.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Libas",
+      "domain": "libas.in",
+      "group": "Consumer"
+    },
+    {
+      "name": "Snitch",
+      "domain": "snitch.co.in",
+      "group": "Consumer"
+    },
+    {
+      "name": "Rare Rabbit",
+      "domain": "thehouseofrare.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Vedix",
+      "domain": "vedix.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Minimalist",
+      "domain": "beminimalist.co",
+      "group": "Consumer"
+    },
+    {
+      "name": "The Whole Truth",
+      "domain": "thewholetruthfoods.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Lokal",
+      "domain": "getlokalapp.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Pocket FM",
+      "domain": "pocketfm.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Kuku FM",
+      "domain": "kukufm.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Pratilipi",
+      "domain": "pratilipi.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Dailyhunt",
+      "domain": "dailyhunt.in",
+      "group": "Consumer"
+    },
+    {
+      "name": "Josh (VerSe)",
+      "domain": "verse.in",
+      "group": "Consumer"
+    },
+    {
+      "name": "Moj",
+      "domain": "mojapp.in",
+      "group": "Consumer"
+    },
+    {
+      "name": "Chingari",
+      "domain": "chingari.io",
+      "group": "Consumer"
+    },
+    {
+      "name": "Eloelo",
+      "domain": "eloelo.in",
+      "group": "Consumer"
+    },
+    {
+      "name": "Glance",
+      "domain": "glance.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Truecaller",
+      "domain": "truecaller.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Hike",
+      "domain": "hike.in",
+      "group": "Consumer"
+    },
+    {
+      "name": "JioCinema",
+      "domain": "jiocinema.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Zee5",
+      "domain": "zee5.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "SonyLIV",
+      "domain": "sonyliv.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Hotstar (JioStar)",
+      "domain": "hotstar.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Gaana",
+      "domain": "gaana.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "JioSaavn",
+      "domain": "jiosaavn.com",
+      "group": "Consumer"
+    },
+    {
+      "name": "Airtel Digital",
+      "domain": "airtel.in",
+      "group": "Consumer"
+    },
+    {
+      "name": "BluSmart",
+      "domain": "blu-smart.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Yulu",
+      "domain": "yulu.bike",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Bounce",
+      "domain": "bounceshare.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Vogo",
+      "domain": "vogo.in",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Zoomcar",
+      "domain": "zoomcar.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Revv",
+      "domain": "revv.co.in",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Park+",
+      "domain": "parkplus.io",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "CarDekho",
+      "domain": "cardekho.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "CarTrade",
+      "domain": "cartrade.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Droom",
+      "domain": "droom.in",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Ola Electric",
+      "domain": "olaelectric.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "TVS Motor",
+      "domain": "tvsmotor.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Bajaj Auto",
+      "domain": "bajajauto.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Hero MotoCorp",
+      "domain": "heromotocorp.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Mahindra",
+      "domain": "mahindra.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Tata Motors",
+      "domain": "tatamotors.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Maruti Suzuki",
+      "domain": "marutisuzuki.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Ultraviolette",
+      "domain": "ultraviolette.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Euler Motors",
+      "domain": "eulermotors.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Log9 Materials",
+      "domain": "log9materials.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Exponent Energy",
+      "domain": "exponent.energy",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Porter",
+      "domain": "porter.in",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Rivigo",
+      "domain": "rivigo.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "BlackBuck",
+      "domain": "blackbuck.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Ecom Express",
+      "domain": "ecomexpress.in",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Xpressbees",
+      "domain": "xpressbees.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Shadowfax",
+      "domain": "shadowfax.in",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "LoadShare",
+      "domain": "loadshare.net",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Locus",
+      "domain": "locus.sh",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "FarEye",
+      "domain": "fareye.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Shipsy",
+      "domain": "shipsy.io",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Pickrr",
+      "domain": "pickrr.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "ClickPost",
+      "domain": "clickpost.ai",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Blue Dart",
+      "domain": "bluedart.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Zypp Electric",
+      "domain": "zypp.app",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "IRCTC",
+      "domain": "irctc.co.in",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "RedBus",
+      "domain": "redbus.in",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "ixigo",
+      "domain": "ixigo.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "EaseMyTrip",
+      "domain": "easemytrip.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Cleartrip",
+      "domain": "cleartrip.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Yatra",
+      "domain": "yatra.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Goibibo",
+      "domain": "goibibo.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Treebo",
+      "domain": "treebo.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "FabHotels",
+      "domain": "fabhotels.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Zostel",
+      "domain": "zostel.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "Airbnb India",
+      "domain": "airbnb.com",
+      "group": "Mobility & Logistics"
+    },
+    {
+      "name": "BYJU'S",
+      "domain": "byjus.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "Vedantu",
+      "domain": "vedantu.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "Toppr",
+      "domain": "toppr.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "Doubtnut",
+      "domain": "doubtnut.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "Testbook",
+      "domain": "testbook.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "Adda247",
+      "domain": "adda247.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "Classplus",
+      "domain": "classplus.co",
+      "group": "Edtech"
+    },
+    {
+      "name": "Teachmint",
+      "domain": "teachmint.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "LEAD Group",
+      "domain": "leadschool.in",
+      "group": "Edtech"
+    },
+    {
+      "name": "Cuemath",
+      "domain": "cuemath.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "Planet Spark",
+      "domain": "planetspark.in",
+      "group": "Edtech"
+    },
+    {
+      "name": "Great Learning",
+      "domain": "mygreatlearning.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "Simplilearn",
+      "domain": "simplilearn.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "Coding Ninjas",
+      "domain": "codingninjas.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "Masai School",
+      "domain": "masaischool.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "Newton School",
+      "domain": "newtonschool.co",
+      "group": "Edtech"
+    },
+    {
+      "name": "AlmaBetter",
+      "domain": "almabetter.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "GeeksforGeeks",
+      "domain": "geeksforgeeks.org",
+      "group": "Edtech"
+    },
+    {
+      "name": "InterviewBit",
+      "domain": "interviewbit.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "HackerEarth",
+      "domain": "hackerearth.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "HackerRank",
+      "domain": "hackerrank.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "Codechef",
+      "domain": "codechef.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "Leap Scholar",
+      "domain": "leapscholar.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "LeverageEdu",
+      "domain": "leverageedu.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "Collegedunia",
+      "domain": "collegedunia.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "Shiksha (Info Edge)",
+      "domain": "shiksha.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "Seekho",
+      "domain": "seekho.ai",
+      "group": "Edtech"
+    },
+    {
+      "name": "Imarticus",
+      "domain": "imarticus.org",
+      "group": "Edtech"
+    },
+    {
+      "name": "Jaro Education",
+      "domain": "jaroeducation.com",
+      "group": "Edtech"
+    },
+    {
+      "name": "Qure.ai",
+      "domain": "qure.ai",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Niramai",
+      "domain": "niramai.com",
+      "group": "Healthtech"
+    },
+    {
+      "name": "SigTuple",
+      "domain": "sigtuple.com",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Tricog",
+      "domain": "tricog.com",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Dozee",
+      "domain": "dozee.health",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Cloudphysician",
+      "domain": "cloudphysician.net",
+      "group": "Healthtech"
+    },
+    {
+      "name": "HealthPlix",
+      "domain": "healthplix.com",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Eka Care",
+      "domain": "eka.care",
+      "group": "Healthtech"
+    },
+    {
+      "name": "MediBuddy",
+      "domain": "medibuddy.in",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Pristyn Care",
+      "domain": "pristyncare.com",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Mfine",
+      "domain": "mfine.co",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Apollo 24|7",
+      "domain": "apollo247.com",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Truemeds",
+      "domain": "truemeds.in",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Netmeds",
+      "domain": "netmeds.com",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Medikabazaar",
+      "domain": "medikabazaar.com",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Zeno Health",
+      "domain": "zenohealth.in",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Redcliffe Labs",
+      "domain": "redcliffelabs.com",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Healthians",
+      "domain": "healthians.com",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Thyrocare",
+      "domain": "thyrocare.com",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Mylo",
+      "domain": "mylofamily.com",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Even Healthcare",
+      "domain": "even.in",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Ultrahuman",
+      "domain": "ultrahuman.com",
+      "group": "Healthtech"
+    },
+    {
+      "name": "HealthifyMe App",
+      "domain": "healthifyme.com",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Fittr",
+      "domain": "fittr.com",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Wysa",
+      "domain": "wysa.com",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Amaha",
+      "domain": "amahahealth.com",
+      "group": "Healthtech"
+    },
+    {
+      "name": "CureBay",
+      "domain": "curebay.com",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Sugar.fit",
+      "domain": "sugarfit.com",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Tata Health",
+      "domain": "tatahealth.com",
+      "group": "Healthtech"
+    },
+    {
+      "name": "Zoho Corp",
+      "domain": "zohocorp.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Kissflow",
+      "domain": "kissflow.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Zluri",
+      "domain": "zluri.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Spyne",
+      "domain": "spyne.ai",
+      "group": "SaaS"
+    },
+    {
+      "name": "Leena AI",
+      "domain": "leena.ai",
+      "group": "SaaS"
+    },
+    {
+      "name": "Rocketium",
+      "domain": "rocketium.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Wingify (VWO)",
+      "domain": "wingify.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Netcore Cloud",
+      "domain": "netcorecloud.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Unbxd",
+      "domain": "unbxd.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Vymo",
+      "domain": "getvymo.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Zenoti",
+      "domain": "zenoti.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Amagi",
+      "domain": "amagi.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Kaleyra",
+      "domain": "kaleyra.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Route Mobile",
+      "domain": "routemobile.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Tanla",
+      "domain": "tanla.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Ozonetel",
+      "domain": "ozonetel.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Knowlarity",
+      "domain": "knowlarity.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Verloop",
+      "domain": "verloop.io",
+      "group": "SaaS"
+    },
+    {
+      "name": "Kapture CX",
+      "domain": "kapturecx.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Hiver",
+      "domain": "hiverhq.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Zipy",
+      "domain": "zipy.ai",
+      "group": "SaaS"
+    },
+    {
+      "name": "Keka",
+      "domain": "keka.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "greytHR",
+      "domain": "greythr.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Zimyo",
+      "domain": "zimyo.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Springworks",
+      "domain": "springworks.in",
+      "group": "SaaS"
+    },
+    {
+      "name": "Pazcare",
+      "domain": "pazcare.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Toplyne",
+      "domain": "toplyne.io",
+      "group": "SaaS"
+    },
+    {
+      "name": "Sprinto",
+      "domain": "sprinto.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Scrut",
+      "domain": "scrut.io",
+      "group": "SaaS"
+    },
+    {
+      "name": "Signeasy",
+      "domain": "signeasy.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Leegality",
+      "domain": "leegality.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "DeepSource",
+      "domain": "deepsource.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Appsmith",
+      "domain": "appsmith.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "ToolJet",
+      "domain": "tooljet.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Hoppscotch",
+      "domain": "hoppscotch.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Middleware",
+      "domain": "middleware.io",
+      "group": "SaaS"
+    },
+    {
+      "name": "SigNoz",
+      "domain": "signoz.io",
+      "group": "SaaS"
+    },
+    {
+      "name": "Last9",
+      "domain": "last9.io",
+      "group": "SaaS"
+    },
+    {
+      "name": "Coralogix India",
+      "domain": "coralogix.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Facets.cloud",
+      "domain": "facets.cloud",
+      "group": "SaaS"
+    },
+    {
+      "name": "Devtron",
+      "domain": "devtron.ai",
+      "group": "SaaS"
+    },
+    {
+      "name": "Harness India",
+      "domain": "harness.io",
+      "group": "SaaS"
+    },
+    {
+      "name": "Mindbody India",
+      "domain": "mindbodyonline.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Fyle",
+      "domain": "fylehq.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Airmeet",
+      "domain": "airmeet.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Hubilo",
+      "domain": "hubilo.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Zapier India",
+      "domain": "zapier.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Tekion",
+      "domain": "tekion.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Cloudera India",
+      "domain": "cloudera.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Commvault",
+      "domain": "commvault.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Veeam India",
+      "domain": "veeam.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Informatica",
+      "domain": "informatica.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Tibco",
+      "domain": "tibco.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Ramco Systems",
+      "domain": "ramco.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Newgen Software",
+      "domain": "newgensoft.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Intellect Design Arena",
+      "domain": "intellectdesign.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Nucleus Software",
+      "domain": "nucleussoftware.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Tally Solutions",
+      "domain": "tallysolutions.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Zycus",
+      "domain": "zycus.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Eka Software",
+      "domain": "ekaplus.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Mad Street Den (Vue.ai)",
+      "domain": "vue.ai",
+      "group": "SaaS"
+    },
+    {
+      "name": "Uplers",
+      "domain": "uplers.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Instahyre Tech",
+      "domain": "instahyre.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Apna",
+      "domain": "apna.co",
+      "group": "SaaS"
+    },
+    {
+      "name": "WorkIndia",
+      "domain": "workindia.in",
+      "group": "SaaS"
+    },
+    {
+      "name": "Info Edge",
+      "domain": "infoedge.in",
+      "group": "SaaS"
+    },
+    {
+      "name": "Naukri Tech",
+      "domain": "naukri.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "foundit",
+      "domain": "foundit.in",
+      "group": "SaaS"
+    },
+    {
+      "name": "CIEL HR",
+      "domain": "cielhr.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "PeopleStrong",
+      "domain": "peoplestrong.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Unstop Tech",
+      "domain": "unstop.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Internshala Tech",
+      "domain": "internshala.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Zolostays",
+      "domain": "zolostays.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "NoBroker",
+      "domain": "nobroker.in",
+      "group": "SaaS"
+    },
+    {
+      "name": "Housing.com",
+      "domain": "housing.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Square Yards",
+      "domain": "squareyards.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "MagicBricks",
+      "domain": "magicbricks.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "99acres",
+      "domain": "99acres.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Stanza Living",
+      "domain": "stanzaliving.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Smartworks",
+      "domain": "smartworksoffice.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Awfis",
+      "domain": "awfis.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Cogoport",
+      "domain": "cogoport.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Zetwerk",
+      "domain": "zetwerk.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "OfBusiness",
+      "domain": "ofbusiness.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Moglix",
+      "domain": "moglix.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Infra.Market",
+      "domain": "infra.market",
+      "group": "SaaS"
+    },
+    {
+      "name": "Bizongo",
+      "domain": "bizongo.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Vegrow",
+      "domain": "vegrow.in",
+      "group": "SaaS"
+    },
+    {
+      "name": "DeHaat",
+      "domain": "agrevolution.in",
+      "group": "SaaS"
+    },
+    {
+      "name": "Arya.ag",
+      "domain": "arya.ag",
+      "group": "SaaS"
+    },
+    {
+      "name": "Bijak",
+      "domain": "bijak.in",
+      "group": "SaaS"
+    },
+    {
+      "name": "CropIn",
+      "domain": "cropin.com",
+      "group": "SaaS"
+    },
+    {
+      "name": "Gnani.ai",
+      "domain": "gnani.ai",
+      "group": "AI & Data"
+    },
+    {
+      "name": "CoRover",
+      "domain": "corover.ai",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Rephrase.ai",
+      "domain": "rephrase.ai",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Wadhwani AI",
+      "domain": "wadhwaniai.org",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Mad Street Den",
+      "domain": "madstreetden.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Arya.ai",
+      "domain": "arya.ai",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Crayon Data",
+      "domain": "crayondata.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Sigmoid",
+      "domain": "sigmoid.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "LatentView",
+      "domain": "latentview.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Tredence",
+      "domain": "tredence.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Absolutdata",
+      "domain": "absolutdata.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Course5 Intelligence",
+      "domain": "course5i.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Quantiphi",
+      "domain": "quantiphi.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Affine",
+      "domain": "affine.ai",
+      "group": "AI & Data"
+    },
+    {
+      "name": "TheMathCompany (MathCo)",
+      "domain": "themathcompany.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Gramener",
+      "domain": "gramener.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Ugam",
+      "domain": "ugamsolutions.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Near Intelligence",
+      "domain": "near.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Detect Technologies",
+      "domain": "detecttechnologies.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Staqu",
+      "domain": "staqu.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Uncanny Vision",
+      "domain": "uncannyvision.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Artivatic",
+      "domain": "artivatic.ai",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Beatoven.ai",
+      "domain": "beatoven.ai",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Lyzr",
+      "domain": "lyzr.ai",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Composio",
+      "domain": "composio.dev",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Giga ML",
+      "domain": "gigaml.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Nurix AI",
+      "domain": "nurix.ai",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Atomicwork",
+      "domain": "atomicwork.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Neysa",
+      "domain": "neysa.ai",
+      "group": "AI & Data"
+    },
+    {
+      "name": "E2E Networks",
+      "domain": "e2enetworks.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Yotta Data",
+      "domain": "yotta.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "CtrlS",
+      "domain": "ctrls.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Netweb",
+      "domain": "netwebindia.com",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Pixis",
+      "domain": "pixis.ai",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Mihup",
+      "domain": "mihup.ai",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Senseforth",
+      "domain": "senseforth.ai",
+      "group": "AI & Data"
+    },
+    {
+      "name": "Nazara Technologies",
+      "domain": "nazara.com",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "Zupee",
+      "domain": "zupee.com",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "WinZO",
+      "domain": "winzogames.com",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "Junglee Games",
+      "domain": "jungleegames.com",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "A23",
+      "domain": "a23.com",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "Rummycircle (Games24x7)",
+      "domain": "rummycircle.com",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "Nodwin Gaming",
+      "domain": "nodwingaming.com",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "Octro",
+      "domain": "octro.com",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "Moonfrog",
+      "domain": "moonfroglabs.com",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "Gametion (Ludo King)",
+      "domain": "gametion.com",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "SuperGaming",
+      "domain": "supergaming.com",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "Hitwicket",
+      "domain": "hitwicket.com",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "99Games",
+      "domain": "99games.in",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "Loco",
+      "domain": "getloconow.com",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "Rooter",
+      "domain": "rooter.gg",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "Kratos Studios",
+      "domain": "kratos.gg",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "Ubisoft India",
+      "domain": "ubisoft.com",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "EA India",
+      "domain": "ea.com",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "Rockstar India",
+      "domain": "rockstargames.com",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "Zynga India",
+      "domain": "zynga.com",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "Pocket Aces",
+      "domain": "pocketaces.in",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "TVF",
+      "domain": "tvfplay.com",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "Collective Artists Network",
+      "domain": "collectiveartists.in",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "InShorts",
+      "domain": "inshorts.com",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "Way2News",
+      "domain": "way2news.com",
+      "group": "Gaming & Media"
+    },
+    {
+      "name": "MediaTek India",
+      "domain": "mediatek.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Broadcom India",
+      "domain": "broadcom.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Marvell India",
+      "domain": "marvell.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Micron India",
+      "domain": "micron.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Western Digital India",
+      "domain": "westerndigital.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Seagate India",
+      "domain": "seagate.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Analog Devices India",
+      "domain": "analog.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "NXP India",
+      "domain": "nxp.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Infineon India",
+      "domain": "infineon.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "STMicroelectronics India",
+      "domain": "st.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Renesas India",
+      "domain": "renesas.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Microchip India",
+      "domain": "microchip.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "onsemi India",
+      "domain": "onsemi.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Arm India",
+      "domain": "arm.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Rambus India",
+      "domain": "rambus.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Lattice Semiconductor",
+      "domain": "latticesemi.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Applied Materials India",
+      "domain": "appliedmaterials.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Lam Research India",
+      "domain": "lamresearch.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "KLA India",
+      "domain": "kla.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Keysight India",
+      "domain": "keysight.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Siemens EDA",
+      "domain": "eda.sw.siemens.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Ansys India",
+      "domain": "ansys.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "MathWorks India",
+      "domain": "mathworks.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Tessolve",
+      "domain": "tessolve.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Moschip",
+      "domain": "moschip.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Sankalp Semiconductor",
+      "domain": "sankalpsemi.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Mindgrove Technologies",
+      "domain": "mindgrove.in",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "InCore Semiconductors",
+      "domain": "incoresemi.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Saankhya Labs",
+      "domain": "saankhyalabs.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Tata Electronics",
+      "domain": "tataelectronics.co.in",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Dixon Technologies",
+      "domain": "dixoninfo.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Kaynes Technology",
+      "domain": "kaynestechnology.co.in",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Bharat Electronics (BEL)",
+      "domain": "bel-india.in",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "HAL",
+      "domain": "hal-india.co.in",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Agnikul Cosmos",
+      "domain": "agnikul.in",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Skyroot Aerospace",
+      "domain": "skyroot.in",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Pixxel",
+      "domain": "pixxel.space",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Digantara",
+      "domain": "digantara.co.in",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "ideaForge",
+      "domain": "ideaforgetech.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Garuda Aerospace",
+      "domain": "garudaaerospace.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Zeno Power India",
+      "domain": "zenopower.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Tejas Networks",
+      "domain": "tejasnetworks.com",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Sterlite Technologies",
+      "domain": "stl.tech",
+      "group": "Semiconductors & Hardware"
+    },
+    {
+      "name": "Meta India",
+      "domain": "meta.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Netflix India",
+      "domain": "netflix.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "GitHub India",
+      "domain": "github.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "VMware (Broadcom) India",
+      "domain": "vmware.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Dell Technologies India",
+      "domain": "dell.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "HP India",
+      "domain": "hp.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "HPE India",
+      "domain": "hpe.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Lenovo India",
+      "domain": "lenovo.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Red Hat India",
+      "domain": "redhat.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "F5 India",
+      "domain": "f5.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Akamai India",
+      "domain": "akamai.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Cloudflare India",
+      "domain": "cloudflare.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Fastly India",
+      "domain": "fastly.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Databricks India",
+      "domain": "databricks.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "MongoDB India",
+      "domain": "mongodb.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Elastic India",
+      "domain": "elastic.co",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Couchbase India",
+      "domain": "couchbase.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Redis India",
+      "domain": "redis.io",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "HashiCorp India",
+      "domain": "hashicorp.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "GitLab India",
+      "domain": "gitlab.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Twilio India",
+      "domain": "twilio.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Stripe India",
+      "domain": "stripe.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Shopify India",
+      "domain": "shopify.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Rubrik India",
+      "domain": "rubrik.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Cohesity India",
+      "domain": "cohesity.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Pure Storage India",
+      "domain": "purestorage.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "PTC India",
+      "domain": "ptc.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Dassault Systèmes India",
+      "domain": "3ds.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Siemens Digital Industries Software",
+      "domain": "sw.siemens.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Bentley Systems India",
+      "domain": "bentley.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Hexagon India",
+      "domain": "hexagon.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Trimble India",
+      "domain": "trimble.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Zebra Technologies India",
+      "domain": "zebra.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "GE Healthcare India",
+      "domain": "gehealthcare.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "GE Aerospace India",
+      "domain": "geaerospace.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Siemens Healthineers India",
+      "domain": "siemens-healthineers.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Medtronic India",
+      "domain": "medtronic.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Baxter India",
+      "domain": "baxter.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Johnson & Johnson India",
+      "domain": "jnj.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Novartis India",
+      "domain": "novartis.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "AstraZeneca India",
+      "domain": "astrazeneca.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Pfizer India",
+      "domain": "pfizer.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Sanofi India",
+      "domain": "sanofi.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "GSK India",
+      "domain": "gsk.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Bayer India",
+      "domain": "bayer.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Shell India",
+      "domain": "shell.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "BP India",
+      "domain": "bp.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "ExxonMobil India",
+      "domain": "exxonmobil.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Schneider Electric India",
+      "domain": "se.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "ABB India",
+      "domain": "abb.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Emerson India",
+      "domain": "emerson.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Rockwell Automation India",
+      "domain": "rockwellautomation.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Eaton India",
+      "domain": "eaton.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Caterpillar India",
+      "domain": "caterpillar.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "John Deere India",
+      "domain": "deere.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Cummins India",
+      "domain": "cummins.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Continental India",
+      "domain": "continental.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "ZF India",
+      "domain": "zf.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Mercedes-Benz R&D India",
+      "domain": "mercedes-benz.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "BMW TechWorks India",
+      "domain": "bmwgroup.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Volvo Group India",
+      "domain": "volvogroup.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Stellantis India",
+      "domain": "stellantis.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Harman India",
+      "domain": "harman.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Aptiv India",
+      "domain": "aptiv.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Visteon India",
+      "domain": "visteon.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "KPIT Technologies",
+      "domain": "kpit.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Tata Elxsi",
+      "domain": "tataelxsi.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "L&T Technology Services",
+      "domain": "ltts.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Cyient",
+      "domain": "cyient.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Quest Global",
+      "domain": "quest-global.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Sasken",
+      "domain": "sasken.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Airbus India",
+      "domain": "airbus.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Boeing India",
+      "domain": "boeing.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Rolls-Royce India",
+      "domain": "rolls-royce.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Collins Aerospace India",
+      "domain": "collinsaerospace.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Thales India",
+      "domain": "thalesgroup.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Ericsson India",
+      "domain": "ericsson.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Nokia India",
+      "domain": "nokia.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "LG Soft India",
+      "domain": "lgsoftindia.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Sony India Software",
+      "domain": "sony.co.in",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Panasonic India",
+      "domain": "panasonic.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Hitachi India",
+      "domain": "hitachi.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Toshiba India",
+      "domain": "toshiba.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Fujitsu India",
+      "domain": "fujitsu.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "NTT Data India",
+      "domain": "nttdata.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Rakuten India",
+      "domain": "rakuten.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Mercari India",
+      "domain": "mercari.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Booking.com India",
+      "domain": "booking.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Agoda India",
+      "domain": "agoda.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Grab India",
+      "domain": "grab.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Unity India",
+      "domain": "unity.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Canva India",
+      "domain": "canva.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Zendesk India",
+      "domain": "zendesk.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "HubSpot India",
+      "domain": "hubspot.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Dropbox India",
+      "domain": "dropbox.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Box India",
+      "domain": "box.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "DocuSign India",
+      "domain": "docusign.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Okta India",
+      "domain": "okta.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "CrowdStrike India",
+      "domain": "crowdstrike.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Fortinet India",
+      "domain": "fortinet.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Check Point India",
+      "domain": "checkpoint.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Qualys India",
+      "domain": "qualys.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Tenable India",
+      "domain": "tenable.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Rapid7 India",
+      "domain": "rapid7.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Sophos India",
+      "domain": "sophos.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Trellix India",
+      "domain": "trellix.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "McAfee India",
+      "domain": "mcafee.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Gen Digital India",
+      "domain": "gendigital.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Quick Heal",
+      "domain": "quickheal.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Seqrite",
+      "domain": "seqrite.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "CloudSEK",
+      "domain": "cloudsek.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Sequretek",
+      "domain": "sequretek.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Securonix",
+      "domain": "securonix.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Innefu Labs",
+      "domain": "innefu.com",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "AppSecure",
+      "domain": "appsecure.security",
+      "group": "MNC Tech"
+    },
+    {
+      "name": "Citi India",
+      "domain": "citi.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Bank of America India",
+      "domain": "bankofamerica.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "HSBC India",
+      "domain": "hsbc.co.in",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "UBS India",
+      "domain": "ubs.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "BNY India",
+      "domain": "bny.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "State Street India",
+      "domain": "statestreet.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Northern Trust India",
+      "domain": "northerntrust.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Standard Chartered India",
+      "domain": "sc.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "BNP Paribas India",
+      "domain": "bnpparibas.co.in",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Société Générale India",
+      "domain": "societegenerale.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Nomura India",
+      "domain": "nomura.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Mizuho India",
+      "domain": "mizuhogroup.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "MUFG India",
+      "domain": "mufg.jp",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Fidelity International India",
+      "domain": "fidelityinternational.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Fidelity Investments India",
+      "domain": "fidelity.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Vanguard India",
+      "domain": "vanguard.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "BlackRock India",
+      "domain": "blackrock.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Franklin Templeton India",
+      "domain": "franklintempleton.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Invesco India",
+      "domain": "invesco.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "T. Rowe Price India",
+      "domain": "troweprice.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "FIS India",
+      "domain": "fisglobal.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Fiserv India",
+      "domain": "fiserv.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Global Payments India",
+      "domain": "globalpayments.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Worldline India",
+      "domain": "worldline.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Broadridge India",
+      "domain": "broadridge.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "SS&C India",
+      "domain": "ssctech.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "MSCI India",
+      "domain": "msci.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "S&P Global India",
+      "domain": "spglobal.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Moody's India",
+      "domain": "moodys.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Fitch India",
+      "domain": "fitch.group",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "LSEG India",
+      "domain": "lseg.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Bloomberg India",
+      "domain": "bloomberg.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Nasdaq India",
+      "domain": "nasdaq.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Intercontinental Exchange India",
+      "domain": "ice.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Experian India",
+      "domain": "experian.in",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "TransUnion CIBIL",
+      "domain": "transunioncibil.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Equifax India",
+      "domain": "equifax.co.in",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Synchrony India",
+      "domain": "synchrony.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Capital One India",
+      "domain": "capitalone.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Discover India",
+      "domain": "discover.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Chubb India",
+      "domain": "chubb.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Swiss Re India",
+      "domain": "swissre.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Allianz India",
+      "domain": "allianz.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "AIG India",
+      "domain": "aig.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "MetLife India",
+      "domain": "metlife.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Prudential India",
+      "domain": "prudential.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Lloyds Technology Centre India",
+      "domain": "lloydsbankinggroup.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "NatWest India",
+      "domain": "natwestgroup.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "ABN AMRO India",
+      "domain": "abnamro.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "ING India",
+      "domain": "ing.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Rabobank India",
+      "domain": "rabobank.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "DBS Tech India",
+      "domain": "dbs.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "OCBC India",
+      "domain": "ocbc.com",
+      "group": "Banking & Finance Tech"
+    },
+    {
+      "name": "Graviton Research Capital",
+      "domain": "gravitontrading.com",
+      "group": "Quant & Trading"
+    },
+    {
+      "name": "Quadeye",
+      "domain": "quadeye.com",
+      "group": "Quant & Trading"
+    },
+    {
+      "name": "AlphaGrep",
+      "domain": "alphagrep.com",
+      "group": "Quant & Trading"
+    },
+    {
+      "name": "iRage",
+      "domain": "irage.in",
+      "group": "Quant & Trading"
+    },
+    {
+      "name": "Optiver India",
+      "domain": "optiver.com",
+      "group": "Quant & Trading"
+    },
+    {
+      "name": "Jane Street India",
+      "domain": "janestreet.com",
+      "group": "Quant & Trading"
+    },
+    {
+      "name": "Citadel Securities India",
+      "domain": "citadelsecurities.com",
+      "group": "Quant & Trading"
+    },
+    {
+      "name": "Squarepoint India",
+      "domain": "squarepoint-capital.com",
+      "group": "Quant & Trading"
+    },
+    {
+      "name": "WorldQuant India",
+      "domain": "worldquant.com",
+      "group": "Quant & Trading"
+    },
+    {
+      "name": "Millennium India",
+      "domain": "mlp.com",
+      "group": "Quant & Trading"
+    },
+    {
+      "name": "Qube Research India",
+      "domain": "qube-rt.com",
+      "group": "Quant & Trading"
+    },
+    {
+      "name": "NK Securities",
+      "domain": "nksecurities.com",
+      "group": "Quant & Trading"
+    },
+    {
+      "name": "Dolat Capital",
+      "domain": "dolatcapital.com",
+      "group": "Quant & Trading"
+    },
+    {
+      "name": "Estee Advisors",
+      "domain": "estee.in",
+      "group": "Quant & Trading"
+    },
+    {
+      "name": "Edelweiss Quant",
+      "domain": "edelweissfin.com",
+      "group": "Quant & Trading"
+    },
+    {
+      "name": "Sigma Investments",
+      "domain": "sigmainvestments.in",
+      "group": "Quant & Trading"
+    },
+    {
+      "name": "Lowe's India",
+      "domain": "lowes.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Home Depot India",
+      "domain": "homedepot.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Tesco Bengaluru",
+      "domain": "tesco.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Sainsbury's Tech India",
+      "domain": "sainsburys.co.uk",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Marks & Spencer India",
+      "domain": "marksandspencer.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "IKEA India",
+      "domain": "ikea.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "H&M India",
+      "domain": "hm.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Nike India",
+      "domain": "nike.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Adidas India",
+      "domain": "adidas.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Levi Strauss India",
+      "domain": "levistrauss.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Unilever India",
+      "domain": "unilever.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Hindustan Unilever",
+      "domain": "hul.co.in",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Procter & Gamble India",
+      "domain": "pg.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Nestlé India",
+      "domain": "nestle.in",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "PepsiCo India",
+      "domain": "pepsico.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Coca-Cola India",
+      "domain": "coca-colaindia.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Mondelez India",
+      "domain": "mondelezinternational.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Diageo India",
+      "domain": "diageo.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "AB InBev GCC India",
+      "domain": "ab-inbev.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Kraft Heinz India",
+      "domain": "kraftheinzcompany.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "McDonald's India Tech",
+      "domain": "mcdonalds.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Starbucks India",
+      "domain": "starbucks.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Kroger India",
+      "domain": "kroger.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Albertsons India",
+      "domain": "albertsons.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Best Buy India",
+      "domain": "bestbuy.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Costco India",
+      "domain": "costco.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "eBay India",
+      "domain": "ebay.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Wayfair India",
+      "domain": "wayfair.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Chewy India",
+      "domain": "chewy.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Etsy India",
+      "domain": "etsy.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Ralph Lauren India",
+      "domain": "ralphlauren.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Maersk India",
+      "domain": "maersk.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "DHL India",
+      "domain": "dhl.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "FedEx India",
+      "domain": "fedex.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "UPS India",
+      "domain": "ups.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Publicis Groupe India",
+      "domain": "publicisgroupe.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Dentsu India",
+      "domain": "dentsu.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "WPP India",
+      "domain": "wpp.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Nielsen India",
+      "domain": "nielsen.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "NielsenIQ India",
+      "domain": "nielseniq.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Kantar India",
+      "domain": "kantar.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Gartner India",
+      "domain": "gartner.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Thomson Reuters India",
+      "domain": "thomsonreuters.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "RELX India",
+      "domain": "relx.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Wolters Kluwer India",
+      "domain": "wolterskluwer.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Elsevier India",
+      "domain": "elsevier.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Pearson India",
+      "domain": "pearson.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "McKinsey Knowledge Centre",
+      "domain": "mckinsey.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "BCG India",
+      "domain": "bcg.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Bain India",
+      "domain": "bain.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "ZS Associates",
+      "domain": "zs.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Axtria",
+      "domain": "axtria.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "IQVIA India",
+      "domain": "iqvia.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Optum India",
+      "domain": "optum.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "UnitedHealth Group India",
+      "domain": "unitedhealthgroup.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Cigna India",
+      "domain": "cigna.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Elevance Health India",
+      "domain": "elevancehealth.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "CVS Health India",
+      "domain": "cvshealth.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Walgreens India",
+      "domain": "walgreens.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Cardinal Health India",
+      "domain": "cardinalhealth.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "McKesson India",
+      "domain": "mckesson.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Carelon Global Solutions",
+      "domain": "carelon.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Evernorth India",
+      "domain": "evernorth.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Conduent India",
+      "domain": "conduent.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Genpact",
+      "domain": "genpact.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "EXL",
+      "domain": "exlservice.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "WNS",
+      "domain": "wns.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Firstsource",
+      "domain": "firstsource.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Hinduja Global Solutions",
+      "domain": "hgs.cx",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Teleperformance India",
+      "domain": "teleperformance.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Concentrix India",
+      "domain": "concentrix.com",
+      "group": "Retail & Consumer GCCs"
+    },
+    {
+      "name": "Infosys BPM",
+      "domain": "infosysbpm.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "HCL Software",
+      "domain": "hcl-software.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Mphasis",
+      "domain": "mphasis.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Coforge",
+      "domain": "coforge.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Hexaware",
+      "domain": "hexaware.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Birlasoft",
+      "domain": "birlasoft.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Zensar",
+      "domain": "zensar.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Sonata Software",
+      "domain": "sonata-software.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Mastek",
+      "domain": "mastek.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Happiest Minds",
+      "domain": "happiestminds.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Tata Technologies",
+      "domain": "tatatechnologies.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Cybage",
+      "domain": "cybage.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Globant India",
+      "domain": "globant.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Virtusa",
+      "domain": "virtusa.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "UST",
+      "domain": "ust.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "DXC Technology India",
+      "domain": "dxc.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Kyndryl India",
+      "domain": "kyndryl.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Atos India",
+      "domain": "atos.net",
+      "group": "IT Services"
+    },
+    {
+      "name": "Unisys India",
+      "domain": "unisys.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "CGI India",
+      "domain": "cgi.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Ciklum India",
+      "domain": "ciklum.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "GlobalLogic",
+      "domain": "globallogic.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Grid Dynamics India",
+      "domain": "griddynamics.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Tavant",
+      "domain": "tavant.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Mindfire Solutions",
+      "domain": "mindfiresolutions.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Infogain",
+      "domain": "infogain.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Xoriant",
+      "domain": "xoriant.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Synechron",
+      "domain": "synechron.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "3i Infotech",
+      "domain": "3i-infotech.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Datamatics",
+      "domain": "datamatics.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Mindteck",
+      "domain": "mindteck.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Saksoft",
+      "domain": "saksoft.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "R Systems",
+      "domain": "rsystems.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Ness Digital Engineering",
+      "domain": "ness.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Innova Solutions",
+      "domain": "innovasolutions.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Stefanini India",
+      "domain": "stefanini.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "PwC AC India",
+      "domain": "pwc.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Grant Thornton Bharat",
+      "domain": "grantthornton.in",
+      "group": "IT Services"
+    },
+    {
+      "name": "BDO India",
+      "domain": "bdo.in",
+      "group": "IT Services"
+    },
+    {
+      "name": "Protiviti India",
+      "domain": "protiviti.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Quess Corp",
+      "domain": "quesscorp.com",
+      "group": "IT Services"
+    },
+    {
+      "name": "Teamlease Digital",
+      "domain": "teamleasedigital.com",
+      "group": "IT Services"
+    }
+  ]
+}

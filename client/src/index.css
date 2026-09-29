@@ -1,0 +1,158 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+  Graphite theme — monochrome, built from layered near-black / near-white shades with a faint cool
+  undertone (hue 270, tiny chroma) so surfaces feel rich rather than flat grey. No brand colour:
+  hierarchy comes from contrast, weight and depth.
+*/
+:root {
+  --radius: 0.75rem;
+  --background: oklch(0.985 0.002 270);
+  --foreground: oklch(0.17 0.006 270);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.17 0.006 270);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.17 0.006 270);
+  --primary: oklch(0.2 0.007 270);
+  --primary-foreground: oklch(0.985 0.002 270);
+  --secondary: oklch(0.955 0.003 270);
+  --secondary-foreground: oklch(0.22 0.006 270);
+  --muted: oklch(0.955 0.003 270);
+  --muted-foreground: oklch(0.5 0.01 270);
+  --accent: oklch(0.945 0.004 270);
+  --accent-foreground: oklch(0.2 0.007 270);
+  --destructive: oklch(0.55 0.12 25);
+  --border: oklch(0.905 0.004 270);
+  --input: oklch(0.89 0.005 270);
+  --ring: oklch(0.55 0.01 270);
+  --glow: oklch(0.2 0.01 270 / 5%);
+  --grain-opacity: 0.025;
+}
+
+.dark {
+  --background: oklch(0.145 0.004 270);
+  --foreground: oklch(0.955 0.003 270);
+  --card: oklch(0.178 0.005 270);
+  --card-foreground: oklch(0.955 0.003 270);
+  --popover: oklch(0.19 0.006 270);
+  --popover-foreground: oklch(0.955 0.003 270);
+  --primary: oklch(0.94 0.004 270);
+  --primary-foreground: oklch(0.17 0.006 270);
+  --secondary: oklch(0.235 0.006 270);
+  --secondary-foreground: oklch(0.94 0.004 270);
+  --muted: oklch(0.225 0.006 270);
+  --muted-foreground: oklch(0.67 0.012 270);
+  --accent: oklch(0.255 0.007 270);
+  --accent-foreground: oklch(0.96 0.003 270);
+  --destructive: oklch(0.66 0.13 25);
+  --border: oklch(1 0 0 / 8%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: oklch(0.62 0.012 270);
+  --glow: oklch(0.85 0.02 270 / 7%);
+  --grain-opacity: 0.045;
+}
+
+@theme inline {
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: 'ss01', 'cv11';
+    letter-spacing: -0.006em;
+    min-height: 100vh;
+    background-image: radial-gradient(1200px 520px at 50% -180px, var(--glow), transparent 70%);
+    background-repeat: no-repeat;
+  }
+  /* Film-grain texture for depth */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    opacity: var(--grain-opacity);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  ::selection {
+    background: var(--foreground);
+    color: var(--background);
+  }
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+  /* Subtle 1px inner highlight that makes dark cards feel lit from above */
+  .surface {
+    box-shadow:
+      inset 0 1px 0 0 oklch(1 0 0 / 4%),
+      0 1px 2px 0 oklch(0 0 0 / 10%);
+  }
+  .dark .surface {
+    box-shadow:
+      inset 0 1px 0 0 oklch(1 0 0 / 5%),
+      0 10px 30px -12px oklch(0 0 0 / 60%);
+  }
+  .lift {
+    transition: transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 200ms, background-color 200ms;
+  }
+  .lift:hover {
+    transform: translateY(-2px);
+  }
+  .text-gradient {
+    background: linear-gradient(180deg, var(--foreground) 30%, color-mix(in oklch, var(--foreground) 55%, transparent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "_readme": "Hand-picked company career boards, read through their public job-board APIs. Find the token in a company's careers URL: boards.greenhouse.io/<token> or job-boards.greenhouse.io/<token> -> greenhouse; jobs.lever.co/<token> -> lever; jobs.ashbyhq.com/<token> -> ashby; apply.workable.com/<token> -> workable; <token>.recruitee.com -> recruitee; <token>.jobs.personio.de -> personio (add \"domain\": \"com\" for .personio.com); jobs.smartrecruiters.com/<token> -> smartrecruiters; <tenant>.wdN.myworkdayjobs.com/<site> -> workday (host, tenant, site). Or run `npm run discover -- --names \"Razorpay, Swiggy\"` to find boards automatically. Boards that fail show up in the Sources panel.",
+  "greenhouse": [
+    {
+      "token": "databricks",
+      "name": "Databricks"
+    },
+    {
+      "token": "groww",
+      "name": "Groww"
+    },
+    {
+      "token": "rubrik",
+      "name": "Rubrik"
+    },
+    {
+      "token": "mongodb",
+      "name": "MongoDB"
+    },
+    {
+      "token": "cloudflare",
+      "name": "Cloudflare"
+    },
+    {
+      "token": "stripe",
+      "name": "Stripe"
+    },
+    {
+      "token": "gitlab",
+      "name": "GitLab"
+    },
+    {
+      "token": "druva",
+      "name": "Druva"
+    },
+    {
+      "token": "twilio",
+      "name": "Twilio"
+    },
+    {
+      "token": "razorpaysoftwareprivatelimited",
+      "name": "Razorpay"
+    }
+  ],
+  "lever": [
+    {
+      "token": "cred",
+      "name": "CRED"
+    },
+    {
+      "token": "meesho",
+      "name": "Meesho"
+    },
+    {
+      "token": "zeta",
+      "name": "Zeta"
+    },
+    {
+      "token": "paytm",
+      "name": "Paytm"
+    }
+  ],
+  "ashby": [
+    {
+      "token": "sarvam",
+      "name": "Sarvam AI"
+    }
+  ],
+  "workable": [],
+  "recruitee": [],
+  "personio": [],
+  "smartrecruiters": [],
+  "workday": [
+    {
+      "host": "nvidia.wd5.myworkdayjobs.com",
+      "tenant": "nvidia",
+      "site": "NVIDIAExternalCareerSite",
+      "name": "NVIDIA"
+    },
+    {
+      "host": "salesforce.wd12.myworkdayjobs.com",
+      "tenant": "salesforce",
+      "site": "External_Career_Site",
+      "name": "Salesforce"
+    },
+    {
+      "host": "intel.wd1.myworkdayjobs.com",
+      "tenant": "intel",
+      "site": "External",
+      "name": "Intel"
+    },
+    {
+      "host": "adobe.wd5.myworkdayjobs.com",
+      "tenant": "adobe",
+      "site": "external_experienced",
+      "name": "Adobe"
+    },
+    {
+      "host": "mastercard.wd1.myworkdayjobs.com",
+      "tenant": "mastercard",
+      "site": "CorporateCareers",
+      "name": "Mastercard"
+    }
+  ]
+}

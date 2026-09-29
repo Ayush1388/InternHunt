@@ -1,0 +1,19 @@
+{
+  "name": "internhunt",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Internships and entry-level tech jobs from trusted company job boards, in one place.",
+  "scripts": {
+    "setup": "npm install --prefix server && npm install --prefix client",
+    "build": "npm run build --prefix client",
+    "start": "npm start --prefix server",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "refresh": "npm run refresh --prefix server",
+    "seed:sample": "npm run seed:sample --prefix server",
+    "test": "npm test --prefix server"
+  },
+  "engines": {
+    "node": ">=22.13"
+  }
+}
