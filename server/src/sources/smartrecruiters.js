@@ -1,8 +1,9 @@
-import { toIso } from '../lib/text.js';
+import { toIso, htmlToText } from '../lib/text.js';
+import { getJson } from '../lib/http.js';
 import { levelHintFrom } from '../lib/levelHint.js';
 
 // SmartRecruiters public Posting API (no key): https://developers.smartrecruiters.com/docs/posting-api
-// The list endpoint has no description, so level detection relies on title + experienceLevel.
+// The list endpoint has no description; `detail` fetches it from the posting endpoint when needed.
 export default {
   id: 'smartrecruiters',
   label: 'SmartRecruiters',
@@ -14,6 +15,17 @@ export default {
       company: c.name,
       token: c.token,
     })),
+  async detail(row) {
+    const token = row.target_key.split(':')[1];
+    const id = row.id.split(':')[1];
+    const d = await getJson(`https://api.smartrecruiters.com/v1/companies/${encodeURIComponent(token)}/postings/${encodeURIComponent(id)}`);
+    const sections = d?.jobAd?.sections || {};
+    return ['jobDescription', 'qualifications', 'additionalInformation']
+      .map((k) => sections[k])
+      .filter((x) => x?.text)
+      .map((x) => `${x.title ? `${x.title}\n` : ''}${htmlToText(x.text)}`)
+      .join('\n');
+  },
   parse(raw, target) {
     return (raw?.content || []).map((j) => {
       const l = j.location || {};

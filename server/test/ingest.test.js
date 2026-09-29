@@ -25,8 +25,8 @@ function ingestAll() {
 test('adapters parse each API shape and only relevant jobs are kept', () => {
   const r = ingestAll();
   assert.equal(r.greenhouse.parsed.length, 7); // incl. an evergreen talent-pool posting that gets blocked
-  assert.deepEqual(r.greenhouse.relevant.map((j) => j.sourceJobId).sort(), ['9001', '9004', '9006']);
-  assert.deepEqual(r.lever.relevant.map((j) => j.sourceJobId).sort(), ['lv-1', 'lv-2']);
+  assert.deepEqual(r.greenhouse.relevant.map((j) => j.sourceJobId).sort(), ['9001', '9002', '9004', '9006']); // 9002 is a senior role: kept as a 3+/5+ year job
+  assert.deepEqual(r.lever.relevant.map((j) => j.sourceJobId).sort(), ['lv-1', 'lv-2', 'lv-3']); // lv-3 (SDE-2, 3+ years) is a 3+ year job
   assert.deepEqual(r.ashby.relevant.map((j) => j.sourceJobId), ['ab-1']);
   assert.deepEqual(r.remotive.relevant.map((j) => j.sourceJobId).sort(), ['501', '502']); // US-only, stale, scam, agency, region-locked all dropped
   assert.equal(r.remoteok.parsed.length, 3); // legal notice skipped
@@ -39,11 +39,12 @@ test('stored rows carry the right labels', () => {
   assert.equal(row('greenhouse:9001').level, 'intern');
   assert.equal(row('greenhouse:9001').city, 'Bengaluru');
   assert.equal(row('greenhouse:9001').description.includes('<p>'), false); // HTML stripped
-  assert.equal(row('greenhouse:9004').level, 'entry');
+  assert.equal(row('greenhouse:9004').level, 'job');
+  assert.equal(row('greenhouse:9004').exp, 0);
   assert.equal(row('greenhouse:9006').loc_tag, 'remote_india');
-  assert.equal(row('lever:lv-1').category, 'web');
+  assert.equal(row('lever:lv-1').category, 'frontend');
   assert.equal(row('lever:lv-2').salary.startsWith('INR'), true);
-  assert.equal(row('ashby:ab-1').category, 'data');
+  assert.equal(row('ashby:ab-1').category, 'ml');
   assert.equal(row('remoteok:7001').loc_tag, 'remote_worldwide');
   assert.equal(row('remoteok:7003'), undefined);
 });

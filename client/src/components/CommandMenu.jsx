@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Briefcase, Globe, Landmark, Link2, ListChecks, MapPin, Moon, RefreshCw, Rows3, Sparkles, Sun } from 'lucide-react';
+import { Briefcase, CalendarClock, Globe, GraduationCap, Landmark, Link2, ListChecks, MapPin, Moon, Palette, RefreshCw, Sparkles, Sun } from 'lucide-react';
 import { api } from '@/api';
 import { useTheme } from '@/components/theme';
 import {
@@ -21,7 +21,7 @@ export default function CommandMenu({ open, onOpenChange, go, applyPreset, onOpe
     if (q.trim().length < 2) return setHits([]);
     const t = setTimeout(() => {
       api
-        .jobs({ q: q.trim(), limit: 6, level: 'intern,entry,unspecified' })
+        .jobs({ q: q.trim(), limit: 6 })
         .then((r) => setHits(r.jobs))
         .catch(() => setHits([]));
     }, 180);
@@ -50,16 +50,19 @@ export default function CommandMenu({ open, onOpenChange, go, applyPreset, onOpe
           </CommandGroup>
         )}
         <CommandGroup heading="Go to">
-          <CommandItem onSelect={run(() => go('browse'))}><Briefcase /> Browse roles<CommandShortcut>G B</CommandShortcut></CommandItem>
+          <CommandItem onSelect={run(() => go('intern'))}><GraduationCap /> Internships<CommandShortcut>G I</CommandShortcut></CommandItem>
+          <CommandItem onSelect={run(() => go('job'))}><Briefcase /> Jobs<CommandShortcut>G J</CommandShortcut></CommandItem>
+          <CommandItem onSelect={run(() => go('government'))}><Landmark /> Government programs<CommandShortcut>G P</CommandShortcut></CommandItem>
           <CommandItem onSelect={run(() => go('applications'))}><ListChecks /> My applications<CommandShortcut>G A</CommandShortcut></CommandItem>
-          <CommandItem onSelect={run(() => go('programs'))}><Landmark /> Programs & drives<CommandShortcut>G P</CommandShortcut></CommandItem>
         </CommandGroup>
         <CommandSeparator />
         <CommandGroup heading="Quick filters">
-          <CommandItem onSelect={run(() => applyPreset({ level: ['intern'] }))}><Sparkles /> Internships only</CommandItem>
-          <CommandItem onSelect={run(() => applyPreset({ level: ['entry'] }))}><Rows3 /> Entry-level only</CommandItem>
+          <CommandItem onSelect={run(() => applyPreset({ kind: 'intern', deadline: 'week' }))}><CalendarClock /> Internships closing this week</CommandItem>
+          <CommandItem onSelect={run(() => applyPreset({ kind: 'job', exp: ['0'] }))}><Briefcase /> Fresher jobs (no experience)</CommandItem>
+          <CommandItem onSelect={run(() => applyPreset({ kind: 'intern', type: 'programs' }))}><Sparkles /> Programs (GSoC, STEP, drives…)</CommandItem>
           <CommandItem onSelect={run(() => applyPreset({ loc: ['remote_india', 'remote_worldwide'] }))}><Globe /> Remote roles</CommandItem>
-          <CommandItem onSelect={run(() => applyPreset({ category: ['data'] }))}><Sparkles /> Data / ML</CommandItem>
+          <CommandItem onSelect={run(() => applyPreset({ category: ['data', 'ml'] }))}><Sparkles /> Data / AI / ML</CommandItem>
+          <CommandItem onSelect={run(() => applyPreset({ category: ['design'] }))}><Palette /> UI/UX & web design</CommandItem>
           <CommandItem onSelect={run(() => applyPreset({ city: 'Bengaluru', loc: ['india_onsite'] }))}><MapPin /> In Bengaluru</CommandItem>
           <CommandItem onSelect={run(() => applyPreset({ companyOnly: true }))}><Briefcase /> Company careers pages only</CommandItem>
         </CommandGroup>

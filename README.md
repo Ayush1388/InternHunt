@@ -1,6 +1,6 @@
 # InternHunt
 
-One place for **internships and fresher tech roles** (SDE, web/full-stack, data/ML) that are open to people in India — on-site in Indian cities, remote from India/APAC, or remote worldwide.
+One place for **internships and tech jobs** (SDE, backend, frontend, full-stack, mobile, data, AI/ML, DevOps, QA, security, UI/UX design) that are open to people in India — on-site in Indian cities, remote from India/APAC, or remote worldwide.
 
 Instead of scraping sites like LinkedIn or Naukri (which ban it and break constantly), InternHunt reads **official public job APIs and feeds** — stable, allowed, and every job links to the real application page.
 
@@ -48,13 +48,13 @@ fintech & banks (Razorpay, PhonePe, CRED, Groww, Zerodha, Angel One, KreditBee, 
 
 **Automatic discovery, weekly.** The server opens each company's careers page (or guesses it from the company's website), finds the hiring system behind it (Greenhouse, Lever, Ashby, Workable, Recruitee, Personio, SmartRecruiters, Workday), and starts reading its jobs. If the page doesn't reveal it, it tries the company name on each system. The first run starts a minute after you launch the server and takes roughly 10–20 minutes for 900+ companies; run it by hand any time with `npm run discover`. Guesses by name are double-checked (short or generic names are skipped, and Greenhouse boards must carry a matching company name).
 
-**Companies it can't read automatically** (their own custom careers sites with no public feed — e.g. Google, Flipkart, Zoho) are listed in **Programs & drives → Careers pages to check directly**, so nothing is silently missing.
+**Companies it can't read automatically** (their own custom careers sites with no public feed — e.g. Google, Flipkart, Zoho) are listed in **Sources → Careers pages to check directly**, so nothing is silently missing.
 
 **Add any company:** `npm run discover -- --names "Company A, Company B"` or paste a careers URL: `npm run discover -- --names "https://company.com/careers"`.
 
-## Programs & drives tab
+## Programs & drives
 
-Many opportunities aren't posted as normal jobs. This tab tracks **41 official program pages**, re-read daily, showing any deadline found on the page, whether it says open/closed, and when it last changed:
+Many opportunities aren't posted as normal jobs. InternHunt tracks **41 official program pages**, re-read daily for any deadline and whether they say open/closed. Company, open-source and research programs appear in the **Internships** tab (fresher drives in **Jobs**) — each LFX project accepting applications is listed individually — and government programs have their own **Government** tab:
 
 - **Open source:** Google Summer of Code, LFX Mentorship (with a **live list of LFX projects accepting applications right now**), Outreachy, MLH Fellowship, Summer of Bitcoin, Code for GovTech (C4GT), GirlScript Summer of Code, Season of KDE, Google Season of Docs, FOSSEE Summer Fellowship, European Summer of Code, Igalia Coding Experience, OSRE, Hacktoberfest
 - **Government:** AICTE National Internship Portal, PM Internship Scheme, MeitY Digital India Internship, MeitY Work Based Learning Programme (C-DAC, CERT-In, NIELIT, STQC…), NITI Aayog, DRDO, ISRO, NICSI, FSSAI
@@ -125,8 +125,11 @@ npm run dev:client     # React on :5173, proxies /api to :5000
 
 ## Features
 
-- **Filters:** role (SDE / Web / Data-ML), level (Internship / Entry-level / Level not stated), where (India on-site, Remote India/APAC, Remote worldwide), city, keyword search across title, company, skills and description.
-- **Smart filtering:** senior, manager, SDE-2+ and "3+ years" roles are dropped automatically; non-tech roles (sales, finance, HR…) are skipped; "Remote – US only" jobs are excluded.
+- **Tabs:** Internships, Jobs, Government programs, and your application Tracker. Company programs (GSoC, Google STEP, Goldman Sachs, fresher drives…) are listed with internships or jobs and can be filtered like any role; government programs have their own tab showing whether each is accepting applications.
+- **Filters:** 11 roles, experience asked (none / 1+ / 3+ / 5+ years, jobs tab), programming language, last date (closing this week / this month / has a last date / ended), where (India on-site, Remote India/APAC, Remote worldwide), city, companies vs programs, keyword search.
+- **Last dates:** every listing shows its last date to apply (in red when it's within a week), or when it ended. Dates come from the posting or official page; for programs without one, the usual application window is shown and marked as such.
+- **Descriptions:** requirements are pulled out and shown first. Sources that list jobs without descriptions (Workday, SmartRecruiters, Microsoft) have them fetched per posting.
+- **Smart filtering:** people-manager roles are dropped; non-tech roles (sales, finance, HR…) are skipped; "Remote – US only" jobs are excluded.
 - **De-duplication:** the same job on a company board and an aggregator shows once (the company link wins).
 - **Application tracker:** Save jobs, mark Applied (the app asks after you click Apply), move them through Interviewing / Offer / Rejected, and keep notes.
 - **Closed jobs:** postings that vanish from a board are marked "No longer listed" instead of silently disappearing from your tracker.
@@ -137,7 +140,7 @@ npm run dev:client     # React on :5173, proxies /api to :5000
 The frontend uses **React + Tailwind CSS v4 + [shadcn/ui](https://ui.shadcn.com)** components (Radix primitives, lucide icons, Geist font), in a monochrome **graphite** theme with a light/dark/system toggle.
 
 - **⌘K / Ctrl+K** — command menu: search roles live, jump between pages, apply filter presets, switch theme
-- **/** — focus search · **g b / g a / g p** — go to Browse / Applications / Programs
+- **/** — focus search · **g i / g j / g p / g a** — go to Internships / Jobs / Government programs / Tracker
 - Click any role for the detail panel; Apply opens the company page and asks whether you applied
 - **Applications** has a weekly goal ring, a daily streak and response-rate stats
 
@@ -195,7 +198,9 @@ aggregator APIs ┘        │
 
 | Endpoint | Purpose |
 |---|---|
-| `GET /api/jobs?q=&category=sde,web&level=intern&loc=india_onsite&city=Pune&page=1` | Search jobs |
+| `GET /api/jobs?kind=intern&category=backend,frontend&exp=0,1&lang=Python&deadline=week&type=programs&loc=india_onsite&city=Pune&page=1` | Search internships (`kind=intern`) or jobs (`kind=job`) |
+| `GET /api/facets?kind=intern` | Filter counts for one tab |
+| `GET /api/government` | Government programs with open / closed status |
 | `GET /api/jobs/:id` | One job with full description |
 | `PUT /api/jobs/:id/track` `{status, notes}` | Save / applied / interview / offer / rejected |
 | `DELETE /api/jobs/:id/track` | Stop tracking |

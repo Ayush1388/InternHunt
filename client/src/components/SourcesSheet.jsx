@@ -1,17 +1,76 @@
 import { useEffect, useState } from 'react';
-import { CircleCheck, CircleX, Globe, ShieldCheck, Users } from 'lucide-react';
+import { ChevronDown, CircleCheck, CircleX, ExternalLink, Globe, Search, ShieldCheck, Users } from 'lucide-react';
 import { api, LABELS, timeAgo } from '@/api';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 const TRUST_ICON = { company: ShieldCheck, board: Globe, community: Users };
 
+// Companies with their own careers sites and no public feed: link to them so nothing is silently missing.
+function CheckDirectly({ list }) {
+  const [q, setQ] = useState('');
+  const [open, setOpen] = useState({});
+  const filtered = list.filter((c) => c.name.toLowerCase().includes(q.trim().toLowerCase()));
+  const groups = {};
+  for (const c of filtered) (groups[c.group || 'Other'] ||= []).push(c);
+  return (
+    <div className="space-y-3">
+      <div>
+        <h3 className="text-sm font-semibold">Careers pages to check directly</h3>
+        <p className="text-xs text-muted-foreground">{list.length} companies run their own careers sites with no public feed.</p>
+      </div>
+      <div className="relative">
+        <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input className="h-9 pl-9" placeholder="Find a company…" value={q} onChange={(e) => setQ(e.target.value)} />
+      </div>
+      <div className="divide-y overflow-hidden rounded-lg border">
+        {Object.entries(groups)
+          .sort((a, b) => a[0].localeCompare(b[0]))
+          .map(([group, items]) => {
+            const isOpen = Boolean(q) || open[group];
+            return (
+              <div key={group}>
+                <button
+                  className="flex w-full items-center justify-between px-3 py-2.5 text-sm font-medium transition-colors hover:bg-accent/40"
+                  onClick={() => setOpen((o) => ({ ...o, [group]: !o[group] }))}
+                >
+                  <span>{group} <span className="tabular text-muted-foreground">{items.length}</span></span>
+                  <ChevronDown className={cn('size-4 text-muted-foreground transition-transform', isOpen && 'rotate-180')} />
+                </button>
+                {isOpen && (
+                  <ul className="grid grid-cols-2 gap-x-4 px-3 pb-3">
+                    {items
+                      .slice()
+                      .sort((a, b) => a.name.localeCompare(b.name))
+                      .map((c) => (
+                        <li key={c.name}>
+                          <a href={c.careers} target="_blank" rel="noopener noreferrer" className="group inline-flex items-center gap-1.5 py-1 text-sm text-muted-foreground hover:text-foreground">
+                            {c.name} <ExternalLink className="size-3 opacity-0 transition-opacity group-hover:opacity-100" />
+                          </a>
+                        </li>
+                      ))}
+                  </ul>
+                )}
+              </div>
+            );
+          })}
+      </div>
+    </div>
+  );
+}
+
 export default function SourcesSheet({ open, onOpenChange, meta, onChanged }) {
   const [blocked, setBlocked] = useState([]);
+  const [checkDirectly, setCheckDirectly] = useState([]);
   useEffect(() => {
     if (open) api.blocked().then(setBlocked).catch(() => {});
   }, [open, meta?.blockedCompanies]);
+  useEffect(() => {
+    if (open) api.programs().then((r) => setCheckDirectly(r.checkDirectly || [])).catch(() => {});
+  }, [open]);
 
   const sources = meta?.sources || [];
   const failed = sources.filter((s) => !s.ok);
@@ -108,6 +167,12 @@ export default function SourcesSheet({ open, onOpenChange, meta, onChanged }) {
                   ))}
                 </ul>
               </div>
+            </>
+          )}
+          {checkDirectly.length > 0 && (
+            <>
+              <Separator />
+              <CheckDirectly list={checkDirectly} />
             </>
           )}
         </div>

@@ -73,13 +73,13 @@ test('discover accepts names, name;url and bare careers URLs', () => {
   ]);
 });
 
-test('amazon and microsoft feeds keep India tech internships only', () => {
+test('amazon and microsoft feeds keep India tech roles, with experience buckets', () => {
   const kept = (id) => selectRelevant(SOURCE_BY_ID[id].parse(SAMPLE[id].raw, SAMPLE[id].target));
   const a = kept('amazon');
   assert.deepEqual(a.map((j) => [j.title, j.level, j.city, j.trust]), [['Software Dev Engineer Intern', 'intern', 'Bengaluru', 'company']]);
   assert.equal(a[0].url, 'https://www.amazon.jobs/en/jobs/3001001/software-dev-engineer-intern');
   const m = kept('microsoft');
-  assert.deepEqual(m.map((j) => [j.title, j.city]), [['Software Engineering Intern', 'Hyderabad']]);
+  assert.deepEqual(m.map((j) => [j.title, j.city, j.exp]), [['Software Engineering Intern', 'Hyderabad', 0], ['Principal Software Engineer', 'Bengaluru', 5]]);
 });
 
 test('careers URLs are guessed from the domain; name matches are checked', () => {
@@ -90,4 +90,24 @@ test('careers URLs are guessed from the domain; name matches are checked', () =>
   assert.equal(sameCompany('Razorpay Software Private Limited', 'Razorpay'), true);
   assert.equal(sameCompany('Target Corporation', 'Target India'), true);
   assert.equal(sameCompany('Targetprocess Inc', 'Mastercard'), false);
+});
+
+test('program status: page dates win, otherwise the usual window', async () => {
+  const { programStatus } = await import('../src/programs.js');
+  const at = new Date('2026-09-29T10:00:00Z');
+  const gsoc = { windows: [[3, 3]] };
+  assert.deepEqual(programStatus(gsoc, {}, at), { status: 'closed', deadline: null, estimated: true, opensOn: '2027-03-01', endedOn: '2026-03-31' });
+  assert.equal(programStatus(gsoc, {}, new Date('2027-03-10')).status, 'open');
+  assert.equal(programStatus(gsoc, {}, new Date('2027-03-10')).deadline, '2027-03-31');
+  // Wrapping window (Dec–Jan)
+  assert.equal(programStatus({ windows: [[12, 1]] }, {}, new Date('2027-01-15')).deadline, '2027-01-31');
+  // Monthly window: NITI Aayog accepts on the 1st–10th
+  assert.equal(programStatus({ monthlyDays: [1, 10] }, {}, new Date('2026-10-05')).deadline, '2026-10-10');
+  assert.equal(programStatus({ monthlyDays: [1, 10] }, {}, at).opensOn, '2026-10-01');
+  // A date stated on the official page beats the usual window, and isn't an estimate
+  assert.deepEqual(programStatus(gsoc, { deadline: '2026-10-20' }, at), { status: 'open', deadline: '2026-10-20', estimated: false, opensOn: null, endedOn: null });
+  // Page says closed during the usual window
+  assert.equal(programStatus({ windows: [[9, 10]] }, { status: 'closed' }, at).status, 'closed');
+  assert.equal(programStatus({ rolling: true }, {}, at).status, 'rolling');
+  assert.equal(programStatus({}, {}, at).status, 'unknown');
 });

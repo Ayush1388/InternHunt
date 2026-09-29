@@ -12,8 +12,8 @@ function ToggleGroupItem({ className, children, ...props }) {
       data-slot="toggle-group-item"
       className={cn(
         'inline-flex h-7 items-center gap-1.5 rounded-full border border-border/70 bg-background/40 px-3 text-xs font-medium text-muted-foreground transition-all outline-none',
-        'hover:border-foreground/30 hover:text-foreground focus-visible:ring-ring/50 focus-visible:ring-[3px]',
-        'data-[state=on]:border-foreground data-[state=on]:bg-foreground data-[state=on]:text-background',
+        'hover:border-primary/40 hover:text-foreground focus-visible:ring-ring/50 focus-visible:ring-[3px]',
+        'data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:shadow-sm',
         className
       )}
       {...props}

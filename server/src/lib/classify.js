@@ -1,46 +1,90 @@
-// Classifies a normalized posting into: role category, level (intern / entry / unspecified),
-// and a location bucket relevant to someone applying from India.
-// Anything senior, non-tech, or not open to India-based candidates returns null and is dropped.
+// Classifies a normalized posting into: role category, internship vs job, experience asked for,
+// programming languages, deadline, and a location bucket relevant to someone applying from India.
+// Non-tech roles, people-manager roles, and roles not open to India-based candidates return null.
+
+import { extractDeadline } from './dates.js';
 
 const has = (re, s) => re.test(s || '');
 
 // ---------- Role category ----------
-const STRONG_DEV =
-  /\b(developer|software|full[\s-]?stack|front[\s-]?end|back[\s-]?end|sde|swe|programmer|data scien\w*|data analy\w*|data engineer\w*|machine learning|ml engineer\w*)\b/i;
-const NON_TECH =
-  /\b(sales|account (executive|manager|director)|business development|recruit(er|ing|ment)?|talent|marketing|finance|financial|accountant|accounts|legal|counsel|hr|human resources|people|customer success|collections?|procurement|controller|audit(or)?|content|designer|design|product manager|program manager|project manager|operations|credit|risk|compliance|payroll|tax|treasury|partnerships?|community|writer|editor|communications|pr|admin(istrative)?|assistant|executive assistant|hardware|mechanical|civil|electrical|chemical|manufacturing|supply chain|logistics|warehouse|pre[\s-]?sales|solutions? (engineer|architect|consultant)|support engineer|field engineer|customer engineer|deployment strategist)\b/i;
+// Checked in this order; the first match on the title wins, then the same on aggregator tags.
+export const CATEGORIES = ['backend', 'frontend', 'fullstack', 'mobile', 'data', 'ml', 'devops', 'qa', 'security', 'design', 'software'];
 
-const DATA_RE =
-  /\b(data scien\w*|data analy\w*|data engineer\w*|analytics engineer\w*|machine learning|ml|ai|artificial intelligence|deep learning|nlp|natural language|computer vision|llm|genai|gen ai|applied scien\w*|research engineer|mlops|quant(itative)? (analyst|developer|researcher))\b/i;
-const WEB_RE =
-  /\b(full[\s-]?stack|front[\s-]?end|web|react(\.?js)?|angular|vue(\.?js)?|next\.?js|node(\.?js)?|javascript|typescript|mern|mean stack|ui (engineer|developer)|php|django|laravel|wordpress)\b/i;
-const SDE_RE =
-  /\b(software|sde|swe|sdet|developer|programmer|back[\s-]?end|mobile|android|ios|flutter|react native|devops|sre|site reliability|platform engineer\w*|cloud engineer\w*|infrastructure engineer\w*|systems? (software )?engineer\w*|embedded software|golang|go developer|java|python|c\+\+|rust|application engineer\w*|qa automation|automation (engineer|tester)|test engineer|backend|blockchain|security engineer|member of technical staff|mts)\b/i;
+const STRONG_DEV =
+  /\b(developer|software|full[\s-]?stack|front[\s-]?end|back[\s-]?end|sde|swe|sdet|programmer|data scien\w*|data analy\w*|data engineer\w*|machine learning|ml engineer\w*|devops|qa|ui|ux|security engineer\w*)\b/i;
+const NON_TECH =
+  /\b(sales|account (executive|manager|director)|business development|recruit(er|ing|ment)?|talent|marketing|finance|financial|accountant|accounts|legal|counsel|hr|human resources|people|customer success|collections?|procurement|controller|audit(or)?|content|product manager|program manager|project manager|operations|credit|risk|compliance|payroll|tax|treasury|partnerships?|community|writer|editor|communications|pr|admin(istrative)?|assistant|executive assistant|hardware|mechanical|civil|electrical|chemical|manufacturing|supply chain|logistics|warehouse|pre[\s-]?sales|solutions? (engineer|architect|consultant)|support engineer|field engineer|customer engineer|deployment strategist|interior|fashion|instructional|textile|jewell?ery)\b/i;
+
+const RULES = [
+  ['design', /\b(ui\s*\/\s*ux|ux\s*\/\s*ui|ux|user experience|user interface design\w*|(product|visual|web|interaction|graphic|motion|ui|digital|brand|app) design(er)?s?|designer|figma)\b/i],
+  ['security', /\b(security|cyber\s?security|infosec|appsec|penetration|pen[\s-]?test\w*|soc analyst|vulnerability|threat)\b/i],
+  ['qa', /\b(qa|quality assurance|quality engineer\w*|sdet|test(ing)? engineer\w*|software engineer in test|automation test\w*|manual test\w*|tester)\b/i],
+  ['devops', /\b(devops|dev ops|sre|site reliability|cloud engineer\w*|platform engineer\w*|infrastructure engineer\w*|kubernetes|systems? engineer\w*|network engineer\w*|devsecops|release engineer\w*|build engineer\w*)\b/i],
+  ['data', /\b(data scien\w*|data analy\w*|data engineer\w*|analytics|business intelligence|bi (developer|analyst|engineer)|big data|etl|quant(itative)? (analyst|developer|researcher))\b/i],
+  ['ml', /\b(machine learning|ml|ai|artificial intelligence|deep learning|nlp|natural language|computer vision|llm|genai|gen ai|applied scien\w*|research (engineer|scientist)|mlops|reinforcement learning)\b/i],
+  ['mobile', /\b(mobile|android|ios|flutter|react native|swift(ui)?|kotlin|app developer)\b/i],
+  ['fullstack', /\b(full[\s-]?stack|mern|mean stack|web developer|web engineer\w*|web development)\b/i],
+  ['frontend', /\b(front[\s-]?end|react(\.?js)?|angular|vue(\.?js)?|next\.?js|ui (engineer|developer)|javascript developer|typescript developer)\b/i],
+  ['backend', /\b(back[\s-]?end|node(\.?js)?|golang|go developer|java developer|python developer|django|spring|php|laravel|\.net|api (engineer|developer)|microservices|server[\s-]?side|ruby|rails)\b/i],
+  ['software', /\b(software|sde|swe|developer|programmer|embedded|firmware|member of technical staff|mts|application engineer\w*|blockchain|game (developer|programmer)|c\+\+|java|python|rust)\b/i],
+];
 const GENERIC_ENGINEER = /\bengineer(ing)?\b/i;
 
-export function classifyCategory(title = '', tags = []) {
-  const t = title;
-  const tagText = (tags || []).join(' ');
-  if (has(NON_TECH, t) && !has(STRONG_DEV, t)) return null;
-  if (has(DATA_RE, t)) return 'data';
-  if (has(WEB_RE, t)) return 'web';
-  if (has(SDE_RE, t)) return 'sde';
-  // Title is vague ("Engineering Intern", "Graduate Engineer"): fall back to tags from aggregators.
-  if (tagText) {
-    if (has(DATA_RE, tagText)) return 'data';
-    if (has(WEB_RE, tagText)) return 'web';
-    if (has(SDE_RE, tagText)) return 'sde';
-  }
+function matchRule(text) {
+  for (const [cat, re] of RULES) if (has(re, text)) return cat;
   return null;
 }
 
-// ---------- Level ----------
+export function classifyCategory(title = '', tags = []) {
+  const t = title;
+  if (has(NON_TECH, t) && !has(STRONG_DEV, t)) return null;
+  const fromTitle = matchRule(t);
+  if (fromTitle) return fromTitle;
+  // Title is vague ("Engineering Intern", "Graduate Engineer"): fall back to tags from aggregators.
+  const tagText = (tags || []).join(' ');
+  const fromTags = tagText ? matchRule(tagText) : null;
+  if (fromTags) return fromTags;
+  if (has(GENERIC_ENGINEER, t) && tagText && has(STRONG_DEV, tagText)) return 'software';
+  return null;
+}
+
+// ---------- Languages ----------
+const LANGS = [
+  ['JavaScript', /\b(javascript|node\.?js|react(\.?js)?|angular|vue(\.?js)?|express\.?js|next\.?js|jquery)\b/i],
+  ['TypeScript', /\btypescript\b/i],
+  ['Python', /\b(python|django|flask|fastapi|pandas|numpy|pytorch|tensorflow|scikit[\s-]?learn)\b/i],
+  ['Java', /\b(java(?![\s-]?script)|spring[\s-]?boot|j2ee|hibernate)\b/i],
+  ['C/C++', /(\bc\+\+|\bcpp\b|\bc\s*\/\s*c\+\+|\bembedded c\b|\bc programming\b)/i],
+  ['C#/.NET', /(\bc#|\.net\b|\bdotnet\b|\basp\.net\b)/i],
+  ['Go', /\b(golang|go (developer|engineer|programming|language))\b/i],
+  ['Rust', /\brust\b/i],
+  ['Kotlin', /\bkotlin\b/i],
+  ['Swift', /\b(swift|swiftui)\b/i],
+  ['Dart', /\b(dart|flutter)\b/i],
+  ['PHP', /\b(php|laravel)\b/i],
+  ['Ruby', /\b(ruby|rails)\b/i],
+  ['SQL', /\b(sql|mysql|postgres(ql)?|t-sql|pl\/sql)\b/i],
+  ['Scala', /\bscala\b/i],
+  ['R', /(\br programming\b|\br language\b|\brstudio\b|\bpython\s*(,|\/|and|or)\s*r\b|\br\s*(,|\/|and|or)\s*python\b)/i],
+];
+export const LANGUAGES = LANGS.map(([name]) => name);
+
+/** Programming languages mentioned in the title, tags or description. */
+export function detectLanguages({ title = '', tags = [], description = '' }) {
+  const text = `${title}\n${(tags || []).join(' ')}\n${String(description || '').slice(0, 8000)}`;
+  return LANGS.filter(([, re]) => re.test(text)).map(([name]) => name);
+}
+
+// ---------- Level and experience ----------
+// Every role is an internship ('intern') or a job ('job'). Jobs also get the experience they ask for,
+// as a bucket: 0 (none / not stated), 1 (1+ years), 3 (3+ years), 5 (5+ years).
 const INTERN_RE =
   /\b(intern|interns|internship|internships|trainee|apprentice(ship)?|co[\s-]?op|summer analyst|industrial training|winter analyst)\b/i;
-const SENIOR_RE =
-  /\b(senior|sr|staff|principal|lead|leader|manager|mgr|director|head|vp|vice president|architect|chief|distinguished|fellow|avp|consultant ii|expert)\b/i;
+const PEOPLE_MANAGER_RE = /\b(manager|mgr|director|head|vp|vice president|chief|cto|cio|avp|president)\b/i;
+const VERY_SENIOR_RE = /\b(staff|principal|distinguished|lead|architect|fellow|expert)\b/i;
+const SENIOR_RE = /\b(senior|sr)\b/i;
 const MID_LEVEL_RE =
-  /\b(ii|iii|iv|v|l[4-9]|level [2-9]|(sde|swe|engineer|developer|analyst)[\s-]*(2|3|4|ii|iii|iv))\b/i;
+  /\b(ii|iii|iv|l[4-9]|level [2-9]|(sde|swe|engineer|developer|analyst)[\s-]*(2|3|4|ii|iii|iv))\b/i;
 const ENTRY_RE =
   /\b(new[\s-]?grad(uate)?s?|graduate|grad|entry[\s-]?level|junior|jr|fresher|freshers|early[\s-]?career|campus|university|college|associate (software|engineer|developer|data|ml|machine|ai|analyst|web)|(software engineer|engineer|developer|sde|swe|analyst|scientist)[\s-]*(i|1)|sde[\s-]*(i|1)|swe[\s-]*(i|1)|0[\s-]*(to|-|–)[\s-]*[12] (years|yrs))\b/i;
 
@@ -59,17 +103,28 @@ export function extractMinYears(text = '') {
   return min;
 }
 
-// levelHint comes from sources that tag seniority themselves (Himalayas, Jobicy, The Muse, Personio…):
-// 'intern' | 'entry' | 'senior' | null. Title keywords still win over the hint.
-export function classifyLevel({ title = '', description = '', employmentType = '', levelHint = null }) {
+const bucketOf = (years) => (years >= 5 ? 5 : years >= 3 ? 3 : years >= 1 ? 1 : 0);
+
+// levelHint comes from sources that tag seniority themselves: 'intern' | 'entry' | 'senior' | null.
+/** 'intern' | 'job', or null for people-manager roles we don't list. */
+export function classifyLevel({ title = '', employmentType = '', levelHint = null }) {
   if (has(INTERN_RE, title) || /intern/i.test(employmentType || '') || levelHint === 'intern') return 'intern';
-  if (has(SENIOR_RE, title) || has(MID_LEVEL_RE, title)) return null;
-  if (has(ENTRY_RE, title) || levelHint === 'entry') return 'entry';
-  if (levelHint === 'senior') return null;
-  const minYears = extractMinYears(description);
-  if (minYears !== null && minYears <= 1) return 'entry';
-  if (minYears !== null && minYears >= 3) return null;
-  return 'unspecified';
+  if (has(PEOPLE_MANAGER_RE, title)) return null;
+  return 'job';
+}
+
+/** Experience bucket (0, 1, 3 or 5) for a job. */
+export function experienceBucket(job, level = classifyLevel(job)) {
+  const { title = '', description = '', levelHint = null } = job;
+  if (level === 'intern') return 0;
+  const years = extractMinYears(description);
+  if (years !== null) return bucketOf(years);
+  if (has(VERY_SENIOR_RE, title)) return 5;
+  if (has(SENIOR_RE, title)) return 3;
+  if (has(MID_LEVEL_RE, title)) return 1;
+  if (has(ENTRY_RE, title) || levelHint === 'entry') return 0;
+  if (levelHint === 'senior') return 3;
+  return 0;
 }
 
 // ---------- Location ----------
@@ -132,5 +187,14 @@ export function classify(job) {
   if (!level) return null;
   const loc = classifyLocation(job);
   if (!loc) return null;
-  return { category, level, locTag: loc.tag, city: loc.city, minYears: extractMinYears(job.description) };
+  return {
+    category,
+    level,
+    exp: experienceBucket(job, level),
+    languages: detectLanguages(job),
+    deadline: job.deadline || extractDeadline(job.description || ''),
+    locTag: loc.tag,
+    city: loc.city,
+    minYears: extractMinYears(job.description),
+  };
 }

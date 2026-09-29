@@ -1,5 +1,7 @@
 import { RotateCcw } from 'lucide-react';
 import { LABELS } from '@/api';
+import { ROLES, EXPERIENCE, LANGUAGES, DEADLINES } from '@/lib/roles';
+import { cn } from '@/lib/utils';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
@@ -7,84 +9,142 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 
-function Group({ title, labels, options, value, counts, onChange }) {
+const Count = ({ n }) => (n ? <span className="tabular opacity-60">{n}</span> : null);
+
+function Section({ title, children, hint }) {
   return (
     <div className="space-y-2.5">
-      <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{title}</div>
-      <ToggleGroup type="multiple" value={value} onValueChange={onChange}>
-        {options.map((k) => (
-          <ToggleGroupItem key={k} value={k}>
-            {labels[k]}
-            {counts?.[k] ? <span className="tabular opacity-60">{counts[k]}</span> : null}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
+      <div className="flex items-baseline justify-between">
+        <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">{title}</div>
+        {hint && <div className="text-[11px] text-muted-foreground">{hint}</div>}
+      </div>
+      {children}
     </div>
   );
 }
 
 const ANY = '__any';
 
-export default function FiltersPanel({ filters, setFilters, meta, onReset }) {
+export default function FiltersPanel({ kind, filters, setFilters, facets, onReset }) {
   const set = (patch) => setFilters((f) => ({ ...f, ...patch }));
+  const deadlineCount = {
+    week: facets?.closingThisWeek,
+    month: facets?.closingThisMonth,
+    has: facets?.withDeadline,
+    ended: facets?.ended,
+    '': facets?.total,
+  };
+  const langs = [...LANGUAGES].sort((a, b) => (facets?.byLanguage?.[b] || 0) - (facets?.byLanguage?.[a] || 0));
+
   return (
     <div className="space-y-6">
-      <Group title="Role" labels={LABELS.category} options={['sde', 'web', 'data']} value={filters.category} counts={meta?.byCategory} onChange={(v) => set({ category: v })} />
-      <Group title="Level" labels={LABELS.level} options={['intern', 'entry', 'unspecified']} value={filters.level} counts={meta?.byLevel} onChange={(v) => set({ level: v })} />
-      <Group title="Where" labels={LABELS.loc} options={['india_onsite', 'remote_india', 'remote_worldwide']} value={filters.loc} counts={meta?.byLocation} onChange={(v) => set({ loc: v })} />
+      <Section title="Show">
+        <div className="grid grid-cols-3 gap-1 rounded-lg border bg-muted/40 p-1">
+          {[
+            ['', 'All'],
+            ['roles', 'Companies'],
+            ['programs', 'Programs'],
+          ].map(([id, label]) => (
+            <button
+              key={id || 'all'}
+              onClick={() => set({ type: id })}
+              className={cn(
+                'rounded-md px-2 py-1.5 text-xs font-medium transition-all',
+                filters.type === id ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </Section>
 
-      {meta?.cities?.length > 0 && (
-        <div className="space-y-2.5">
-          <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">City</div>
+      <Section title="Last date to apply">
+        <div className="space-y-0.5">
+          {DEADLINES.map((d) => (
+            <button
+              key={d.id || 'open'}
+              onClick={() => set({ deadline: d.id })}
+              className={cn(
+                'flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-left text-sm transition-colors',
+                filters.deadline === d.id ? 'bg-primary/10 font-medium text-primary' : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+              )}
+            >
+              <span className="flex items-center gap-2">
+                <span className={cn('size-1.5 rounded-full', d.urgent ? 'bg-urgent' : d.id === 'ended' ? 'bg-muted-foreground/40' : 'bg-success')} />
+                {d.label}
+              </span>
+              <Count n={deadlineCount[d.id]} />
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Role">
+        <ToggleGroup type="multiple" value={filters.category} onValueChange={(v) => set({ category: v })}>
+          {ROLES.map(({ id, short, icon: Icon }) => (
+            <ToggleGroupItem key={id} value={id}>
+              <Icon className="size-3.5" /> {short} <Count n={facets?.byCategory?.[id]} />
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </Section>
+
+      {kind === 'job' && (
+        <Section title="Experience asked">
+          <ToggleGroup type="multiple" value={filters.exp} onValueChange={(v) => set({ exp: v })}>
+            {EXPERIENCE.map((e) => (
+              <ToggleGroupItem key={e.id} value={e.id} title={e.hint}>
+                {e.label} <Count n={facets?.byExp?.[e.id]} />
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
+        </Section>
+      )}
+
+      <Section title="Language">
+        <ToggleGroup type="multiple" value={filters.lang} onValueChange={(v) => set({ lang: v })}>
+          {langs.map((l) => (
+            <ToggleGroupItem key={l} value={l} className={cn('font-mono', !facets?.byLanguage?.[l] && !filters.lang.includes(l) && 'opacity-50')}>
+              {l} <Count n={facets?.byLanguage?.[l]} />
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+      </Section>
+
+      <Section title="Where">
+        <ToggleGroup type="multiple" value={filters.loc} onValueChange={(v) => set({ loc: v })}>
+          {['india_onsite', 'remote_india', 'remote_worldwide'].map((k) => (
+            <ToggleGroupItem key={k} value={k}>
+              {LABELS.loc[k]} <Count n={facets?.byLocation?.[k]} />
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+        {facets?.cities?.length > 0 && (
           <Select value={filters.city || ANY} onValueChange={(v) => set({ city: v === ANY ? '' : v })}>
-            <SelectTrigger size="sm"><SelectValue /></SelectTrigger>
+            <SelectTrigger size="sm" className="w-full"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value={ANY}>Any city</SelectItem>
-              {meta.cities.map((c) => (
+              {facets.cities.map((c) => (
                 <SelectItem key={c.city} value={c.city}>{c.city} · {c.n}</SelectItem>
               ))}
             </SelectContent>
           </Select>
-        </div>
-      )}
-
-      {meta?.bySource && Object.keys(meta.bySource).length > 1 && (
-        <div className="space-y-2.5">
-          <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Source</div>
-          <Select value={filters.source || ANY} onValueChange={(v) => set({ source: v === ANY ? '' : v })}>
-            <SelectTrigger size="sm"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ANY}>All sources</SelectItem>
-              {Object.entries(meta.bySource)
-                .sort((a, b) => b[1] - a[1])
-                .map(([id, n]) => (
-                  <SelectItem key={id} value={id}>{LABELS.source[id] || id} · {n}</SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
+        )}
+      </Section>
 
       <Separator />
 
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-3">
-          <Label htmlFor="companyOnly" className="font-normal leading-snug">
-            Company careers pages only
-            {meta?.byTrust?.company ? <span className="tabular text-muted-foreground">{meta.byTrust.company}</span> : null}
-          </Label>
-          <Switch id="companyOnly" checked={Boolean(filters.companyOnly)} onCheckedChange={(v) => set({ companyOnly: v })} />
+          <Label htmlFor={`companyOnly-${kind}`} className="font-normal leading-snug">Verified company pages only</Label>
+          <Switch id={`companyOnly-${kind}`} checked={Boolean(filters.companyOnly)} onCheckedChange={(v) => set({ companyOnly: v })} />
         </div>
         <div className="flex items-center justify-between gap-3">
-          <Label htmlFor="hideApplied" className="font-normal">Hide jobs I've applied to</Label>
-          <Switch id="hideApplied" checked={filters.hideApplied} onCheckedChange={(v) => set({ hideApplied: v })} />
+          <Label htmlFor={`hideApplied-${kind}`} className="font-normal">Hide ones I've applied to</Label>
+          <Switch id={`hideApplied-${kind}`} checked={filters.hideApplied} onCheckedChange={(v) => set({ hideApplied: v })} />
         </div>
       </div>
-
-      <p className="text-xs leading-relaxed text-muted-foreground">
-        Nothing selected in a group means “any”. “Level not stated” covers titles like plain “Software Engineer” with no
-        experience requirement found.
-      </p>
 
       <Button variant="outline" size="sm" className="w-full" onClick={onReset}>
         <RotateCcw /> Reset filters
