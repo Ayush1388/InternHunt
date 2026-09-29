@@ -8,7 +8,7 @@ import { extractDeadline } from './lib/dates.js';
 import { trustCheck } from './lib/trust.js';
 import { getJson, mapLimit, HttpError } from './lib/http.js';
 import { norm, sha1 } from './lib/text.js';
-import { WRITABLE_DIR } from './runtime.js';
+import { WRITABLE_DIR, ON_VERCEL } from './runtime.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const COMPANIES_PATH = process.env.COMPANIES_PATH || path.join(here, 'config', 'companies.json');
@@ -211,55 +211,75 @@ export function refreshAll({ log = console.log, force = false, onlyKeys = null }
     const lastOk = Object.fromEntries(
       db.prepare('SELECT target_key, finished_at FROM source_runs WHERE ok = 1').all().map((r) => [r.target_key, r.finished_at])
     );
-    const fetched = await mapLimit(targets, 5, async (t) => {
+    const summary = { boards: targets.length, failed: 0, skipped: 0, deferred: 0, fetched: 0, kept: 0, stored: 0, duplicates: 0, blocked: {}, errors: [] };
+    // A serverless function is stopped after vercel.json's maxDuration (300s): stop starting new
+    // fetches in time, so what was fetched is saved and the summary gets written.
+    const stopAt = ON_VERCEL ? started + 230 * 1000 : Infinity;
+
+    const record = (t, fields) => {
+      try {
+        recordRun.run({ target_key: t.key, source: t.source.id, label: t.label, finished_at: new Date().toISOString(), ...fields });
+      } catch (err) {
+        summary.errors.push(`${t.label}: could not record run: ${err.message}`);
+      }
+    };
+
+    // Each target is stored as soon as it arrives, so a run that gets cut off still keeps its data.
+    const runTarget = async (t) => {
       // Respect each feed's polling limits (e.g. Jobicy: max once an hour).
       const minGap = (t.source.minIntervalMinutes || 0) * 60000;
       if (!force && minGap && lastOk[t.key] && Date.now() - Date.parse(lastOk[t.key]) < minGap) {
-        return { t, skipped: true };
+        summary.skipped++;
+        return;
       }
+      if (Date.now() > stopAt) {
+        summary.deferred++;
+        return;
+      }
+      let parsed;
       try {
         const raw = t.fetch ? await t.fetch() : await getJson(t.url);
-        const parsed = t.source.parse(raw, t);
-        return { t, parsed, error: null };
+        parsed = t.source.parse(raw, t);
       } catch (err) {
-        const msg = err instanceof HttpError && err.status === 404 ? 'Board not found (404) — check the token' : err.message;
-        return { t, parsed: null, error: msg };
-      }
-    });
-
-    // Write in SOURCES order so company boards win over aggregators when the same job appears twice.
-    const summary = { boards: targets.length, failed: 0, skipped: 0, fetched: 0, kept: 0, stored: 0, duplicates: 0, blocked: {} };
-    for (const { t, parsed, error, skipped } of fetched) {
-      const now = new Date().toISOString();
-      if (skipped) {
-        summary.skipped++;
-        continue;
-      }
-      if (error) {
+        const error = err instanceof HttpError && err.status === 404 ? 'Board not found (404) — check the token' : err.message;
         summary.failed++;
-        recordRun.run({ target_key: t.key, source: t.source.id, label: t.label, ok: 0, error, fetched: 0, kept: 0, blocked: 0, finished_at: now });
+        record(t, { ok: 0, error, fetched: 0, kept: 0, blocked: 0 });
         log(`[refresh] ✗ ${t.label}: ${error}`);
-        continue;
+        return;
       }
-      const blocked = {};
-      const relevant = selectRelevant(parsed, { blocked });
-      for (const [k, v] of Object.entries(blocked)) summary.blocked[k] = (summary.blocked[k] || 0) + v;
-      const blockedCount = Object.values(blocked).reduce((a, b) => a + b, 0);
-      const { stored, duplicates } = storeTargetJobs(t, relevant, { now });
-      summary.fetched += parsed.length;
-      summary.kept += relevant.length;
-      summary.stored += stored;
-      summary.duplicates += duplicates;
-      recordRun.run({
-        target_key: t.key, source: t.source.id, label: t.label, ok: 1, error: null,
-        fetched: parsed.length, kept: stored, blocked: blockedCount, finished_at: now,
-      });
-      log(`[refresh] ✓ ${t.label}: ${parsed.length} postings → ${stored} relevant${blockedCount ? `, ${blockedCount} blocked as untrustworthy` : ''}`);
-    }
+      try {
+        const blocked = {};
+        const relevant = selectRelevant(parsed, { blocked });
+        for (const [k, v] of Object.entries(blocked)) summary.blocked[k] = (summary.blocked[k] || 0) + v;
+        const blockedCount = Object.values(blocked).reduce((a, b) => a + b, 0);
+        const { stored, duplicates } = storeTargetJobs(t, relevant, { now: new Date().toISOString() });
+        summary.fetched += parsed.length;
+        summary.kept += relevant.length;
+        summary.stored += stored;
+        summary.duplicates += duplicates;
+        record(t, { ok: 1, error: null, fetched: parsed.length, kept: stored, blocked: blockedCount });
+        log(`[refresh] ✓ ${t.label}: ${parsed.length} postings → ${stored} relevant${blockedCount ? `, ${blockedCount} blocked as untrustworthy` : ''}`);
+      } catch (err) {
+        summary.failed++;
+        summary.errors.push(`${t.label}: saving failed: ${err.message}`);
+        record(t, { ok: 0, error: `Saving failed: ${err.message}`, fetched: parsed.length, kept: 0, blocked: 0 });
+        log(`[refresh] ✗ ${t.label}: saving failed`, err);
+      }
+    };
+
+    // Company boards first, then job boards and HN, so a company's own posting wins when the
+    // same job appears in both places.
+    // Within each group, least recently fetched first, so boards a cut-off run didn't reach go first next time.
+    const isCompany = (t) => TRUST[t.source.id] === 'company';
+    const stalest = (list) => list.sort((a, b) => (lastOk[a.key] || '').localeCompare(lastOk[b.key] || ''));
+    await mapLimit(stalest(targets.filter(isCompany)), 8, runTarget);
+    await mapLimit(stalest(targets.filter((t) => !isCompany(t))), 8, runTarget);
+
     summary.seconds = Math.round((Date.now() - started) / 1000);
+    summary.errors = summary.errors.slice(0, 10);
     // Only count it as a refresh if something actually came back (e.g. not when offline).
     if (!onlyKeys) {
-      if (summary.failed < summary.boards - summary.skipped) setMeta('last_refresh', new Date().toISOString());
+      if (summary.failed < summary.boards - summary.skipped - summary.deferred) setMeta('last_refresh', new Date().toISOString());
       setMeta('last_summary', JSON.stringify(summary));
     }
     log(`[refresh] done in ${summary.seconds}s — ${summary.stored} relevant jobs from ${summary.fetched} postings`);

@@ -87,7 +87,10 @@ function toJob(r, full = false) {
 }
 
 app.get('/api/health', (req, res) => {
-  res.json({ ok: true, ...dbInfo(), lastRefresh: getMeta('last_refresh'), refreshing: isRefreshing() });
+  res.json({
+    ok: true, ...dbInfo(), lastRefresh: getMeta('last_refresh'), refreshing: isRefreshing(),
+    lastRefreshError: getMeta('last_refresh_error') || null, lastSummary: JSON.parse(getMeta('last_summary') || 'null'),
+  });
 });
 
 app.get('/api/jobs', (req, res) => {
@@ -355,9 +358,18 @@ app.post('/api/refresh', (req, res) => {
 
 const runRefresh = () =>
   refreshAll()
+    .then(() => setMeta('last_refresh_error', ''))
     .then(() => checkPrograms())
     .then(() => enrichDescriptions())
-    .catch((err) => console.error('[refresh] failed', err));
+    .catch((err) => {
+      console.error('[refresh] failed', err);
+      // Keep the reason where /api/health shows it (runtime logs aren't always at hand).
+      try {
+        setMeta('last_refresh_error', `${new Date().toISOString()} ${err.message}`.slice(0, 500));
+      } catch {
+        /* database unreachable */
+      }
+    });
 
 // Vercel Cron: GET /api/cron/refresh (see vercel.json). Vercel sends "Authorization: Bearer $CRON_SECRET" when set.
 app.get('/api/cron/refresh', async (req, res) => {
