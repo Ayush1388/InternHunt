@@ -7,7 +7,7 @@
   "functions": {
     "api/index.js": {
       "maxDuration": 300,
-      "includeFiles": "server/src/**"
+      "includeFiles": "{server/src/**,server/node_modules/libsql/**,server/node_modules/@libsql/**}"
     }
   },
   "rewrites": [

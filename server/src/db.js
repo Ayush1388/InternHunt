@@ -1,4 +1,4 @@
-import { DatabaseSync } from 'node:sqlite';
+import Database from 'libsql';
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -8,11 +8,38 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = process.env.DATA_DIR || WRITABLE_DIR || path.join(here, '..', 'data');
 mkdirSync(DATA_DIR, { recursive: true });
 
-export const db = new DatabaseSync(process.env.DB_PATH || path.join(DATA_DIR, 'internhunt.db'));
+// With TURSO_DATABASE_URL set, the local file is an embedded replica of a hosted Turso database:
+// reads are local, writes go to Turso, so data survives restarts and redeploys (needed on Vercel).
+// Without it, it's a plain local SQLite file.
+const TURSO_URL = process.env.TURSO_DATABASE_URL;
+const SYNC_EVERY_MS = Number(process.env.TURSO_SYNC_SECONDS || 15) * 1000;
+const dbFile = process.env.DB_PATH || path.join(DATA_DIR, TURSO_URL ? 'replica.db' : 'internhunt.db');
+
+export const db = TURSO_URL
+  ? new Database(dbFile, { syncUrl: TURSO_URL, authToken: process.env.TURSO_AUTH_TOKEN })
+  : new Database(dbFile);
+
+let lastSync = 0;
+/** Pull other instances' writes from Turso. Cheap no-op without Turso or when synced recently. */
+export function syncDb({ force = false } = {}) {
+  if (!TURSO_URL || (!force && Date.now() - lastSync < SYNC_EVERY_MS)) return;
+  lastSync = Date.now();
+  try {
+    db.sync();
+  } catch (err) {
+    console.error('[db] sync with Turso failed:', err.message);
+  }
+}
+syncDb({ force: true });
+
+if (!TURSO_URL) db.exec('PRAGMA journal_mode = WAL;');
+try {
+  db.exec('PRAGMA foreign_keys = ON;');
+} catch {
+  /* not supported over a remote connection */
+}
 
 db.exec(`
-  PRAGMA journal_mode = WAL;
-  PRAGMA foreign_keys = ON;
 
   CREATE TABLE IF NOT EXISTS jobs (
     id              TEXT PRIMARY KEY,          -- "<source>:<sourceJobId>"

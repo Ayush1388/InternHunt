@@ -218,9 +218,18 @@ The repo is ready to import into Vercel as-is (`vercel.json` holds the settings)
 
 - The React app is built from `client/` and served as static files.
 - The Express API runs as one serverless function (`api/index.js`), reached at `/api/*`.
-- A daily Vercel Cron calls `/api/cron/refresh` to fetch new jobs. Set a `CRON_SECRET` env var to protect it.
+- Data is stored in a hosted [Turso](https://turso.tech) database (SQLite in the cloud, free tier), so
+  your tracker, reports and jobs survive restarts and redeploys.
+- Jobs are refreshed when a request finds them older than `REFRESH_HOURS`, and by a daily Vercel Cron
+  on `/api/cron/refresh`.
 
-Limitation: Vercel functions have no persistent disk, so the SQLite database lives in `/tmp`.
-It is rebuilt (jobs re-fetched automatically) whenever a new function instance starts, and your
-tracker, reports and added links are lost at that point. For permanent storage, run the server on a
-host with a disk (Render, Railway, Fly.io, a VPS) with `npm run build && npm start`.
+Steps:
+
+1. Create a Turso database (web dashboard at turso.tech, or the CLI:
+   `turso db create internhunt`, `turso db show internhunt --url`, `turso db tokens create internhunt`).
+2. In Vercel: **Add New → Project**, import this repo, keep the root directory as `/`.
+3. Add environment variables `TURSO_DATABASE_URL` (the `libsql://…` URL), `TURSO_AUTH_TOKEN`, and
+   optionally `CRON_SECRET` (any random string), then deploy.
+
+Without the Turso variables the app still runs on Vercel, but its data lives in `/tmp` and is lost
+whenever Vercel starts a new instance.
