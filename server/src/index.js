@@ -10,6 +10,7 @@ import { SOURCES, TRUST } from './sources/index.js';
 import { checkPrograms, programsView, removeUserProgram } from './programs.js';
 import { addFromLink } from './addLink.js';
 import { discoverDefault, discoveryAgeDays } from './discovery.js';
+import { background, ON_VERCEL } from './runtime.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -222,7 +223,7 @@ app.get('/api/programs', (req, res) => {
 });
 
 app.post('/api/programs/check', (req, res) => {
-  checkPrograms({ force: true }).catch((err) => console.error('[programs] failed', err));
+  background(checkPrograms({ force: true }).catch((err) => console.error('[programs] failed', err)));
   res.status(202).json({ started: true });
 });
 
@@ -230,10 +231,10 @@ app.post('/api/add', async (req, res, next) => {
   try {
     const result = await addFromLink(req.body?.url, String(req.body?.name || '').trim());
     if (result.ok && result.kind === 'company' && result.targetKey) {
-      refreshAll({ onlyKeys: [result.targetKey], force: true }).catch((err) => console.error('[add] refresh failed', err));
+      background(refreshAll({ onlyKeys: [result.targetKey], force: true }).catch((err) => console.error('[add] refresh failed', err)));
     }
     if (result.ok && result.kind === 'program') {
-      checkPrograms({ force: true, onlyIds: [result.id] }).catch(() => {});
+      background(checkPrograms({ force: true, onlyIds: [result.id] }).catch(() => {}));
     }
     res.status(result.ok ? 200 : 400).json(result);
   } catch (err) {
@@ -261,10 +262,22 @@ app.post('/api/refresh', (req, res) => {
       message: `Refreshed ${Math.floor(minutesAgo)} min ago. Wait ${Math.ceil(MANUAL_REFRESH_COOLDOWN_MIN - minutesAgo)} min so job boards aren't hammered.`,
     });
   }
+  background(runRefresh());
+  res.status(202).json({ started: true });
+});
+
+const runRefresh = () =>
   refreshAll()
     .then(() => checkPrograms())
     .catch((err) => console.error('[refresh] failed', err));
-  res.status(202).json({ started: true });
+
+// Vercel Cron: GET /api/cron/refresh (see vercel.json). Vercel sends "Authorization: Bearer $CRON_SECRET" when set.
+app.get('/api/cron/refresh', async (req, res) => {
+  if (process.env.CRON_SECRET && req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  await runRefresh();
+  res.json({ ok: true, lastRefresh: getMeta('last_refresh') });
 });
 
 // Serve the built React app in production.
@@ -279,10 +292,18 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong' });
 });
 
-app.listen(PORT, () => {
-  console.log(`InternHunt API on http://localhost:${PORT}`);
-  scheduleRefreshes();
-});
+// On Vercel the app is exported as a serverless function (api/index.js) instead of listening on a port.
+// Its database lives in /tmp and starts empty on a cold start, so fetch jobs right away when it's empty.
+if (ON_VERCEL) {
+  if (!getMeta('last_refresh') && !isRefreshing()) background(runRefresh());
+} else {
+  app.listen(PORT, () => {
+    console.log(`InternHunt API on http://localhost:${PORT}`);
+    scheduleRefreshes();
+  });
+}
+
+export default app;
 
 // Weekly: re-scan the built-in company list + YC companies for job boards, then refresh.
 let discovering = false;
@@ -308,13 +329,9 @@ function scheduleRefreshes() {
   const everyMs = REFRESH_HOURS * 3600000;
   const last = getMeta('last_refresh');
   const dueIn = last ? Math.max(0, Date.parse(last) + everyMs - Date.now()) : 0;
-  const run = () =>
-    refreshAll()
-      .then(() => checkPrograms())
-      .catch((err) => console.error('[refresh] failed', err));
   setTimeout(() => {
-    run();
-    setInterval(run, everyMs);
+    runRefresh();
+    setInterval(runRefresh, everyMs);
   }, dueIn);
   console.log(`Auto-refresh every ${REFRESH_HOURS}h (next in ${Math.round(dueIn / 60000)} min)`);
 }

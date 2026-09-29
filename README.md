@@ -211,3 +211,16 @@ aggregator APIs ┘        │
 ## Respecting the sources
 
 Remotive, Remote OK and We Work Remotely ask for credit and a link back — every card names its source, links to the board's job page, and the footer credits them. Each feed has a minimum gap between fetches, which the refresh enforces even if you press "Refresh now" repeatedly. Keep InternHunt as a personal tool rather than republishing listings publicly.
+
+## Deploying to Vercel
+
+The repo is ready to import into Vercel as-is (`vercel.json` holds the settings):
+
+- The React app is built from `client/` and served as static files.
+- The Express API runs as one serverless function (`api/index.js`), reached at `/api/*`.
+- A daily Vercel Cron calls `/api/cron/refresh` to fetch new jobs. Set a `CRON_SECRET` env var to protect it.
+
+Limitation: Vercel functions have no persistent disk, so the SQLite database lives in `/tmp`.
+It is rebuilt (jobs re-fetched automatically) whenever a new function instance starts, and your
+tracker, reports and added links are lost at that point. For permanent storage, run the server on a
+host with a disk (Render, Railway, Fly.io, a VPS) with `npm run build && npm start`.
