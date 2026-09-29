@@ -4,7 +4,7 @@ import cors from 'cors';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { db, getMeta, setMeta, companyKey, syncDb } from './db.js';
+import { db, getMeta, setMeta, companyKey, syncDb, dbInfo } from './db.js';
 import { refreshAll, isRefreshing } from './ingest.js';
 import { SOURCES, TRUST } from './sources/index.js';
 import { checkPrograms, programsView, removeUserProgram } from './programs.js';
@@ -72,6 +72,10 @@ function toJob(r, full = false) {
     ...(full ? { description: r.description } : { snippet: (r.description || '').slice(0, 260) }),
   };
 }
+
+app.get('/api/health', (req, res) => {
+  res.json({ ok: true, ...dbInfo(), lastRefresh: getMeta('last_refresh'), refreshing: isRefreshing() });
+});
 
 app.get('/api/jobs', (req, res) => {
   const where = [];
@@ -294,7 +298,7 @@ if (existsSync(clientDist)) {
 
 app.use((err, req, res, next) => {
   console.error(err);
-  res.status(500).json({ error: 'Something went wrong' });
+  res.status(500).json({ error: `Server error: ${err.message}` });
 });
 
 // Serverless functions can't run timers, so on Vercel a request starts a refresh when the data is
