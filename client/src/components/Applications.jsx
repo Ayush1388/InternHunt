@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { BellOff, Flame, Minus, Plus, Send } from 'lucide-react';
+import { BellOff, Flame, LogIn, Minus, Plus, Send } from 'lucide-react';
 import { api, LABELS, store, timeAgo } from '@/api';
 import { istDay } from '@/lib/format';
 import { cn } from '@/lib/utils';
@@ -67,21 +67,35 @@ function Stat({ label, value, sub }) {
   );
 }
 
-export default function Applications({ meta, version, onOpen, onTrack, onReport }) {
+export default function Applications({ meta, version, signedIn, onSignIn, onOpen, onTrack, onReport }) {
   const [all, setAll] = useState(null);
   const [status, setStatus] = useState('any');
   const [goal, setGoal] = useState(() => store.get('ih.weeklyGoal', 10));
 
   useEffect(() => {
+    if (!signedIn) return setAll([]);
     api
       .jobs({ tracked: 'any', limit: 100 })
       .then((r) => setAll(r.jobs))
       .catch(() => setAll([]));
-  }, [version]);
+  }, [version, signedIn]);
 
   useEffect(() => store.set('ih.weeklyGoal', goal), [goal]);
 
   const momentum = useMemo(() => computeMomentum(all || []), [all]);
+
+  if (!signedIn) {
+    return (
+      <EmptyState
+        icon={LogIn}
+        title="Your tracker is personal"
+        action={<Button onClick={onSignIn}>Sign in with Google</Button>}
+      >
+        Sign in to save roles, mark what you've applied to and follow up — your tracker is kept for your account only and
+        works on any device.
+      </EmptyState>
+    );
+  }
   const counts = meta?.trackedCounts || {};
   const list = (all || []).filter((j) => status === 'any' || j.status === status);
   const interviewRate = counts.applied || counts.interview ? Math.round(((counts.interview || 0) + (counts.offer || 0)) / Math.max(1, (counts.applied || 0) + (counts.interview || 0) + (counts.offer || 0) + (counts.rejected || 0) + (counts.no_reply || 0)) * 100) : null;

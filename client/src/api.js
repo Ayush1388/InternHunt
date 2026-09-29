@@ -1,6 +1,14 @@
+// Session token from Google sign-in (see auth.jsx). Sent with every request when present.
+const SESSION_KEY = 'ih.session';
+export const session = {
+  get: () => store.get(SESSION_KEY, null),
+  set: (token) => (token ? store.set(SESSION_KEY, token) : store.remove(SESSION_KEY)),
+};
+
 async function request(path, options = {}) {
+  const token = session.get();
   const res = await fetch(`/api${path}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     ...options,
   });
   const body = await res.json().catch(() => ({}));
@@ -30,6 +38,12 @@ export const api = {
   track: (id, status, notes = '') =>
     request(`/jobs/${encodeURIComponent(id)}/track`, { method: 'PUT', body: JSON.stringify({ status, notes }) }),
   untrack: (id) => request(`/jobs/${encodeURIComponent(id)}/track`, { method: 'DELETE' }),
+  auth: {
+    config: () => request('/auth/config'),
+    me: () => request('/auth/me'),
+    google: (credential) => request('/auth/google', { method: 'POST', body: JSON.stringify({ credential }) }),
+    logout: () => request('/auth/logout', { method: 'POST' }),
+  },
 };
 
 export const LABELS = {
@@ -87,6 +101,13 @@ export const store = {
   set(key, value) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+      /* ignore */
+    }
+  },
+  remove(key) {
+    try {
+      localStorage.removeItem(key);
     } catch {
       /* ignore */
     }

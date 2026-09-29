@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Kbd } from '@/components/ui/kbd';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ThemeToggle } from '@/components/theme';
+import { AccountButton, useAuth } from '@/components/auth';
 import Browse from '@/components/Browse';
 import Applications from '@/components/Applications';
 import Government from '@/components/Government';
@@ -85,8 +86,12 @@ export default function App() {
   const [facets, setFacets] = useState({});
   const [query, setQuery] = useState('');
   const [meta, setMeta] = useState(null);
-  const [jobs, setJobs] = useState([]);
+  const [groups, setGroups] = useState([]); // one entry per company (see /api/jobs?group=company)
   const [total, setTotal] = useState(0);
+  const [totalGroups, setTotalGroups] = useState(0);
+  // Changes made since the list loaded (tracking, hides), applied to grouped and expanded lists alike.
+  const [patches, setPatches] = useState({});
+  const [hidden, setHidden] = useState({ jobs: new Set(), companies: new Set() });
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -98,6 +103,7 @@ export default function App() {
   const [version, setVersion] = useState(0); // bumps when tracked data changes elsewhere
   const searchRef = useRef(null);
   const requestId = useRef(0);
+  const auth = useAuth();
 
   const loadMeta = useCallback(() => api.meta().then(setMeta).catch(() => {}), []);
   const loadFacets = useCallback(
@@ -112,10 +118,15 @@ export default function App() {
       setError('');
       try {
         if (!isListTab) return;
-        const res = await api.jobs(toParams(kind, { ...filters, q: query }, nextPage));
+        const res = await api.jobs({ ...toParams(kind, { ...filters, q: query }, nextPage), group: 'company' });
         if (id !== requestId.current) return;
-        setJobs((prev) => (nextPage === 1 ? res.jobs : [...prev, ...res.jobs]));
+        if (nextPage === 1) {
+          setPatches({});
+          setHidden({ jobs: new Set(), companies: new Set() });
+        }
+        setGroups((prev) => (nextPage === 1 ? res.groups : [...prev, ...res.groups]));
         setTotal(res.total);
+        setTotalGroups(res.totalGroups);
         setPage(nextPage);
       } catch (e) {
         if (id === requestId.current) setError(`Couldn't reach the server. ${e.message}`);
@@ -136,8 +147,9 @@ export default function App() {
   }, [allFilters]);
   useEffect(() => {
     setQuery(filters.q);
-    setJobs([]);
+    setGroups([]);
     setTotal(0);
+    setTotalGroups(0);
   }, [kind]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => store.set('ih.tab', tab), [tab]);
   useEffect(() => {
@@ -147,6 +159,18 @@ export default function App() {
     loadMeta();
     loadFacets();
   }, [loadMeta, loadFacets]);
+  // Signing in or out changes what's tracked and hidden: reload everything personal.
+  const authVersion = auth?.version ?? 0;
+  const firstAuth = useRef(true);
+  useEffect(() => {
+    if (firstAuth.current) {
+      firstAuth.current = false;
+      return;
+    }
+    loadJobs(1);
+    loadMeta();
+    setVersion((v) => v + 1);
+  }, [authVersion]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Poll while a server refresh is running.
   useEffect(() => {
@@ -202,11 +226,24 @@ export default function App() {
   }
 
   const patchJob = (id, patch) => {
-    setJobs((list) => list.map((j) => (j.id === id ? { ...j, ...patch } : j)));
+    setPatches((p) => ({ ...p, [id]: { ...p[id], ...patch } }));
     setSelected((s) => (s?.id === id ? { ...s, ...patch } : s));
   };
+  const withPatch = useCallback((job) => (patches[job.id] ? { ...job, ...patches[job.id] } : job), [patches]);
+  const isHidden = useCallback(
+    (job) => hidden.jobs.has(job.id) || hidden.companies.has(String(job.company || '').trim().toLowerCase()),
+    [hidden]
+  );
+
+  /** Saving, tracking and reporting are per person: ask to sign in first. */
+  function needsSignIn(why) {
+    if (auth?.user) return false;
+    auth?.requestSignIn(why);
+    return true;
+  }
 
   async function onTrack(job, status, notes) {
+    if (needsSignIn('Sign in to save roles and keep your own application tracker.')) return;
     const prev = { status: job.status, notes: job.notes };
     patchJob(job.id, { status, notes: notes ?? job.notes, trackedAt: new Date().toISOString() });
     try {
@@ -219,29 +256,35 @@ export default function App() {
       setVersion((v) => v + 1);
     } catch (e) {
       patchJob(job.id, prev);
-      toast(`Couldn't update: ${e.message}`);
+      if (e.status === 401) auth?.requestSignIn('Your session ended — sign in again.');
+      else toast(`Couldn't update: ${e.message}`);
     }
   }
 
   async function onReport(job, reason) {
+    if (needsSignIn('Sign in to report or hide roles — reports are kept per person.')) return;
     try {
       const res = await api.report(job.id, reason);
       if (reason === 'no_reply') {
         patchJob(job.id, { status: 'no_reply' });
         toast('Noted', { description: `${job.company}'s other roles will show they didn't reply.` });
       } else {
-        const gone = (j) => (res.blockedCompany ? j.company === job.company : j.id === job.id);
-        setJobs((list) => list.filter((j) => !gone(j)));
+        setHidden((h) =>
+          res.blockedCompany
+            ? { ...h, companies: new Set(h.companies).add(String(job.company).trim().toLowerCase()) }
+            : { ...h, jobs: new Set(h.jobs).add(job.id) }
+        );
         setSheetOpen(false);
         toast(res.blockedCompany ? `Blocked ${job.company}` : 'Hidden', {
-          description: res.blockedCompany ? 'All its roles are hidden. Undo in Sources.' : 'Thanks for reporting.',
+          description: res.blockedCompany ? 'All its roles are hidden for you. Undo in Sources.' : 'Hidden for you. Thanks for reporting.',
         });
       }
       loadMeta();
       loadFacets();
       setVersion((v) => v + 1);
     } catch (e) {
-      toast(`Couldn't report: ${e.message}`);
+      if (e.status === 401) auth?.requestSignIn('Your session ended — sign in again.');
+      else toast(`Couldn't report: ${e.message}`);
     }
   }
 
@@ -323,6 +366,7 @@ export default function App() {
               <TooltipContent>Sources{failedSources ? ` · ${failedSources} failing` : ''}</TooltipContent>
             </Tooltip>
             <ThemeToggle />
+            <AccountButton />
           </div>
         </div>
       </header>
@@ -390,11 +434,15 @@ export default function App() {
             filters={filters}
             setFilters={setFilters}
             facets={facets[kind]}
-            jobs={jobs}
+            groups={groups}
             total={total}
+            totalGroups={totalGroups}
+            listParams={toParams(kind, { ...filters, q: query }, 1)}
+            withPatch={withPatch}
+            isHidden={isHidden}
             loading={loading}
             error={error}
-            hasMore={jobs.length < total}
+            hasMore={groups.length < totalGroups}
             onMore={() => loadJobs(page + 1)}
             onOpen={openJob}
             onTrack={onTrack}
@@ -405,7 +453,7 @@ export default function App() {
         )}
         {tab === 'government' && <Government />}
         {tab === 'applications' && (
-          <Applications meta={meta} version={version} onOpen={openJob} onTrack={onTrack} onReport={onReport} />
+          <Applications meta={meta} version={version} signedIn={Boolean(auth?.user)} onSignIn={() => auth?.requestSignIn()} onOpen={openJob} onTrack={onTrack} onReport={onReport} />
         )}
 
         <footer className="mt-20 border-t pt-6 text-xs leading-relaxed text-muted-foreground">
