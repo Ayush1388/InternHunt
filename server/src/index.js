@@ -4,7 +4,7 @@ import cors from 'cors';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { db, getMeta, companyKey } from './db.js';
+import { db, getMeta, setMeta, companyKey, syncDb } from './db.js';
 import { refreshAll, isRefreshing } from './ingest.js';
 import { SOURCES, TRUST } from './sources/index.js';
 import { checkPrograms, programsView, removeUserProgram } from './programs.js';
@@ -31,6 +31,11 @@ const NO_REPLY_SQL = `(SELECT COUNT(DISTINCT job_id) FROM job_reports r WHERE r.
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '100kb' }));
+app.use('/api', (req, res, next) => {
+  syncDb();
+  if (ON_VERCEL) refreshIfStale();
+  next();
+});
 
 const csv = (v, allowed) =>
   String(v || '')
@@ -292,11 +297,21 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong' });
 });
 
+// Serverless functions can't run timers, so on Vercel a request starts a refresh when the data is
+// older than REFRESH_HOURS (plus the daily cron in vercel.json as a backup).
+function refreshIfStale() {
+  if (isRefreshing() || process.env.DISABLE_AUTO_REFRESH === '1') return;
+  const last = getMeta('last_refresh');
+  if (last && Date.now() - Date.parse(last) < REFRESH_HOURS * 3600000) return;
+  // Another instance may already be refreshing: the claim is shared through the database.
+  const claimed = getMeta('refresh_claimed');
+  if (claimed && Date.now() - Date.parse(claimed) < 10 * 60000) return;
+  setMeta('refresh_claimed', new Date().toISOString());
+  background(runRefresh());
+}
+
 // On Vercel the app is exported as a serverless function (api/index.js) instead of listening on a port.
-// Its database lives in /tmp and starts empty on a cold start, so fetch jobs right away when it's empty.
-if (ON_VERCEL) {
-  if (!getMeta('last_refresh') && !isRefreshing()) background(runRefresh());
-} else {
+if (!ON_VERCEL) {
   app.listen(PORT, () => {
     console.log(`InternHunt API on http://localhost:${PORT}`);
     scheduleRefreshes();
