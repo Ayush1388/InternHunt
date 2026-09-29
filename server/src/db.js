@@ -161,7 +161,38 @@ function open() {
   return d;
 }
 
-export const db = open();
+const raw = open();
+
+// Statements are written with named parameters (@name, bound from an object). A Turso embedded
+// replica forwards writes to the server without those names, so every value arrived as NULL.
+// Rewrite them to positional "?" parameters, which work the same locally and on Turso.
+function prepare(sql) {
+  const names = [];
+  const text = sql.replace(/@([A-Za-z_]\w*)/g, (_, name) => {
+    names.push(name);
+    return '?';
+  });
+  const stmt = raw.prepare(text);
+  if (!names.length) return stmt;
+  const bind = (args) => {
+    const values = args[0] && typeof args[0] === 'object' && !Array.isArray(args[0]) ? args[0] : {};
+    return names.map((n) => {
+      const v = values[n];
+      return v === undefined ? null : typeof v === 'boolean' ? Number(v) : v;
+    });
+  };
+  return {
+    run: (...args) => stmt.run(...bind(args)),
+    get: (...args) => stmt.get(...bind(args)),
+    all: (...args) => stmt.all(...bind(args)),
+  };
+}
+
+export const db = {
+  prepare,
+  exec: (sql) => raw.exec(sql),
+  sync: () => raw.sync(),
+};
 
 export const dbInfo = () => ({ database: usingTurso ? 'turso' : 'local', error: dbError });
 
@@ -191,6 +222,9 @@ export function setMeta(key, value) {
 }
 
 export function transaction(fn) {
+  // A replica sends each write to Turso on its own, so BEGIN/COMMIT don't span them there
+  // ("cannot rollback - no transaction is active"). Run the statements one by one instead.
+  if (usingTurso) return fn();
   db.exec('BEGIN');
   try {
     const out = fn();
