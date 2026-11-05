@@ -3,21 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Internships, fresher roles and programs from official sources, in one place." />
-    <meta name="theme-color" content="#faf9f6" />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23191817'/><path d='M10 22V10h2.6v12zm5.2 0V10h2.6l3.6 6.9V10H24v12h-2.6l-3.6-6.9V22z' fill='%23faf9f6'/></svg>" />
+    <meta name="description" content="See which startups are recruiting, every listed internship with its last date, and reach founders with short emails you approve." />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='%2362bffb'/><stop offset='1' stop-color='%233aa5f6'/></linearGradient></defs><circle cx='16' cy='16' r='16' fill='url(%23g)'/><path d='M10 22V10h2.6v12zm5.2 0V10h2.6l3.6 6.9V10H24v12h-2.6l-3.6-6.9V22z' fill='%23fff'/></svg>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&display=swap" rel="stylesheet" />
     <title>InternHunt</title>
-    <script>
-      // Apply the saved theme before first paint (no flash). Light unless the visitor picked dark.
-      try {
-        var dark = JSON.parse(localStorage.getItem('ih.mode') || '"light"') === 'dark';
-        document.documentElement.classList.toggle('dark', dark);
-        if (dark) document.querySelector('meta[name=theme-color]').setAttribute('content', '#161514');
-      } catch (e) {}
-    </script>
+    <style>
+      html, body { margin: 0; background: #fff; }
+    </style>
   </head>
   <body>
     <div id="root"></div>
