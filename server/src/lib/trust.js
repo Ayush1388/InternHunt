@@ -52,12 +52,13 @@ export function trustCheck(job, trust, now = Date.now()) {
   if (EVERGREEN_RE.test(job.title) || (trust !== 'company' && EVERGREEN_RE.test(text.slice(0, 600))))
     return { drop: 'Evergreen / talent-pool posting (no real opening)', flags: [] };
 
-  if (job.locTag !== 'india_onsite' && REGION_LOCK_RE.test(job.description || '') && !OPEN_TO_INDIA_RE.test(job.description || ''))
-    return { drop: 'Remote, but restricted to another country', flags: [] };
 
   if (trust === 'community' && !job.companyUrl) return { drop: 'Community post without a company website', flags: [] };
 
   const flags = [];
+  // Roles are global now: a posting tied to another country is kept, with a warning on the card.
+  if (!['india_onsite', 'remote_india'].includes(job.locTag) && REGION_LOCK_RE.test(job.description || '') && !OPEN_TO_INDIA_RE.test(job.description || ''))
+    flags.push('region_locked');
   if (job.postedAt) {
     const ageDays = (now - Date.parse(job.postedAt)) / 86400000;
     if (ageDays > (MAX_AGE_DAYS[trust] ?? 60)) return { drop: 'Too old — likely filled or a ghost job', flags: [] };

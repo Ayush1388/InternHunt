@@ -1,6 +1,6 @@
 // Classifies a normalized posting into: role category, internship vs job, experience asked for,
 // programming languages, deadline, and a location bucket relevant to someone applying from India.
-// Non-tech roles, people-manager roles, and roles not open to India-based candidates return null.
+// Non-tech roles and people-manager roles return null. Roles anywhere in the world are kept and tagged by place.
 
 import { extractDeadline } from './dates.js';
 
@@ -160,13 +160,15 @@ function tagOne(loc, forceRemote) {
   if (remote) {
     const leftover = s.replace(REMOTE_RE, '').replace(/[^a-z]/gi, '');
     if (has(WORLD_RE, s) || leftover.length === 0) return { tag: 'remote_worldwide', city: null };
-    return null; // remote, but restricted to another region (e.g. "Remote - US")
+    return { tag: 'remote_region', city: null }; // remote, but tied to one region (e.g. "Remote - US")
   }
   if (india) return { tag: 'india_onsite', city: cityOf(s) };
-  return null;
+  if (s.replace(/[^a-z]/gi, '').length < 2) return null; // no real location
+  return { tag: 'abroad_onsite', city: null };
 }
 
-const PRIORITY = { remote_india: 3, india_onsite: 2, remote_worldwide: 1 };
+// The best place a posting offers us: India first, then fully remote, then anywhere else.
+const PRIORITY = { remote_india: 5, india_onsite: 4, remote_worldwide: 3, remote_region: 2, abroad_onsite: 1 };
 
 export function classifyLocation({ locations = [], isRemote = false }) {
   const list = locations.filter((l) => l && String(l).trim());

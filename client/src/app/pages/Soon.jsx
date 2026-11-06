@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BadgeCheck, Check, Lock, MailOpen, Newspaper, Radar, Rocket, Send, Sparkles, UserRound } from 'lucide-react';
+import { BadgeCheck, Check, Newspaper, Radar, Rocket, Sparkles } from 'lucide-react';
 import { Avatar, Words, toast, useReveal } from '@/app/ui';
 
 // Planned features (see project.md). Honest previews, labelled as examples, plus the early-access list.
@@ -7,32 +7,20 @@ const CONTENT = {
   recruiting: {
     icon: Radar,
     title: 'Who’s recruiting',
-    words: 'Catch startups the day they start hiring',
-    mark: 'hiring',
-    lead: 'Startups that just raised, launched or said “we’re hiring”, often before the role is on any job board. Matched to your resume, with a one-line reason.',
+    words: 'Hiring directly, right here',
+    mark: 'directly,',
+    lead: 'Founders and teams who post a role on InternHunt and hire without a middleman, plus startups that just raised or launched, before the role is on any job board.',
     points: [
-      [Newspaper, 'Funding and launch signals', 'Indian startup funding roundups, Product Hunt launches, YC and GitHub, checked every day.'],
-      [Sparkles, 'Matched to you', 'Hard filters first (batch, stipend, location), then ranked by fit with the reason shown.'],
-      [Send, 'A way in', 'Apply if the role is listed, or approve a short email to the founder if it isn’t.'],
-    ],
-  },
-  drafts: {
-    icon: MailOpen,
-    title: 'Founder drafts',
-    words: 'Emails that sound like you, not AI slop',
-    mark: 'you,',
-    lead: 'Short, specific emails to founders: one verified fact about the company, one real proof from your resume, one clear ask. You approve every one.',
-    points: [
-      [BadgeCheck, 'Only checked facts', 'Each draft may use one company fact we verified and one real thing from your resume. Nothing invented.'],
-      [UserRound, 'Your voice', 'Edit a draft and it learns how you write. 60 to 90 words, no buzzwords.'],
-      [Lock, 'You hold the send button', 'Drafts land in your own Gmail. Nothing is ever sent without your tap.'],
+      [Rocket, 'Hiring directly on InternHunt', 'Founders post a role here and reach students straight away. No agencies, no fees for candidates.'],
+      [Newspaper, 'Fresh funding and launches', 'Funding roundups, Product Hunt launches, YC and GitHub, checked every day, anywhere in the world.'],
+      [Sparkles, 'Matched to you', 'Ranked by your skills, with the reason shown. Apply, or approve a short email to the founder.'],
     ],
   },
 };
 
 const PREVIEW = [
   ['Lumen Labs', 'Raised a seed round · 2 days ago', 'ML intern fit', 'mint'],
-  ['Orbit Pay', 'Founder posted “we’re hiring” · today', 'Backend fit', 'blue'],
+  ['Orbit Pay', 'Posted a role on InternHunt · today', 'Backend fit', 'blue'],
   ['Paperkite', 'Launched on Product Hunt · this week', 'Design fit', 'butter'],
   ['Kiln', 'Raised a pre-seed · 4 days ago', 'Growth fit', 'peach'],
 ];
@@ -51,27 +39,6 @@ function Recruiting() {
           <span className={`tag ${tone}`}>{fit}</span>
         </div>
       ))}
-    </div>
-  );
-}
-
-function Draft() {
-  const F = ({ c, label, d, children }) => (
-    <><mark className={`fx ${c}`}>{children}</mark><em className={`lblx ${c}`} style={{ '--d': d }}>{label}</em></>
-  );
-  return (
-    <div className="mail">
-      <div className="mail-top"><span className="st"><i className="dot" /> Draft · example</span><span>New message</span></div>
-      <div className="mail-to">To <span className="chip"><i>R</i>Riya · Founder, Lumen Labs</span></div>
-      <div className="mail-to">Subject: Your seed round + an ML intern?</div>
-      <div className="mail-b">
-        <p>Hi Riya,</p>
-        <p><F c="c1" label="company fact" d={0}>Congrats on Lumen’s seed round</F> — saw you’re hiring an ML intern.</p>
-        <p>Last term I built <F c="c2" label="real proof" d={1}>a resume-ranking tool that sorted 2,000 applications</F> for my college placement cell.</p>
-        <p><F c="c3" label="one clear ask" d={2}>Could I send you a 2-minute demo this week?</F></p>
-        <p>Aarav</p>
-      </div>
-      <div className="mail-foot"><span className="send">Send</span><span>39 words · 0 empty phrases</span></div>
     </div>
   );
 }
@@ -133,7 +100,7 @@ export default function Soon({ kind }) {
           </div>
         </div>
         <div className="sticky rv" style={{ '--d': 1 }}>
-          {kind === 'drafts' ? <Draft /> : <Recruiting />}
+          <Recruiting />
           <p className="note" style={{ display: 'flex', alignItems: 'center', gap: 6, paddingLeft: 4 }}><Rocket size={14} /> Every name above is made up to show the idea.</p>
         </div>
       </div>

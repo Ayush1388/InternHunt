@@ -23,8 +23,13 @@ async function request(path, options = {}) {
 
 export const api = {
   jobs: (params) => request(`/jobs?${new URLSearchParams(params)}`),
-  facets: (kind) => request(`/facets?kind=${kind}`),
-  government: () => request('/government'),
+  facets: (kind = 'all') => request(`/facets?kind=${kind}`),
+  match: (body) => request('/match', { method: 'POST', body: JSON.stringify(body) }),
+  profile: {
+    get: () => request('/profile'),
+    save: (profile) => request('/profile', { method: 'PUT', body: JSON.stringify({ profile }) }),
+    remove: () => request('/profile', { method: 'DELETE' }),
+  },
   job: (id) => request(`/jobs/${encodeURIComponent(id)}`),
   meta: () => request('/meta'),
   refresh: () => request('/refresh', { method: 'POST' }),
@@ -49,7 +54,10 @@ export const api = {
 export const LABELS = {
   level: { intern: 'Internship', job: 'Job' },
   exp: { 0: 'No experience', 1: '1+ years', 3: '3+ years', 5: '5+ years' },
-  loc: { india_onsite: 'India · on-site/hybrid', remote_india: 'Remote · India/APAC', remote_worldwide: 'Remote · worldwide' },
+  loc: {
+    india_onsite: 'India · on-site/hybrid', remote_india: 'Remote · India/APAC', remote_worldwide: 'Remote · worldwide',
+    remote_region: 'Remote · one region', abroad_onsite: 'Outside India · on-site',
+  },
   status: { saved: 'Saved', applied: 'Applied', interview: 'Interviewing', offer: 'Offer', rejected: 'Rejected', no_reply: 'No reply' },
   trust: {
     company: { label: 'Company careers page', hint: 'Read directly from the company’s own hiring system' },
@@ -61,6 +69,7 @@ export const LABELS = {
     reposted: 'Reposted after closing',
     thin_description: 'Very short description',
     deadline_estimated: 'Last date is the usual one — confirm on the official page',
+    region_locked: 'May need work authorisation in a specific country',
   },
   reportReasons: {
     scam: 'Scam — asks for money or personal details',

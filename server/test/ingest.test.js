@@ -25,10 +25,10 @@ function ingestAll() {
 test('adapters parse each API shape and only relevant jobs are kept', () => {
   const r = ingestAll();
   assert.equal(r.greenhouse.parsed.length, 7); // incl. an evergreen talent-pool posting that gets blocked
-  assert.deepEqual(r.greenhouse.relevant.map((j) => j.sourceJobId).sort(), ['9001', '9002', '9004', '9006']); // 9002 is a senior role: kept as a 3+/5+ year job
+  assert.deepEqual(r.greenhouse.relevant.map((j) => j.sourceJobId).sort(), ['9001', '9002', '9004', '9005', '9006']); // 9002 is a senior role: kept as a 3+/5+ year job; 9005 is outside India (roles are global now)
   assert.deepEqual(r.lever.relevant.map((j) => j.sourceJobId).sort(), ['lv-1', 'lv-2', 'lv-3']); // lv-3 (SDE-2, 3+ years) is a 3+ year job
-  assert.deepEqual(r.ashby.relevant.map((j) => j.sourceJobId), ['ab-1']);
-  assert.deepEqual(r.remotive.relevant.map((j) => j.sourceJobId).sort(), ['501', '502']); // US-only, stale, scam, agency, region-locked all dropped
+  assert.deepEqual(r.ashby.relevant.map((j) => j.sourceJobId), ['ab-1', 'ab-2']); // ab-2 is outside India
+  assert.deepEqual(r.remotive.relevant.map((j) => j.sourceJobId).sort(), ['501', '502', '503', '507']); // stale, scam and agency posts are dropped; US-only and region-locked ones are kept (and flagged)
   assert.equal(r.remoteok.parsed.length, 3); // legal notice skipped
   assert.deepEqual(r.remoteok.relevant.map((j) => j.sourceJobId).sort(), ['7001', '7003']);
   assert.equal(r.remoteok.duplicates, 1); // 7003 duplicates Nimbus Pay's greenhouse posting

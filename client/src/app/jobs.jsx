@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  ArrowUpRight, Bookmark, BookmarkCheck, CalendarClock, CalendarX2, ChevronDown, CircleCheck, Clock, Code2, Flag, Globe, GraduationCap,
+  ArrowUpRight, Bookmark, BookmarkCheck, CalendarClock, CalendarX2, Check, ChevronDown, CircleCheck, Plus, Clock, Code2, Flag, Globe, GraduationCap,
   Infinity as InfinityIcon, MapPin, MoreHorizontal, ShieldCheck, Sparkles, TriangleAlert, Wallet,
 } from 'lucide-react';
 import { api, LABELS, timeAgo } from '@/api';
@@ -10,7 +10,20 @@ import { parseDescription } from '@/lib/description';
 import { Avatar, Layer, Menu, Select, Skel, cx } from '@/app/ui';
 
 /* ------------------------------------------------------------------ helpers */
-export const placeOf = (job) => (job.locTag === 'india_onsite' ? job.city || 'India' : LABELS.loc[job.locTag]);
+export const placeOf = (job) =>
+  job.locTag === 'india_onsite' ? job.city || 'India'
+    : job.locTag === 'abroad_onsite' ? (job.locations || '').split(' · ')[0] || LABELS.loc.abroad_onsite
+      : LABELS.loc[job.locTag];
+
+/** "YC W24" / "Techstars" tags for companies backed by those accelerators. */
+export function BackedTags({ job }) {
+  return (
+    <>
+      {job.backed?.includes('yc') && <span className="tag yc"><i className="y">Y</i>YC{job.ycBatch ? ` ${job.ycBatch}` : ''}</span>}
+      {job.backed?.includes('techstars') && <span className="tag mint"><i className="y t">T</i>Techstars</span>}
+    </>
+  );
+}
 
 export function warningsOf(job) {
   return [
@@ -81,7 +94,7 @@ function ReportItems({ job, onReport, onApply, onOpen }) {
 }
 
 /* ------------------------------------------------------------------ job card */
-export function JobCard({ job, onOpen, onTrack, onReport, onApply, i = 0, inGroup = false }) {
+export function JobCard({ job, onOpen, onTrack, onReport, onApply, i = 0, inGroup = false, match = null, selected = null, onSelect = null }) {
   const isNew = !job.isProgram && job.firstSeen && Date.now() - Date.parse(job.firstSeen) < 86400000;
   const warnings = warningsOf(job);
   const saved = Boolean(job.status);
@@ -114,13 +127,20 @@ export function JobCard({ job, onOpen, onTrack, onReport, onApply, i = 0, inGrou
             {isNew && <span className="tag peach" style={{ height: 22, marginLeft: 8, verticalAlign: 3, fontSize: 11 }}>New</span>}
           </h3>
           <div className="facts">
-            <span>{job.locTag === 'india_onsite' ? <MapPin /> : <Globe />}{placeOf(job)}</span>
+            <span>{job.locTag === 'india_onsite' || job.locTag === 'abroad_onsite' ? <MapPin /> : <Globe />}{placeOf(job)}</span>
             {job.salary && <span><Wallet />{job.salary}</span>}
             {!job.isProgram && <span className="tab">{timeAgo(job.postedAt || job.firstSeen)}</span>}
             {inGroup && <DeadlineTag job={job} />}
           </div>
           {snippet && <p className="snip">{snippet}</p>}
+          {match && (
+            <div className="fit">
+              <b className="tab">{match.fit}%</b> match
+              {(match.why.skills.length > 0 || match.why.role) && <span>· {[...match.why.skills, match.why.role && ROLE[match.why.role]?.short].filter(Boolean).slice(0, 5).join(', ')}</span>}
+            </div>
+          )}
           <div className="tags">
+            <BackedTags job={job} />
             {role && <span className="tag"><role.icon />{role.short}</span>}
             {job.level === 'intern' ? <span className="tag blue">Internship</span> : <span className={cx('tag', job.exp === 0 && 'mint')}>{LABELS.exp[job.exp] || 'No experience'}</span>}
             {job.isProgram && <span className="tag butter"><Sparkles />{job.employmentType || 'Program'}</span>}
@@ -131,6 +151,11 @@ export function JobCard({ job, onOpen, onTrack, onReport, onApply, i = 0, inGrou
         </div>
         <div className="job-acts" onClick={(e) => e.stopPropagation()}>
           <div className="pair">
+            {onSelect && (
+              <button className={cx('btn sm', selected ? 'on' : 'light')} aria-pressed={selected} onClick={() => onSelect(job)}>
+                {selected ? <Check /> : <Plus />} {selected ? 'Selected' : 'Select'}
+              </button>
+            )}
             <button className={cx('btn sm', saved ? 'chip' : 'light')} aria-pressed={saved} onClick={() => onTrack(job, saved ? null : 'saved')}>
               {saved ? <BookmarkCheck /> : <Bookmark />} {saved ? LABELS.status[job.status] : 'Save'}
             </button>
@@ -257,6 +282,7 @@ export function JobPanel({ job, open, onClose, onTrack, onReport, onApply }) {
           <h2>{job.title}</h2>
           <p>{job.company}</p>
           <div className="tags">
+            <BackedTags job={job} />
             {role && <span className="tag"><role.icon />{role.short}</span>}
             {job.level === 'intern' ? <span className="tag blue">Internship</span> : <span className={cx('tag', job.exp === 0 && 'mint')}>{LABELS.exp[job.exp]}</span>}
             {job.isProgram && <span className="tag butter"><Sparkles />{job.employmentType || 'Program'}</span>}

@@ -52,11 +52,13 @@ test('agency, anonymous and evergreen postings are dropped', () => {
   assert.match(check({ title: 'General Application - Software' }, 'company').drop, /Evergreen/);
 });
 
-test('remote jobs quietly limited to another country are dropped', () => {
+test('remote jobs limited to another country are kept but flagged', () => {
   const remote = { locTag: 'remote_worldwide' };
-  assert.match(check({ ...remote, description: 'Remote role. Must be located in the United States.' }).drop, /restricted/);
-  assert.match(check({ ...remote, description: 'You must be authorized to work in the US.' }).drop, /restricted/);
-  assert.match(check({ ...remote, description: 'Open to US-based candidates only.' }).drop, /restricted/);
+  for (const description of ['Remote role. Must be located in the United States.', 'You must be authorized to work in the US.', 'Open to US-based candidates only.']) {
+    const r = check({ ...remote, description });
+    assert.equal(r.drop, null);
+    assert.ok(r.flags.includes('region_locked'), description);
+  }
   // …but not when India / worldwide is also mentioned, or it's an office job in India
   assert.equal(check({ ...remote, description: 'US only for now; India applicants welcome from 2027.' }).drop, null);
   assert.equal(check({ ...remote, description: 'We are a US-based startup hiring remotely.' }).drop, null);

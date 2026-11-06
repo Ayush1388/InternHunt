@@ -21,23 +21,24 @@ test('every source has an id, a label and a sample fixture', () => {
   }
 });
 
-test('we work remotely: "Company: Title" split, US-only dropped', () => {
+test('we work remotely: "Company: Title" split, US-only kept as a regional remote role', () => {
   const r = kept('weworkremotely');
-  assert.equal(r.length, 1);
-  assert.equal(r[0].company, 'Bytewise');
-  assert.equal(r[0].loc, 'remote_worldwide');
+  assert.equal(r.length, 2);
+  const bytewise = r.find((j) => j.company === 'Bytewise');
+  assert.equal(bytewise.loc, 'remote_worldwide');
+  assert.ok(r.some((j) => j.loc === 'remote_region'));
 });
 
 test('working nomads and the muse', () => {
   assert.equal(kept('workingnomads')[0].loc, 'remote_india');
-  assert.deepEqual(kept('themuse').map((j) => [j.id, j.city]), [['7771', 'Hyderabad']]); // US "Flexible / Remote" dropped
+  assert.deepEqual(kept('themuse').map((j) => [j.id, j.city]), [['7771', 'Hyderabad'], ['7772', null]]); // US "Flexible / Remote" is kept too, with no Indian city
 });
 
 test('company ATS boards: workable, recruitee, personio, workday', () => {
   assert.deepEqual(kept('workable').map((j) => [j.level, j.city]), [['intern', 'Noida']]);
   assert.deepEqual(kept('recruitee').map((j) => [j.level, j.city]), [['job', 'Chennai']]);
-  assert.deepEqual(kept('personio').map((j) => [j.level, j.city]), [['intern', 'Pune']]);
-  const wd = kept('workday');
+  assert.deepEqual(kept('personio').map((j) => [j.level, j.city]), [['intern', 'Pune'], ['job', null]]); // the second one is outside India
+  const wd = kept('workday').filter((j) => j.url.includes('Bangalore'));
   assert.equal(wd.length, 1);
   assert.equal(wd[0].url, 'https://megacorp.wd5.myworkdayjobs.com/External/job/Bangalore/SWE-Intern_R1');
 });

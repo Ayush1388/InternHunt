@@ -1,34 +1,37 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Briefcase, ChevronDown, GraduationCap, Landmark, LayoutGrid, Link2, ListChecks, MailOpen, Radar, Search, ShieldCheck } from 'lucide-react';
+import { ChevronDown, Compass, Link2, ListChecks, Radar, Search, ShieldCheck, Sparkles } from 'lucide-react';
 import { api, store } from '@/api';
 import { LogoMark, Menu, cx, toast } from '@/app/ui';
 import { NavAccount, useAuth } from '@/app/auth';
 import { JobPanel } from '@/app/jobs';
 import { AddLink, Filters, SearchPalette, Sources } from '@/app/overlays';
-import Today from '@/app/pages/Today';
-import Listings from '@/app/pages/Listings';
-import Government from '@/app/pages/Government';
+import Explore from '@/app/pages/Explore';
+import ForYou from '@/app/pages/ForYou';
 import Tracker from '@/app/pages/Tracker';
 import Soon from '@/app/pages/Soon';
 
-export const PAGES = ['today', 'internships', 'jobs', 'government', 'tracker', 'recruiting', 'drafts'];
-const TITLES = { today: 'Today', internships: 'Internships', jobs: 'Jobs', government: 'Government programs', tracker: 'Tracker', recruiting: 'Who’s recruiting', drafts: 'Founder drafts' };
-const DEFAULT_FILTERS = { q: '', type: '', deadline: '', category: [], exp: [], lang: [], loc: [], city: '', companyOnly: false, sort: 'newest', hideApplied: true };
+export const PAGES = ['explore', 'foryou', 'recruiting', 'tracker'];
+const TITLES = { explore: 'Explore', foryou: 'Curated for you', recruiting: 'Who’s recruiting', tracker: 'Tracker' };
+const DEFAULT_FILTERS = {
+  q: '', kind: '', backed: '', type: '', deadline: '', category: [], exp: [], lang: [], loc: [], city: '', companyOnly: false, sort: 'newest', hideApplied: true,
+};
 const PAGE_SIZE = 30;
 
 export const go = (page) => {
-  window.location.hash = page === 'today' ? '#/app' : `#/app/${page}`;
+  window.location.hash = `#/app/${page}`;
 };
 
-function loadFilters(kind) {
-  const f = { ...DEFAULT_FILTERS, ...store.get(`ih.filters.${kind}`, {}), q: '' };
+function loadFilters() {
+  const f = { ...DEFAULT_FILTERS, ...store.get('ih.filters.explore', {}), q: '' };
   for (const k of ['category', 'exp', 'lang', 'loc']) if (!Array.isArray(f[k])) f[k] = [];
   return f;
 }
 
-function toParams(kind, f, page) {
-  const p = { kind, page, limit: PAGE_SIZE };
+function toParams(f, page) {
+  const p = { page, limit: PAGE_SIZE };
+  if (f.kind) p.kind = f.kind;
   if (f.q.trim()) p.q = f.q.trim();
+  if (f.backed) p.backed = f.backed;
   if (f.type) p.type = f.type;
   if (f.deadline) p.deadline = f.deadline;
   if (f.category.length) p.category = f.category.join(',');
@@ -42,16 +45,14 @@ function toParams(kind, f, page) {
   return p;
 }
 
-const NAV = [['today', 'Today', LayoutGrid], ['internships', 'Internships', GraduationCap], ['jobs', 'Jobs', Briefcase], ['government', 'Government', Landmark], ['tracker', 'Tracker', ListChecks]];
-const TAB_LABEL = { today: 'Today', internships: 'Interns', jobs: 'Jobs', government: 'Govt', tracker: 'Tracker' };
+const NAV = [['explore', 'Explore', Compass], ['foryou', 'For you', Sparkles], ['recruiting', 'Who’s recruiting', Radar, true], ['tracker', 'Tracker', ListChecks]];
+const TAB_LABEL = { explore: 'Explore', foryou: 'For you', recruiting: 'Recruiting', tracker: 'Tracker' };
 
-export default function App({ page = 'today' }) {
-  const kind = page === 'jobs' ? 'job' : 'intern';
-  const isList = page === 'internships' || page === 'jobs';
-  const [allFilters, setAllFilters] = useState(() => ({ intern: loadFilters('intern'), job: loadFilters('job') }));
-  const filters = allFilters[kind];
-  const setFilters = useCallback((u) => setAllFilters((all) => ({ ...all, [kind]: typeof u === 'function' ? u(all[kind]) : u })), [kind]);
-  const [facets, setFacets] = useState({});
+export default function App({ page = 'explore', kind: routeKind = '' }) {
+  const isExplore = page === 'explore';
+  const [filters, setFilters] = useState(loadFilters);
+  const [facetsAll, setFacetsAll] = useState({});
+  const [facetsKind, setFacetsKind] = useState(null);
   const [query, setQuery] = useState('');
   const [meta, setMeta] = useState(null);
   const [groups, setGroups] = useState([]);
@@ -71,22 +72,30 @@ export default function App({ page = 'today' }) {
   const requestId = useRef(0);
   const auth = useAuth();
 
+  const facets = filters.kind && facetsKind ? facetsKind : facetsAll;
+
   useEffect(() => {
     document.title = `${TITLES[page]} · InternHunt`;
-    store.set('ih.page', page);
     window.scrollTo(0, 0);
   }, [page]);
+  // Old links like #/app/internships open Explore with that level selected.
+  useEffect(() => {
+    if (routeKind) setFilters((f) => ({ ...f, kind: routeKind }));
+  }, [routeKind]);
 
   const loadMeta = useCallback(() => api.meta().then(setMeta).catch(() => {}), []);
-  const loadFacets = useCallback(() => ['intern', 'job'].forEach((k) => api.facets(k).then((f) => setFacets((all) => ({ ...all, [k]: f }))).catch(() => {})), []);
+  const loadFacets = useCallback(() => {
+    api.facets('all').then(setFacetsAll).catch(() => {});
+    if (filters.kind) api.facets(filters.kind).then(setFacetsKind).catch(() => {});
+  }, [filters.kind]);
 
   const loadJobs = useCallback(async (next = 1) => {
-    if (!isList) return;
+    if (!isExplore) return;
     const id = ++requestId.current;
     setLoading(true);
     setError('');
     try {
-      const res = await api.jobs({ ...toParams(kind, { ...filters, q: query }, next), group: 'company' });
+      const res = await api.jobs({ ...toParams({ ...filters, q: query }, next), group: 'company' });
       if (id !== requestId.current) return;
       if (next === 1) { setPatches({}); setHidden({ jobs: new Set(), companies: new Set() }); }
       setGroups((prev) => (next === 1 ? res.groups : [...prev, ...res.groups]));
@@ -98,16 +107,13 @@ export default function App({ page = 'today' }) {
     } finally {
       if (id === requestId.current) setLoading(false);
     }
-  }, [filters, query, kind, isList]);
+  }, [filters, query, isExplore]);
 
   useEffect(() => { const t = setTimeout(() => setQuery(filters.q), 250); return () => clearTimeout(t); }, [filters.q]);
-  useEffect(() => {
-    store.set('ih.filters.intern', { ...allFilters.intern, q: '' });
-    store.set('ih.filters.job', { ...allFilters.job, q: '' });
-  }, [allFilters]);
-  useEffect(() => { setQuery(filters.q); setGroups([]); setTotal(0); setTotalGroups(0); }, [kind]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { store.set('ih.filters.explore', { ...filters, q: '' }); }, [filters]);
   useEffect(() => { loadJobs(1); }, [loadJobs]);
-  useEffect(() => { loadMeta(); loadFacets(); }, [loadMeta, loadFacets]);
+  useEffect(() => { loadMeta(); }, [loadMeta]);
+  useEffect(() => { loadFacets(); }, [loadFacets]);
 
   const authVersion = auth?.version ?? 0;
   const firstAuth = useRef(true);
@@ -127,7 +133,7 @@ export default function App({ page = 'today' }) {
       }
     }, 4000);
     return () => clearInterval(t);
-  }, [meta?.refreshing, loadJobs]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [meta?.refreshing, loadJobs, loadFacets]);
 
   // Scroll: progress line, hide the nav on the way down. Pointer: spotlight on .card.glow.
   useEffect(() => {
@@ -154,24 +160,24 @@ export default function App({ page = 'today' }) {
     return () => { window.removeEventListener('scroll', onScroll); document.removeEventListener('pointermove', onMove); cancelAnimationFrame(raf); };
   }, []);
 
-  // Keyboard: ⌘K search, "/" focuses the list search, "g" then t/i/j/p/a switches page.
+  // Keyboard: ⌘K search, "/" focuses the search box, "g" then e/f/t switches page.
   useEffect(() => {
     let g = 0;
     const onKey = (e) => {
       const typing = /input|textarea|select/i.test(e.target.tagName) || e.target.isContentEditable;
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setPanel((p) => (p === 'search' ? null : 'search')); return; }
       if (typing || document.querySelector('dialog[open]')) return;
-      if (e.key === '/') { e.preventDefault(); if (!isList) go('internships'); setTimeout(() => searchRef.current?.focus(), 80); }
+      if (e.key === '/') { e.preventDefault(); if (!isExplore) go('explore'); setTimeout(() => searchRef.current?.focus(), 80); }
       else if (e.key === 'g') g = Date.now();
       else if (Date.now() - g < 800) {
-        const map = { t: 'today', i: 'internships', j: 'jobs', p: 'government', a: 'tracker' };
+        const map = { e: 'explore', f: 'foryou', t: 'tracker', r: 'recruiting' };
         if (map[e.key]) go(map[e.key]);
         g = 0;
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [isList]);
+  }, [isExplore]);
 
   async function refresh() {
     try {
@@ -200,7 +206,7 @@ export default function App({ page = 'today' }) {
       else await api.untrack(job.id);
       if (status === 'saved' && !prev.status) toast('Saved to your tracker', { description: job.title });
       if (status === 'applied' && prev.status !== 'applied') toast('Marked as applied', { description: `${job.company} · keep the streak going` });
-      loadMeta(); loadFacets(); setVersion((v) => v + 1);
+      loadMeta(); setVersion((v) => v + 1);
     } catch (e) {
       patchJob(job.id, prev);
       if (e.status === 401) auth?.requestSignIn('Your session ended. Sign in again.');
@@ -220,7 +226,7 @@ export default function App({ page = 'today' }) {
         setPanel(null);
         toast(res.blockedCompany ? `Blocked ${job.company}` : 'Hidden for you', { description: res.blockedCompany ? 'All its roles are hidden. Undo in Sources.' : 'Thanks for reporting.' });
       }
-      loadMeta(); loadFacets(); setVersion((v) => v + 1);
+      loadMeta(); setVersion((v) => v + 1);
     } catch (e) {
       if (e.status === 401) auth?.requestSignIn('Your session ended. Sign in again.');
       else toast(`Couldn’t report: ${e.message}`);
@@ -236,8 +242,9 @@ export default function App({ page = 'today' }) {
 
   const openJob = (job) => { setSelected(job); setPanel('job'); };
   const handlers = { onOpen: openJob, onTrack, onReport, onApply };
-  const counts = { internships: facets.intern?.total, jobs: facets.job?.total, tracker: meta ? Object.values(meta.trackedCounts || {}).reduce((a, b) => a + b, 0) : 0 };
   const failing = meta?.sources?.filter((s) => !s.ok).length || 0;
+  const trackedTotal = meta ? Object.values(meta.trackedCounts || {}).reduce((a, b) => a + b, 0) : 0;
+  const counts = { explore: facetsAll.total, tracker: trackedTotal };
   const closePanel = () => setPanel(null);
 
   return (
@@ -248,18 +255,14 @@ export default function App({ page = 'today' }) {
         <nav className="nav-in" aria-label="Main">
           <a href="#/" className="logo" aria-label="InternHunt home"><span className="logo-mark"><LogoMark /></span><span className="t">InternHunt</span></a>
           <div className="nav-links">
-            {NAV.map(([id, label, Icon]) => (
+            {NAV.map(([id, label, Icon, soon]) => (
               <button key={id} className={cx(page === id && 'on')} aria-current={page === id ? 'page' : undefined} onClick={() => go(id)}>
-                <Icon size={16} /> {label}{counts[id] ? <span className="n tab">{counts[id]}</span> : null}
+                <Icon size={16} /> {label}{counts[id] ? <span className="n tab">{counts[id].toLocaleString('en-IN')}</span> : null}{soon && <i className="soon" title="Coming soon" />}
               </button>
             ))}
           </div>
           <div className="nav-side">
             <Menu trigger={(p) => <button {...p} className="nav-icon" aria-label="More"><ChevronDown /></button>}>
-              <h6>Coming soon</h6>
-              <button role="menuitem" onClick={() => go('recruiting')}><Radar /> Who’s recruiting <span className="tag butter" style={{ marginLeft: 'auto', height: 20 }}>Soon</span></button>
-              <button role="menuitem" onClick={() => go('drafts')}><MailOpen /> Founder drafts <span className="tag butter" style={{ marginLeft: 'auto', height: 20 }}>Soon</span></button>
-              <hr />
               <button role="menuitem" onClick={() => setPanel('add')}><Link2 /> Add from link</button>
               <button role="menuitem" onClick={() => setPanel('sources')}><ShieldCheck /> Sources {failing > 0 && <span className="tag red" style={{ marginLeft: 'auto', height: 20 }}>{failing} failing</span>}</button>
             </Menu>
@@ -271,18 +274,17 @@ export default function App({ page = 'today' }) {
       </header>
 
       <main className="wrap" key={page}>
-        {page === 'today' && <Today facets={facets} meta={meta} version={version} onOpen={openJob} onSearch={() => setPanel('search')} go={go} />}
-        {isList && (
-          <Listings
+        {isExplore && (
+          <Explore
             ref={searchRef}
-            kind={kind}
             filters={filters}
             setFilters={setFilters}
-            facets={facets[kind]}
+            facets={facets}
+            kindCounts={facetsAll.byKind}
             groups={groups}
             total={total}
             totalGroups={totalGroups}
-            listParams={toParams(kind, { ...filters, q: query }, 1)}
+            listParams={toParams({ ...filters, q: query }, 1)}
             withPatch={withPatch}
             isHidden={isHidden}
             loading={loading}
@@ -296,15 +298,16 @@ export default function App({ page = 'today' }) {
             {...handlers}
           />
         )}
-        {page === 'government' && <Government />}
+        {page === 'foryou' && <ForYou version={version} facets={facetsAll} {...handlers} />}
         {page === 'tracker' && <Tracker meta={meta} version={version} {...handlers} />}
-        {(page === 'recruiting' || page === 'drafts') && <Soon kind={page} />}
+        {page === 'recruiting' && <Soon kind="recruiting" />}
 
         <footer className="foot">
           <div className="foot-in">
             <p>
               Roles come straight from companies’ own hiring systems and official program pages
               {meta?.attributions?.length ? `, plus ${meta.attributions.join(', ')}` : ''}. Scam-like, agency and evergreen posts are filtered out. A real employer never asks you to pay.
+              YC data from yc-oss; Techstars covers the companies featured on techstars.com.
             </p>
             <nav aria-label="Footer"><a href="#/privacy">Privacy</a><a href="#/terms">Terms</a><a href="#/">About</a><a href="https://unsplash.com/photos/cloudy-sky-at-daytime-v9bnfMCyKbg" target="_blank" rel="noopener noreferrer">Photo: billy_huy / Unsplash</a></nav>
           </div>
@@ -318,7 +321,7 @@ export default function App({ page = 'today' }) {
       </nav>
 
       <JobPanel job={selected} open={panel === 'job'} onClose={closePanel} onTrack={onTrack} onReport={onReport} onApply={onApply} />
-      <Filters open={panel === 'filters'} onClose={closePanel} filters={filters} setFilters={setFilters} facets={facets[kind]} total={total} onReset={() => setFilters({ ...DEFAULT_FILTERS })} />
+      <Filters open={panel === 'filters'} onClose={closePanel} filters={filters} setFilters={setFilters} facets={facets} total={total} onReset={() => setFilters({ ...DEFAULT_FILTERS })} />
       <Sources open={panel === 'sources'} onClose={closePanel} meta={meta} onChanged={() => { loadMeta(); loadJobs(1); loadFacets(); }} />
       <AddLink open={panel === 'add'} onClose={closePanel} onAdded={(r) => { setVersion((v) => v + 1); if (r.kind === 'company' || r.kind === 'program') setTimeout(() => { loadJobs(1); loadMeta(); loadFacets(); }, 8000); }} />
       <SearchPalette
@@ -326,10 +329,8 @@ export default function App({ page = 'today' }) {
         onClose={closePanel}
         go={go}
         applyPreset={(patch) => {
-          const target = patch.kind || kind;
-          const { kind: _k, ...rest } = patch;
-          go(target === 'job' ? 'jobs' : 'internships');
-          setAllFilters((all) => ({ ...all, [target]: { ...DEFAULT_FILTERS, ...rest } }));
+          go('explore');
+          setFilters({ ...DEFAULT_FILTERS, ...patch });
         }}
         onOpenJob={openJob}
         onAdd={() => setPanel('add')}

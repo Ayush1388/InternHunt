@@ -30,19 +30,19 @@ export function SearchPalette({ open, onClose, go, applyPreset, onOpenJob, onAdd
 
   const groups = useMemo(() => {
     const pages = [
-      [LayoutGrid, 'Today', () => go('today'), 'G T'],
-      [GraduationCap, 'Internships', () => go('internships'), 'G I'],
-      [Briefcase, 'Jobs', () => go('jobs'), 'G J'],
-      [Landmark, 'Government programs', () => go('government'), 'G P'],
-      [ListChecks, 'My tracker', () => go('tracker'), 'G A'],
+      [LayoutGrid, 'Explore', () => go('explore'), 'G E'],
+      [Sparkles, 'Curated for you', () => go('foryou'), 'G F'],
+      [ListChecks, 'My tracker', () => go('tracker'), 'G T'],
       [Radar, 'Who’s recruiting', () => go('recruiting'), 'SOON'],
-      [MailOpen, 'Founder drafts', () => go('drafts'), 'SOON'],
     ];
     const presets = [
-      [CalendarClock, 'Internships closing this week', () => applyPreset({ kind: 'intern', deadline: 'week' })],
+      [GraduationCap, 'All internships', () => applyPreset({ kind: 'intern' })],
       [Briefcase, 'Fresher jobs (no experience)', () => applyPreset({ kind: 'job', exp: ['0'] })],
-      [Sparkles, 'Programs (GSoC, STEP, drives…)', () => applyPreset({ kind: 'intern', type: 'programs' })],
-      [Globe, 'Remote roles', () => applyPreset({ loc: ['remote_india', 'remote_worldwide'] })],
+      [Sparkles, 'Y Combinator startups', () => applyPreset({ backed: 'yc' })],
+      [Sparkles, 'Techstars startups', () => applyPreset({ backed: 'techstars' })],
+      [CalendarClock, 'Closing this week', () => applyPreset({ deadline: 'week' })],
+      [Sparkles, 'Programs (GSoC, STEP, drives…)', () => applyPreset({ type: 'programs' })],
+      [Globe, 'Remote roles', () => applyPreset({ loc: ['remote_india', 'remote_worldwide', 'remote_region'] })],
       [Sparkles, 'Data, AI and ML', () => applyPreset({ category: ['data', 'ml'] })],
       [Palette, 'UI/UX and web design', () => applyPreset({ category: ['design'] })],
       [MapPin, 'In Bengaluru', () => applyPreset({ city: 'Bengaluru', loc: ['india_onsite'] })],
@@ -297,6 +297,17 @@ export function Filters({ open, onClose, filters, setFilters, facets, onReset, t
           </div>
         </div>
         <div className="fsec">
+          <h4>Backed by</h4>
+          <div className="fwrap">
+            {[['', 'Anyone'], ['any', 'YC or Techstars'], ['yc', 'Y Combinator'], ['techstars', 'Techstars']].map(([id, l]) => (
+              <button key={id || 'none'} className="fchip" aria-pressed={(filters.backed || '') === id} onClick={() => set({ backed: id })}>
+                {l} <span className="n">{id === 'yc' ? facets?.yc || '' : id === 'techstars' ? facets?.techstars || '' : ''}</span>
+              </button>
+            ))}
+          </div>
+          <p className="note" style={{ marginTop: 10 }}>Techstars covers the companies featured on techstars.com, not its whole portfolio.</p>
+        </div>
+        <div className="fsec">
           <h4>Last date to apply</h4>
           <div className="flist">
             {DEADLINES.map((d) => (
@@ -332,7 +343,7 @@ export function Filters({ open, onClose, filters, setFilters, facets, onReset, t
         <div className="fsec">
           <h4>Where</h4>
           <div className="fwrap">
-            {['india_onsite', 'remote_india', 'remote_worldwide'].map((k) => (
+            {['india_onsite', 'remote_india', 'remote_worldwide', 'remote_region', 'abroad_onsite'].map((k) => (
               <button key={k} className="fchip" aria-pressed={filters.loc.includes(k)} onClick={() => toggle('loc', k)}>
                 {LABELS.loc[k]} <span className="n">{facets?.byLocation?.[k] || ''}</span>
               </button>

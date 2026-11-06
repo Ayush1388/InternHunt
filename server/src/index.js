@@ -22,7 +22,8 @@ const MANUAL_REFRESH_COOLDOWN_MIN = 10;
 
 const LEVELS = ['intern', 'job'];
 const EXPS = ['0', '1', '3', '5'];
-const LOC_TAGS = ['india_onsite', 'remote_india', 'remote_worldwide'];
+const LOC_TAGS = ['india_onsite', 'remote_india', 'remote_worldwide', 'remote_region', 'abroad_onsite'];
+const BACKED = ['yc', 'techstars'];
 const STATUSES = ['saved', 'applied', 'interview', 'offer', 'rejected', 'no_reply'];
 const REPORT_REASONS = ['scam', 'fake', 'no_reply', 'expired'];
 // Jobs hidden from the signed-in person's browsing: companies they blocked, and jobs they reported
@@ -96,6 +97,8 @@ function toJob(r, full = false) {
     deadline: r.deadline || null,
     closedAt: r.closed_at || null,
     appStatus: r.app_status || null,
+    backed: r.backed ? r.backed.split(',') : [],
+    ycBatch: r.yc_batch || '',
     isProgram: r.source === 'program',
     employmentType: r.employment_type,
     salary: r.salary,
@@ -162,6 +165,9 @@ function jobQuery(req) {
     add(`(${keys.map((k) => `j.languages LIKE @${k}`).join(' OR ')})`, Object.fromEntries(keys.map((k, i) => [k, `%"${langs[i]}"%`])));
   }
   if (req.query.city) add('j.city = @city', { city: String(req.query.city) });
+  const backed = String(req.query.backed || '');
+  if (backed === 'any') where.push("j.backed != ''");
+  else if (BACKED.includes(backed)) add('j.backed LIKE @backed', { backed: `%${backed}%` });
   if (tracked === 'any') where.push('t.status IS NOT NULL');
   else if (STATUSES.includes(tracked)) add('t.status = @tracked', { tracked });
   if (req.query.hideApplied === '1') where.push("(t.status IS NULL OR t.status = 'saved')");
@@ -293,6 +299,102 @@ app.post('/api/jobs/:id/report', requireUser, (req, res) => {
   res.json({ ok: true, blockedCompany: reason === 'scam' || reason === 'fake' ? job.company : null });
 });
 
+// ---------- Curated for you ----------
+// The browser reads the resume / GitHub itself and sends only a list of skills (never the resume text).
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const skillRe = (skill) => new RegExp(`(^|[^a-z0-9+#.])${escapeRe(skill)}($|[^a-z0-9+#])`, 'i');
+const cleanList = (v, max, len, allowed) =>
+  [...new Set((Array.isArray(v) ? v : []).map((x) => String(x).toLowerCase().trim()).filter((x) => x && x.length <= len && (!allowed || allowed.includes(x))))].slice(0, max);
+
+app.post('/api/match', (req, res) => {
+  const b = req.body || {};
+  const skills = cleanList(b.skills, 60, 40);
+  const roles = cleanList(b.roles, 11, 20, CATEGORIES);
+  const query = {
+    kind: LEVELS.includes(b.kind) ? b.kind : '',
+    loc: cleanList(b.loc, 5, 20, LOC_TAGS).join(','),
+    backed: ['any', ...BACKED].includes(b.backed) ? b.backed : '',
+    type: b.type === 'programs' || b.type === 'roles' ? b.type : '',
+    hideApplied: '1',
+  };
+  const { whereSql, params, from } = jobQuery({ query, user: req.user });
+  const rows = db.prepare(`${SELECT_JOB} ${from} ${whereSql} ORDER BY COALESCE(j.posted_at, j.first_seen) DESC LIMIT 1200`).all(params);
+  const res_ = skills.map((s) => [s, skillRe(s)]);
+  const scored = rows.map((r) => {
+    const title = r.title || '';
+    const tags = `${r.tags || ''} ${r.languages || ''}`;
+    const desc = (r.description || '').slice(0, 6000);
+    let raw = 0;
+    const hits = [];
+    for (const [skill, re] of res_) {
+      let w = 0;
+      if (re.test(title)) w += 3;
+      if (re.test(tags)) w += 2;
+      if (re.test(desc)) w += 1;
+      if (w) { raw += w; hits.push([skill, w]); }
+    }
+    const roleHit = roles.includes(r.category);
+    if (roleHit) raw += 4;
+    const matched = hits.sort((a, c) => c[1] - a[1]).slice(0, 5).map((h) => h[0]);
+    return { r, raw, matched, roleHit };
+  });
+  const profiled = skills.length || roles.length;
+  const ranked = (profiled ? scored.filter((x) => x.raw > 0) : scored)
+    .sort((a, c) => c.raw - a.raw || String(c.r.posted_at || c.r.first_seen).localeCompare(String(a.r.posted_at || a.r.first_seen)));
+  const limit = Math.min(Math.max(Number(b.limit) || 40, 1), 100);
+  res.json({
+    total: ranked.length,
+    scanned: rows.length,
+    matches: ranked.slice(0, limit).map((x) => ({
+      ...toJob(x.r),
+      fit: profiled ? Math.min(98, Math.round((100 * x.raw) / (x.raw + 10))) : null,
+      why: { skills: x.matched, role: x.roleHit ? x.r.category : null },
+    })),
+  });
+});
+
+const GITHUB_RE = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
+const cleanUrl = (v) => {
+  try {
+    const u = new URL(String(v || '').trim());
+    return /^https?:$/.test(u.protocol) ? u.href.slice(0, 200) : '';
+  } catch {
+    return '';
+  }
+};
+function cleanProfile(p = {}) {
+  return {
+    skills: cleanList(p.skills, 60, 40),
+    roles: cleanList(p.roles, 11, 20, CATEGORIES),
+    kind: LEVELS.includes(p.kind) ? p.kind : '',
+    loc: cleanList(p.loc, 5, 20, LOC_TAGS),
+    github: GITHUB_RE.test(String(p.github || '')) ? String(p.github) : '',
+    portfolio: cleanUrl(p.portfolio),
+    linkedin: cleanUrl(p.linkedin),
+    summary: String(p.summary || '').slice(0, 600),
+    resumeName: String(p.resumeName || '').slice(0, 120),
+  };
+}
+
+// The profile is only what the browser extracted (skills, links, a short summary), saved per account.
+app.get('/api/profile', requireUser, (req, res) => {
+  const row = db.prepare('SELECT data, updated_at FROM user_profiles WHERE user_id = ?').get(req.user.id);
+  res.json({ profile: row ? JSON.parse(row.data) : null, updatedAt: row?.updated_at || null });
+});
+app.put('/api/profile', requireUser, (req, res) => {
+  const profile = cleanProfile(req.body?.profile);
+  const now = new Date().toISOString();
+  db.prepare(
+    `INSERT INTO user_profiles (user_id, data, updated_at) VALUES (?, ?, ?)
+     ON CONFLICT(user_id) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at`
+  ).run(req.user.id, JSON.stringify(profile), now);
+  res.json({ ok: true, profile });
+});
+app.delete('/api/profile', requireUser, (req, res) => {
+  db.prepare('DELETE FROM user_profiles WHERE user_id = ?').run(req.user.id);
+  res.json({ ok: true });
+});
+
 app.get('/api/blocked', (req, res) => {
   if (!req.user) return res.json([]);
   res.json(
@@ -309,11 +411,11 @@ app.delete('/api/blocked/:key', requireUser, (req, res) => {
 });
 
 
-// Counts for the filter panel of one tab (internships or jobs), over what's currently open.
+// Counts for the filter panel, over what's currently open. kind: intern | job | all (default all).
 app.get('/api/facets', cdnCache, (req, res) => {
-  const kind = LEVELS.includes(req.query.kind) ? req.query.kind : 'intern';
+  const kind = LEVELS.includes(req.query.kind) ? req.query.kind : 'all';
   const today = new Date().toISOString().slice(0, 10);
-  const base = `FROM jobs j WHERE j.level = @kind AND ${HIDDEN_SQL}`;
+  const base = `FROM jobs j WHERE (@kind = 'all' OR j.level = @kind) AND ${HIDDEN_SQL}`;
   const open = `${base} AND j.is_active = 1 AND (j.deadline IS NULL OR j.deadline >= @today)`;
   const p = { kind, today, uid: null }; // shared counts (CDN-cached), so no one's personal hides
   const count = (col) =>
@@ -326,6 +428,9 @@ app.get('/api/facets', cdnCache, (req, res) => {
   res.json({
     total: n(open),
     programs: n(`${open} AND j.source = 'program'`),
+    byKind: count('level'),
+    yc: n(`${open} AND j.backed LIKE '%yc%'`),
+    techstars: n(`${open} AND j.backed LIKE '%techstars%'`),
     newToday: n(`${open} AND j.first_seen >= datetime('now', '-1 day')`),
     byCategory: count('category'),
     byExp: count('exp'),

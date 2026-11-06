@@ -90,10 +90,11 @@ test('location buckets for India-based applicants', () => {
   assert.equal(loc(['Remote - Worldwide']).tag, 'remote_worldwide');
   assert.equal(loc(['Remote']).tag, 'remote_worldwide');
   assert.equal(loc([], true).tag, 'remote_worldwide');
-  assert.equal(loc(['Remote - US']), null);
-  assert.equal(loc(['Remote - USA Only']), null);
-  assert.equal(loc(['Columbus, IN']), null); // Indiana, not India
-  assert.equal(loc(['San Francisco, CA']), null);
+  assert.equal(loc(['Remote - US']).tag, 'remote_region');
+  assert.equal(loc(['Remote - USA Only']).tag, 'remote_region');
+  assert.equal(loc(['Columbus, IN']).tag, 'abroad_onsite'); // Indiana, not India
+  assert.equal(loc(['San Francisco, CA']).tag, 'abroad_onsite');
+  assert.equal(loc(['']), null);
   // Multiple offices: an Indian office wins over a US one
   assert.equal(loc(['New York, NY', 'Hyderabad, India']).tag, 'india_onsite');
 });
@@ -107,5 +108,5 @@ test('classify combines everything', () => {
   assert.equal(classify({ title: 'Data Science Manager', locations: ['Pune'] }), null);
   assert.equal(classify({ title: 'SDE Intern', locations: ['Pune'], description: 'Last date to apply: 15 Dec 2099' }).deadline, null); // too far out
   assert.equal(classify({ title: 'SDE Intern', locations: ['Pune'], description: 'Apply by 15/10/2026' }, ).deadline, '2026-10-15');
-  assert.equal(classify({ title: 'Software Engineer Intern', locations: ['London'] }), null);
+  assert.equal(classify({ title: 'Software Engineer Intern', locations: ['London'] }).locTag, 'abroad_onsite');
 });

@@ -139,6 +139,16 @@ export async function ycCompanies(all = false) {
     .map((c) => ({ name: c.name, website: c.website || '', slug: c.slug || '' }));
 }
 
+/** Y Combinator companies marked as hiring, anywhere in the world (the "global" side of the weekly run). */
+export async function ycHiringCompanies(limit = Number(process.env.YC_DISCOVER_LIMIT || 600)) {
+  const list = await getJson('https://yc-oss.github.io/api/companies/all.json', { timeoutMs: 60000 });
+  return list
+    .filter((c) => ['Active', 'Public'].includes(c.status) && String(c.isHiring) === 'true')
+    .sort((a, b) => Number(String(b.top_company) === 'true') - Number(String(a.top_company) === 'true'))
+    .slice(0, limit)
+    .map((c) => ({ name: c.name, website: c.website || '', slug: c.slug || '' }));
+}
+
 export function namesFrom(text) {
   return text
     .split(/[\n,]+/)
@@ -213,6 +223,11 @@ export async function discoverDefault({ log = console.log } = {}) {
     const yc = await ycCompanies(false);
     const names = new Set(companies.map((c) => c.name.toLowerCase()));
     companies = [...companies, ...yc.filter((c) => !names.has(c.name.toLowerCase()))];
+    if (process.env.GLOBAL_DISCOVER !== '0') {
+      const world = await ycHiringCompanies();
+      const seen = new Set(companies.map((c) => c.name.toLowerCase()));
+      companies = [...companies, ...world.filter((c) => !seen.has(c.name.toLowerCase()))];
+    }
   } catch (err) {
     log(`[discover] YC list unavailable (${err.message}); using the built-in company list only`);
   }

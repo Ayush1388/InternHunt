@@ -3,6 +3,7 @@ import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { WRITABLE_DIR } from './runtime.js';
+import { backedFor } from './lib/backed.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = process.env.DATA_DIR || WRITABLE_DIR || path.join(here, '..', 'data');
@@ -18,7 +19,7 @@ const localFile = process.env.DB_PATH || path.join(DATA_DIR, 'internhunt.db');
 /** Why Turso couldn't be used (shown by /api/health), or null. */
 export let dbError = null;
 let usingTurso = false;
-const SETUP_REV = '2';
+const SETUP_REV = '3';
 
 function setup(d) {
   try {
@@ -154,12 +155,24 @@ function setup(d) {
     ['trust', "TEXT NOT NULL DEFAULT 'company'"], ['flags', "TEXT NOT NULL DEFAULT '[]'"], ['reposts', 'INTEGER NOT NULL DEFAULT 0'],
     ['company_key', "TEXT NOT NULL DEFAULT ''"], ['exp', 'INTEGER NOT NULL DEFAULT 0'], ['languages', "TEXT NOT NULL DEFAULT '[]'"],
     ['deadline', 'TEXT'], ['closed_at', 'TEXT'], ['app_status', 'TEXT'],
+    ['backed', "TEXT NOT NULL DEFAULT ''"], ['yc_batch', "TEXT NOT NULL DEFAULT ''"],
   ]) {
     if (!cols.has(name)) d.exec(`ALTER TABLE jobs ADD COLUMN ${name} ${type}`);
   }
   const runCols = new Set(d.prepare('PRAGMA table_info(source_runs)').all().map((c) => c.name));
   if (!runCols.has('blocked')) d.exec('ALTER TABLE source_runs ADD COLUMN blocked INTEGER NOT NULL DEFAULT 0');
   d.exec("UPDATE jobs SET company_key = lower(trim(company)) WHERE company_key = ''");
+  d.exec(`CREATE TABLE IF NOT EXISTS user_profiles (
+    user_id    TEXT PRIMARY KEY,
+    data       TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  )`);
+  // Tag jobs that were stored before the Y Combinator / Techstars lists existed.
+  const upd = d.prepare('UPDATE jobs SET backed = ?, yc_batch = ? WHERE company_key = ?');
+  for (const r of d.prepare('SELECT DISTINCT company_key, company FROM jobs').all()) {
+    const b = backedFor(r.company);
+    if (b.backed) upd.run(b.backed, b.ycBatch, r.company_key);
+  }
   d.exec('CREATE INDEX IF NOT EXISTS idx_jobs_company ON jobs(company_key)');
   d.exec('CREATE INDEX IF NOT EXISTS idx_jobs_browse ON jobs(level, is_active, category, exp)');
 

@@ -1,3 +1,4 @@
+import { backedFor } from './lib/backed.js';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -62,10 +63,10 @@ export function selectRelevant(rawJobs, { now = Date.now(), blocked = null } = {
 const upsert = db.prepare(`
   INSERT INTO jobs (id, dedup_key, source, target_key, company, title, description, url, locations, loc_tag, city,
                     category, level, min_years, employment_type, salary, tags, posted_at, first_seen, last_seen, is_active,
-                    trust, flags, reposts, company_key, exp, languages, deadline, app_status, closed_at)
+                    trust, flags, reposts, company_key, exp, languages, deadline, app_status, closed_at, backed, yc_batch)
   VALUES (@id, @dedup_key, @source, @target_key, @company, @title, @description, @url, @locations, @loc_tag, @city,
           @category, @level, @min_years, @employment_type, @salary, @tags, @posted_at, @now, @now, @is_active,
-          @trust, @flags, @reposts, @company_key, @exp, @languages, @deadline, @app_status, @closed_at)
+          @trust, @flags, @reposts, @company_key, @exp, @languages, @deadline, @app_status, @closed_at, @backed, @yc_batch)
   ON CONFLICT(id) DO UPDATE SET
     dedup_key = excluded.dedup_key, company = excluded.company, title = excluded.title,
     url = excluded.url, locations = excluded.locations,
@@ -76,7 +77,7 @@ const upsert = db.prepare(`
     reposts = excluded.reposts, company_key = excluded.company_key, exp = excluded.exp, languages = excluded.languages,
     deadline = COALESCE(excluded.deadline, jobs.deadline), app_status = excluded.app_status,
     description = CASE WHEN excluded.description = '' THEN jobs.description ELSE excluded.description END,
-    closed_at = excluded.closed_at
+    closed_at = excluded.closed_at, backed = excluded.backed, yc_batch = excluded.yc_batch
 `);
 // Same company + title + location seen before under a different posting id that has since closed.
 const countReposts = db.prepare('SELECT COUNT(*) AS n FROM jobs WHERE dedup_key = ? AND id != ? AND is_active = 0');
@@ -138,6 +139,7 @@ export function storeTargetJobs(target, jobs, { now = new Date().toISOString(), 
         app_status: j.appStatus || null,
         is_active: j.isActive === false ? 0 : 1,
         closed_at: j.isActive === false ? j.closedAt || now : null,
+        ...(({ backed, ycBatch }) => ({ backed, yc_batch: ycBatch }))(backedFor(j.company || target.label)),
       });
       stored++;
     }
