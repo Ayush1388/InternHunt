@@ -66,6 +66,6 @@ export function trustCheck(job, trust, now = Date.now()) {
   } else if (trust !== 'company') {
     return { drop: 'No posting date', flags: [] };
   }
-  if (!['workday', 'microsoft', 'smartrecruiters'].includes(job.source) && (!job.description || job.description.length < 80)) flags.push('thin_description');
+  if (!['smartrecruiters', 'yc'].includes(job.source) && (!job.description || job.description.length < 80)) flags.push('thin_description');
   return { drop: null, flags };
 }

@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { trustCheck } from '../src/lib/trust.js';
-import { TRUST, SOURCES } from '../src/sources/index.js';
+import { ATS_TYPES } from '../src/sources/ats.js';
 
 const base = {
   title: 'Software Engineer Intern',
@@ -13,9 +13,8 @@ const base = {
 };
 const check = (patch, trust = 'board') => trustCheck({ ...base, ...patch }, trust);
 
-test('every source has a trust tier; removed sources are gone', () => {
-  for (const s of SOURCES) assert.ok(['company', 'board', 'community'].includes(TRUST[s.id]), s.id);
-  for (const gone of ['careerjet', 'adzuna', 'jobicy', 'himalayas', 'arbeitnow']) assert.equal(TRUST[gone], undefined);
+test('only company-owned hiring systems are read', () => {
+  assert.deepEqual(ATS_TYPES.sort(), ['ashby', 'greenhouse', 'lever', 'recruitee', 'smartrecruiters', 'workable']);
 });
 
 test('clean posting passes', () => {

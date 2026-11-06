@@ -7,7 +7,7 @@
   "functions": {
     "api/index.js": {
       "maxDuration": 300,
-      "includeFiles": "{server/src/**,server/node_modules/libsql/**,server/node_modules/@libsql/**}"
+      "includeFiles": "{server/src/**,server/node_modules/@electric-sql/**,server/node_modules/pg*/**,server/node_modules/unpdf/**}"
     }
   },
   "rewrites": [
@@ -15,6 +15,7 @@
     { "source": "/((?!api/).*)", "destination": "/index.html" }
   ],
   "crons": [
-    { "path": "/api/cron/refresh", "schedule": "0 3 * * *" }
+    { "path": "/api/cron/daily", "schedule": "0 3 * * *" },
+    { "path": "/api/cron/followups", "schedule": "30 9 * * *" }
   ]
 }

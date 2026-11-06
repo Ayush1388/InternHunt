@@ -1,9 +1,9 @@
 {
-  "name": "internhunt-server",
+  "name": "knockd-server",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Fetches internships and entry-level tech jobs from official job-board APIs into one searchable place.",
+  "description": "Knockd backend: startups that are hiring, founders to write to, drafts you approve, Gmail and Telegram.",
   "engines": {
     "node": ">=22.13"
   },
@@ -11,15 +11,15 @@
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
     "refresh": "node src/cli/refresh.js",
-    "seed:sample": "node src/cli/seedSample.js",
-    "test": "node --test test/*.test.js",
-    "discover": "node src/cli/discover.js"
+    "test": "node --test test/*.test.js"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.3.16",
     "@vercel/functions": "^3.9.9",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "fast-xml-parser": "^4.5.7",
-    "libsql": "^0.5.29"
+    "pg": "^8.23.1",
+    "unpdf": "^1.9.1"
   }
 }

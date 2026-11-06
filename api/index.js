@@ -3,7 +3,7 @@
 let app;
 let startError;
 try {
-  app = (await import('../server/src/index.js')).default;
+  app = (await import('../server/src/app.js')).default;
 } catch (err) {
   startError = err;
   console.error('[startup] server failed to load', err);

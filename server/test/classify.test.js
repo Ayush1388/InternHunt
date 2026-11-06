@@ -107,6 +107,6 @@ test('classify combines everything', () => {
   assert.equal(classify({ title: 'Senior Data Scientist', locations: ['Pune'] }).exp, 3);
   assert.equal(classify({ title: 'Data Science Manager', locations: ['Pune'] }), null);
   assert.equal(classify({ title: 'SDE Intern', locations: ['Pune'], description: 'Last date to apply: 15 Dec 2099' }).deadline, null); // too far out
-  assert.equal(classify({ title: 'SDE Intern', locations: ['Pune'], description: 'Apply by 15/10/2026' }, ).deadline, '2026-10-15');
+  assert.equal(classify({ title: 'SDE Intern', locations: ['Pune'], description: `Apply by 15/10/${new Date().getFullYear() + 1}` }).deadline, `${new Date().getFullYear() + 1}-10-15`);
   assert.equal(classify({ title: 'Software Engineer Intern', locations: ['London'] }).locTag, 'abroad_onsite');
 });
