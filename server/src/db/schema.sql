@@ -281,3 +281,17 @@ CREATE TABLE IF NOT EXISTS events (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS events_kind ON events (kind, created_at DESC);
+
+-- Gmail tracking: what a scan of the inbox headers (sender + subject only) found for each role.
+ALTER TABLE users ADD COLUMN IF NOT EXISTS gmail_scanned_at timestamptz;
+CREATE TABLE IF NOT EXISTS mail_events (
+  user_id text NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+  message_id text NOT NULL,
+  job_id text REFERENCES jobs (id) ON DELETE CASCADE,
+  status text,
+  from_addr text,
+  subject text,
+  at timestamptz NOT NULL,
+  PRIMARY KEY (user_id, message_id)
+);
+CREATE INDEX IF NOT EXISTS mail_events_job ON mail_events (user_id, job_id, at DESC);

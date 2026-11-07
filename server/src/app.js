@@ -13,6 +13,7 @@ import { refreshAll, isRefreshing, addFromLink } from './pipeline/refresh.js';
 import { companyKey } from './lib/names.js';
 import * as gmail from './gmail.js';
 import { handleUpdate, runDigest } from './telegram/bot.js';
+import { scanUser, scanAll } from './tracking.js';
 import { webhookSecret, setupWebhook, botUsername } from './telegram/api.js';
 import { CATEGORIES } from './lib/classify.js';
 
@@ -230,6 +231,11 @@ app.post('/api/drafts/:id/replied', requireUser, wrap(async (req, res) => res.js
 /* ---------------- pipeline (Found -> Drafted -> Sent -> Replied -> Interview) */
 app.get('/api/pipeline', requireUser, wrap(async (req, res) => {
   const tracked = await listJobs({ tracked: 'any', limit: 100 }, req.user.id);
+  const mail = Object.fromEntries(
+    (await q('SELECT DISTINCT ON (job_id) job_id, subject, from_addr, status, at FROM mail_events WHERE user_id = $1 AND job_id IS NOT NULL ORDER BY job_id, at DESC', [req.user.id]))
+      .map((r) => [r.job_id, { subject: r.subject, from: r.from_addr, status: r.status, at: iso(r.at) }])
+  );
+  tracked.jobs.forEach((j) => { j.mail = mail[j.id] || null; });
   const counts = Object.fromEntries((await q('SELECT status, COUNT(*)::int AS n FROM tracking WHERE user_id = $1 GROUP BY status', [req.user.id])).map((r) => [r.status, r.n]));
   const stats = await one(
     `SELECT (SELECT COUNT(*)::int FROM sends WHERE user_id = $1 AND status = 'sent' AND root_send_id IS NULL) AS sent,
@@ -255,6 +261,7 @@ app.get('/api/gmail/callback', wrap(async (req, res) => {
     back(`gmail=error&reason=${encodeURIComponent(err.message)}`);
   }
 }));
+app.post('/api/gmail/scan', requireUser, wrap(async (req, res) => res.json(await scanUser(req.user.id))));
 app.delete('/api/gmail', requireUser, wrap(async (req, res) => {
   await gmail.disconnect(req.user.id);
   res.json({ ok: true });
@@ -328,8 +335,9 @@ app.get('/api/cron/daily', cronOnly, wrap(async (req, res) => {
 // Afternoon run: follow-ups and any sends still queued.
 app.get('/api/cron/followups', cronOnly, wrap(async (req, res) => {
   const followups = await runFollowups();
+  const tracking = await scanAll();
   const queue = await processQueue({ budgetMs: 120_000 });
-  res.json({ ok: true, followups, queue });
+  res.json({ ok: true, followups, tracking, queue });
 }));
 app.post('/api/admin/telegram/setup', cronOnly, wrap(async (req, res) => {
   res.json(await setupWebhook(`${PUBLIC_URL}/api/telegram/webhook`));

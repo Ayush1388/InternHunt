@@ -14,7 +14,7 @@ const PRIVACY = [
     'Your pipeline, notes, reports and blocked companies, and a hashed sign-in session token.',
   ]],
   ['Gmail', [
-    'Connecting Gmail is optional. We ask for two permissions: create drafts and send email (gmail.compose), and read message headers (gmail.metadata) so follow-ups stop when someone replies. We never read the body of any email in your inbox.',
+    'Connecting Gmail is optional. We ask for two permissions: create drafts and send email (gmail.compose), and read message headers (gmail.metadata). Once a day we look at the sender and subject of recent inbox mail to move your applications to Replied, Interview, Offer or Rejected and to stop follow-ups. We never read the body of any email, and we keep only the sender and subject of mail that matches a role you track.',
     'We only send an email after you approve that exact email, from your own address, within your daily limit. Your Google token is stored encrypted and you can disconnect at any time.',
   ]],
   ['Founders and other people', [

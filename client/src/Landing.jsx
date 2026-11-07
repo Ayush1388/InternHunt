@@ -68,6 +68,7 @@ const FAQ = [
   ['What do you store from my resume?', 'Only the list of skills and a one-line summary. On the web your resume is read in your browser; in Telegram we read the PDF once and don’t keep it. Delete everything from Settings, or send /delete to the bot.'],
   ['Where do founder emails come from?', 'Public pages only: Y Combinator company pages and the startup’s own website. Every address is labelled: verified, found on their site, or a best guess from the usual pattern. We never scrape LinkedIn.'],
   ['Is there a Telegram bot?', 'Yes. Open it, tap Start, send your resume as a PDF and pick your roles. Every morning at 8:30 you get a few startups that fit, and each email can be sent, edited or skipped right in the chat. WhatsApp comes later.'],
+  ['Does it track replies from companies?', 'Yes. Connect Gmail and every day we check the sender and subject of recent mail, never the message itself. When a company replies, invites you to interview, sends an offer or says no, your board updates itself.'],
   ['What happens if they don’t reply?', 'Up to three short follow-ups in the same thread, a few days apart, and each one waits for your OK. The moment anyone replies, follow-ups stop.'],
 ];
 
@@ -688,6 +689,7 @@ export default function Landing() {
               {[
                 { i: IndianRupee, t: 'Priced in ₹, paid by UPI', d: 'No dollar cards or foreign fees. A 30-day job-hunt pass fits better than a subscription you forget to cancel.' },
                 { i: Clock, t: 'Gentle by design', d: 'A daily cap of 10–20 sends and one person at a time keeps your Gmail healthy and founders unspammed.' },
+                { i: Inbox, t: 'Gmail tracking', d: 'Every day we scan the sender and subject of recent mail and move Applied, Interview, Offer and Rejected on your board for you.' },
                 { i: ShieldCheck, t: 'You own your data', d: 'We keep only what we need, log where each contact came from, and delete everything when you ask.' },
               ].map(({ i: Icon, t, d }, k) => (
                 <article key={t} className="lp-card rv" style={{ '--d': k }}>

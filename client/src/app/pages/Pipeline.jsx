@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BellOff, Bookmark, KanbanSquare, Mail, MailCheck, PartyPopper, Trophy } from 'lucide-react';
+import { BellOff, Bookmark, Gift, KanbanSquare, Loader2, Mail, MailCheck, PartyPopper, RefreshCw, Trophy, XCircle } from 'lucide-react';
 import { api, LABELS, timeAgo } from '@/api';
 import { Avatar, CountUp, Empty, Select, Skel, Words, cx, toast } from '@/app/ui';
 import { useAuth } from '@/app/auth';
@@ -11,7 +11,9 @@ const COLS = [
   { id: 'drafted', title: 'Drafted', icon: Mail, tint: 'var(--t-butter)', statuses: ['drafted'] },
   { id: 'applied', title: 'Sent', icon: MailCheck, tint: 'var(--t-lilac)', statuses: ['applied', 'no_reply'] },
   { id: 'replied', title: 'Replied', icon: PartyPopper, tint: 'var(--t-mint)', statuses: ['replied'] },
-  { id: 'interview', title: 'Interview', icon: Trophy, tint: 'var(--t-pink)', statuses: ['interview', 'offer'] },
+  { id: 'interview', title: 'Interview', icon: Trophy, tint: 'var(--t-pink)', statuses: ['interview'] },
+  { id: 'offer', title: 'Offer', icon: Gift, tint: 'var(--t-butter)', statuses: ['offer'] },
+  { id: 'rejected', title: 'Rejected', icon: XCircle, tint: 'var(--t-red)', statuses: ['rejected'] },
 ];
 const NO_REPLY_DAYS = 21;
 
@@ -28,9 +30,13 @@ function Card({ job, onOpen, onMove, onDraft, onReport }) {
         <Avatar name={job.company} size="sm" />
         <span className="tx"><b>{job.company}</b><span>{job.title}</span></span>
       </button>
+      {job.mail && (
+        <div className="pc-mail" title={job.mail.subject}>
+          <Mail /><span><b>{job.mail.subject}</b><small>From {job.mail.from} · {timeAgo(job.mail.at)}</small></span>
+        </div>
+      )}
       <div className="pc-foot">
         <span className="tab">{timeAgo(job.trackedAt)}</span>
-        {job.status === 'offer' && <span className="tag mint">Offer</span>}
         {job.status === 'no_reply' && <span className="tag">No reply</span>}
         {job.status === 'saved' && onDraft && <button className="btn sm chip" onClick={() => onDraft(job)}><Mail /> Email</button>}
         {job.status === 'drafted' && <button className="btn sm chip" onClick={() => go('drafts')}>Review</button>}
@@ -45,11 +51,28 @@ export default function Pipeline({ version, onOpen, onTrack, onReport, onDraft }
   const auth = useAuth();
   const [data, setData] = useState(null);
   const [over, setOver] = useState(null);
+  const [gmail, setGmail] = useState(null);
+  const [scanning, setScanning] = useState(false);
+  const load = () => api.pipeline().then(setData).catch(() => setData({ jobs: [], counts: {}, stats: {} }));
 
   useEffect(() => {
     if (!auth?.user) return;
-    api.pipeline().then(setData).catch(() => setData({ jobs: [], counts: {}, stats: {} }));
-  }, [version, auth?.user]);
+    load();
+    api.me.get().then((m) => setGmail(m.gmail)).catch(() => {});
+  }, [version, auth?.user]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function scan() {
+    setScanning(true);
+    try {
+      const r = await api.gmail.scan();
+      toast(r.updates.length ? `${r.updates.length} role${r.updates.length === 1 ? '' : 's'} moved on your board` : 'Nothing new in your inbox', { description: `Checked ${r.scanned} recent emails` });
+      await load();
+    } catch (e) {
+      toast(e.code === 'NO_GMAIL' ? 'Connect Gmail in Settings first' : e.message);
+    } finally {
+      setScanning(false);
+    }
+  }
 
   if (!auth?.user) {
     return (
@@ -78,6 +101,19 @@ export default function Pipeline({ version, onOpen, onTrack, onReport, onDraft }
       <section className="hero compact">
         <span className="eyebrow"><i className="dot" /> {stats.waiting ? `${stats.waiting} email${stats.waiting === 1 ? '' : 's'} waiting for your OK` : 'Drag cards to move them'}</span>
         <h1><Words text="Your pipeline, one board" mark="pipeline," /></h1>
+        <div className="track-bar">
+          {gmail?.connected ? (
+            <>
+              <button className="btn light" onClick={scan} disabled={scanning}>{scanning ? <Loader2 className="spin" /> : <RefreshCw />} Scan Gmail now</button>
+              <span>Every day we check the sender and subject of recent mail and move Applied, Interview, Offer and Rejected for you. We never read the message itself.</span>
+            </>
+          ) : (
+            <>
+              <button className="btn light" onClick={() => go('settings')}><Mail /> Turn on Gmail tracking</button>
+              <span>Connect Gmail and your board updates itself when companies reply.</span>
+            </>
+          )}
+        </div>
       </section>
 
       <div className="pstats">

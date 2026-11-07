@@ -64,7 +64,7 @@ export const api = {
     remove: () => del('/me'),
     exportUrl: '/api/me/export',
   },
-  gmail: { connect: () => request('/gmail/connect'), disconnect: () => del('/gmail') },
+  gmail: { connect: () => request('/gmail/connect'), scan: () => post('/gmail/scan'), disconnect: () => del('/gmail') },
   telegram: { link: () => post('/telegram/link'), unlink: () => del('/telegram/link') },
   waitlist: (email, kind = 'pro') => post('/waitlist', { email, kind }),
   auth: {

@@ -10,7 +10,7 @@ import { ON_VERCEL } from '../runtime.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const SCHEMA = readFileSync(path.join(here, 'schema.sql'), 'utf8');
-const SCHEMA_REV = '1';
+const SCHEMA_REV = '2';
 
 let driver = null; // { kind, query(sql, params), exec(sql), transaction(fn), close() }
 let starting = null;

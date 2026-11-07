@@ -147,3 +147,27 @@ export async function disconnect(uid) {
   cache.delete(uid);
   await q('UPDATE users SET gmail_token = NULL, gmail_email = NULL WHERE id = $1', [uid]);
 }
+
+const header = (m, name) => m.payload?.headers?.find((h) => h.name.toLowerCase() === name)?.value || '';
+
+/** Newest-first inbox messages since a time: sender, subject and date only (the metadata scope can't read bodies). */
+export async function recentInbox(uid, sinceMs, cap = 150) {
+  const out = [];
+  let pageToken = '';
+  while (out.length < cap) {
+    const l = await gmail(uid, `/messages?labelIds=INBOX&maxResults=50${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`);
+    const ids = (l.messages || []).map((m) => m.id);
+    let reachedOld = false;
+    for (let i = 0; i < ids.length; i += 10) {
+      const got = await Promise.all(ids.slice(i, i + 10).map((id) => gmail(uid, `/messages/${id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject`)));
+      for (const m of got) {
+        const t = Number(m.internalDate);
+        if (t < sinceMs) reachedOld = true;
+        else out.push({ id: m.id, threadId: m.threadId, at: new Date(t), from: header(m, 'from'), subject: header(m, 'subject') });
+      }
+    }
+    if (reachedOld || !l.nextPageToken) break;
+    pageToken = l.nextPageToken;
+  }
+  return out;
+}

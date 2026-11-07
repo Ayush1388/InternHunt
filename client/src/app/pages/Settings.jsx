@@ -129,7 +129,7 @@ export default function Settings({ version }) {
         <section className="card set">
           <div className="set-h">
             <span className="tile gm"><Mail /></span>
-            <div><h3>Gmail</h3><p>Approved emails go out from your own address, one at a time. We never read your inbox, only reply headers so follow-ups stop.</p></div>
+            <div><h3>Gmail</h3><p>Approved emails go out from your own address. Every day we also check the sender and subject of recent mail (never the message itself) to move Applied, Interview, Offer and Rejected on your board.</p></div>
             {s.gmail.connected && <span className="tag mint"><Check /> {s.gmail.email || 'Connected'}</span>}
           </div>
           {!s.gmail.available ? (

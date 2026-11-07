@@ -469,6 +469,10 @@ hooks.notify = async (userId, e) => {
   try {
     if (e.type === 'sent') await send(chat, `📤 Sent to ${esc(e.to)}${e.company ? ` at ${esc(e.company)}` : ''}. I’ll follow up if they don’t reply.`, { buttons: [[{ text: '🎉 I got a reply', callback_data: `rep:${e.draftId}` }]] });
     if (e.type === 'failed') await send(chat, `⚠️ Couldn’t send that email: ${esc(e.error)}\nOpen /drafts to try again.`);
+    if (e.type === 'tracked') {
+      const label = { replied: '💬 replied', interview: '🎯 invited you to interview', offer: '🎉 sent you an offer', rejected: '😔 said no this time', applied: '📬 confirmed your application' }[e.status];
+      if (label) await send(chat, `${esc(e.company)} ${label}.\nMoved on your board: <i>${esc(e.subject)}</i>`);
+    }
     if (e.type === 'replied') await send(chat, `🎉 ${esc(e.to)} replied! Follow-ups stopped. Go get it.`);
     if (e.type === 'followup') {
       const d = await getDraft(userId, e.draftId);
