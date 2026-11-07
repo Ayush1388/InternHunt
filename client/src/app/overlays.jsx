@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  Briefcase, CalendarClock, CheckCircle2, ChevronDown, CircleCheck, CircleX, ExternalLink, Globe, GraduationCap, Landmark, LayoutGrid, Link2,
-  ListChecks, Loader2, MailOpen, MapPin, Palette, Radar, RefreshCw, RotateCcw, Search, ShieldCheck, Sparkles, Users, XCircle,
+  Banknote, Briefcase, CalendarClock, CheckCircle2, Globe, GraduationCap, KanbanSquare, LayoutGrid, Link2,
+  Loader2, Mail, MapPin, Newspaper, Palette, Radar, RefreshCw, RotateCcw, Search, Settings, ShieldCheck, Sparkles, XCircle,
 } from 'lucide-react';
 import { api, LABELS, timeAgo } from '@/api';
-import { DEADLINES, EXPERIENCE, LANGUAGES } from '@/lib/roles';
+import { EXPERIENCE, LANGUAGES } from '@/lib/roles';
 import { Avatar, Layer, Switch, cx } from '@/app/ui';
 
 /* ------------------------------------------------------------------ ⌘K search palette */
@@ -32,25 +32,27 @@ export function SearchPalette({ open, onClose, go, applyPreset, onOpenJob, onAdd
     const pages = [
       [LayoutGrid, 'Explore', () => go('explore'), 'G E'],
       [Sparkles, 'Curated for you', () => go('foryou'), 'G F'],
-      [ListChecks, 'My tracker', () => go('tracker'), 'G T'],
+      [Mail, 'Drafts to review', () => go('drafts'), 'G D'],
+      [KanbanSquare, 'My pipeline', () => go('pipeline'), 'G P'],
+      [Settings, 'Settings (Telegram, Gmail, limits)', () => go('settings'), 'G S'],
       [Radar, 'Who’s recruiting', () => go('recruiting'), 'SOON'],
     ];
     const presets = [
+      [Banknote, 'Recently funded startups', () => applyPreset({ signal: 'funded' })],
       [GraduationCap, 'All internships', () => applyPreset({ kind: 'intern' })],
       [Briefcase, 'Fresher jobs (no experience)', () => applyPreset({ kind: 'job', exp: ['0'] })],
       [Sparkles, 'Y Combinator startups', () => applyPreset({ backed: 'yc' })],
       [Sparkles, 'Techstars startups', () => applyPreset({ backed: 'techstars' })],
-      [CalendarClock, 'Closing this week', () => applyPreset({ deadline: 'week' })],
-      [Sparkles, 'Programs (GSoC, STEP, drives…)', () => applyPreset({ type: 'programs' })],
       [Globe, 'Remote roles', () => applyPreset({ loc: ['remote_india', 'remote_worldwide', 'remote_region'] })],
       [Sparkles, 'Data, AI and ML', () => applyPreset({ category: ['data', 'ml'] })],
       [Palette, 'UI/UX and web design', () => applyPreset({ category: ['design'] })],
       [MapPin, 'In Bengaluru', () => applyPreset({ city: 'Bengaluru', loc: ['india_onsite'] })],
+      [CalendarClock, 'Closing this week', () => applyPreset({ deadline: 'week' })],
     ];
     const actions = [
-      [Link2, 'Add from link', onAdd],
-      [RefreshCw, 'Refresh all sources', onRefresh],
-      [ShieldCheck, 'View sources', onSources],
+      [Link2, 'Add a company from a link', onAdd],
+      [RefreshCw, 'Read the job boards again', onRefresh],
+      [ShieldCheck, 'Where it all comes from', onSources],
     ];
     const f = (arr) => arr.filter(([, label]) => label.toLowerCase().includes(q.trim().toLowerCase()));
     return [
@@ -126,12 +128,12 @@ export function AddLink({ open, onClose, onAdded }) {
     setResult(null);
     try {
       const r = await api.add(url.trim(), name.trim());
-      setResult({ ok: true, text: r.message });
+      setResult({ ok: true, text: `Added ${r.company}: ${r.kept} relevant role${r.kept === 1 ? '' : 's'} of ${r.fetched} open. We’ll read it every morning.` });
       setUrl('');
       setName('');
       onAdded?.(r);
     } catch (err) {
-      setResult({ ok: false, text: err.body?.message || err.message });
+      setResult({ ok: false, text: err.body?.error || err.message });
     } finally {
       setBusy(false);
     }
@@ -140,21 +142,21 @@ export function AddLink({ open, onClose, onAdded }) {
   return (
     <Layer open={open} onClose={onClose} label="Add from link">
       <span className="m-ico"><Link2 /></span>
-      <h2>Add from a link</h2>
-      <p className="sub">Paste an official link: a company careers page, a job post, or a program page. Companies get all their roles tracked; program pages are watched for deadlines.</p>
+      <h2>Add a startup from a link</h2>
+      <p className="sub">Paste its careers page or job board (Greenhouse, Lever, Ashby, Workable, Recruitee, SmartRecruiters). We’ll read all its roles every morning.</p>
       <form onSubmit={submit}>
         <label className="flabel" htmlFor="add-url">Link</label>
-        <input id="add-url" className="field" type="url" required autoFocus placeholder="https://company.com/careers" value={url} onChange={(e) => setUrl(e.target.value)} style={{ width: '100%' }} />
+        <input id="add-url" className="field" type="url" required autoFocus placeholder="https://startup.com/careers" value={url} onChange={(e) => setUrl(e.target.value)} style={{ width: '100%' }} />
         <label className="flabel" htmlFor="add-name">Name <small>(optional)</small></label>
-        <input id="add-name" className="field" placeholder="We’ll read it from the page" value={name} onChange={(e) => setName(e.target.value)} style={{ width: '100%' }} />
+        <input id="add-name" className="field" placeholder="We’ll read it from the link" value={name} onChange={(e) => setName(e.target.value)} style={{ width: '100%' }} />
         {result && (
           <div className={cx('res', result.ok ? 'good' : 'bad')}>
             {result.ok ? <CheckCircle2 /> : <XCircle />}<p>{result.text}</p>
           </div>
         )}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, marginTop: 22 }}>
-          <p className="note" style={{ marginTop: 0 }}>Telegram, WhatsApp, YouTube and job-portal reposts are refused.</p>
-          <button className="btn lg dark" type="submit" disabled={busy}>{busy && <Loader2 className="spin" />}{busy ? 'Checking' : 'Add'}</button>
+          <p className="note" style={{ marginTop: 0 }}>Only the company’s own hiring page. No job-portal reposts.</p>
+          <button className="btn lg dark" type="submit" disabled={busy}>{busy && <Loader2 className="spin" />}{busy ? 'Reading it' : 'Add'}</button>
         </div>
       </form>
     </Layer>
@@ -162,53 +164,15 @@ export function AddLink({ open, onClose, onAdded }) {
 }
 
 /* ------------------------------------------------------------------ sources */
-const TRUST_ICON = { company: ShieldCheck, board: Globe, community: Users };
-
-function CheckDirectly({ list }) {
-  const [q, setQ] = useState('');
-  const [open, setOpen] = useState({});
-  const groups = {};
-  for (const c of list.filter((c) => c.name.toLowerCase().includes(q.trim().toLowerCase()))) (groups[c.group || 'Other'] ||= []).push(c);
-  return (
-    <div style={{ marginTop: 26 }}>
-      <h4 style={{ fontSize: 16 }}>Careers pages to check directly</h4>
-      <p className="note" style={{ marginTop: 4 }}>{list.length} companies run their own careers sites with no public feed.</p>
-      <div className="search" style={{ margin: '12px 0' }}>
-        <Search />
-        <input style={{ height: 44 }} placeholder="Find a company…" value={q} onChange={(e) => setQ(e.target.value)} />
-      </div>
-      <div className="src-list">
-        {Object.entries(groups).sort((a, b) => a[0].localeCompare(b[0])).map(([g, items]) => {
-          const isOpen = Boolean(q) || open[g];
-          return (
-            <div key={g} style={{ borderTop: '1px solid var(--line)' }}>
-              <button onClick={() => setOpen((o) => ({ ...o, [g]: !o[g] }))} style={{ display: 'flex', width: '100%', justifyContent: 'space-between', padding: '12px 16px', fontSize: 14, fontWeight: 500 }}>
-                <span>{g} <span style={{ color: 'var(--muted)' }}>{items.length}</span></span>
-                <ChevronDown size={16} style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform .3s' }} />
-              </button>
-              {isOpen && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px 16px', padding: '0 16px 12px' }}>
-                  {items.slice().sort((a, b) => a.name.localeCompare(b.name)).map((c) => (
-                    <a key={c.name} href={c.careers} target="_blank" rel="noopener noreferrer" style={{ fontSize: 14, color: 'var(--muted)', display: 'inline-flex', gap: 6, alignItems: 'center', padding: '3px 0' }}>{c.name} <ExternalLink size={12} /></a>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+const ATS_NAME = { ...LABELS.source, yc: 'Y Combinator company pages' };
 
 export function Sources({ open, onClose, meta, onChanged }) {
   const [blocked, setBlocked] = useState([]);
-  const [direct, setDirect] = useState([]);
-  useEffect(() => { if (open) api.blocked().then(setBlocked).catch(() => {}); }, [open, meta?.blockedCompanies]);
-  useEffect(() => { if (open) api.programs().then((r) => setDirect(r.checkDirectly || [])).catch(() => {}); }, [open]);
-  const sources = meta?.sources || [];
-  const failed = sources.filter((s) => !s.ok);
-  const filtered = Object.entries(meta?.lastSummary?.blocked || {}).sort((a, b) => b[1] - a[1]);
+  useEffect(() => { if (open) api.blocked().then(setBlocked).catch(() => {}); }, [open]);
+  const boards = meta?.boards || [];
+  const signals = meta?.signals || [];
+  const sum = meta?.lastSummary;
+  const row = (label, value) => <li key={label} style={{ justifyContent: 'space-between' }}><span style={{ color: 'var(--muted)' }}>{label}</span><b className="tab">{value}</b></li>;
 
   async function unblock(key) {
     await api.unblock(key);
@@ -219,22 +183,44 @@ export function Sources({ open, onClose, meta, onChanged }) {
   return (
     <Layer open={open} onClose={onClose} kind="panel" label="Sources">
       <div className="p-head" style={{ display: 'block' }}>
-        <h2>Where roles come from</h2>
-        <p>{sources.length ? `${sources.length - failed.length} of ${sources.length} boards fetched` : 'No refresh yet'}{meta?.lastRefresh ? ` · ${timeAgo(meta.lastRefresh)}` : ''} · every {meta?.refreshHours || 6}h</p>
+        <h2>Where it all comes from</h2>
+        <p>{meta?.lastRefresh ? `Last read ${timeAgo(meta.lastRefresh)}` : 'Not read yet'} · every morning at 8:30 IST</p>
       </div>
       <div className="p-body">
         <div className="trust">
-          {Object.entries(LABELS.trust).map(([k, v]) => {
-            const Icon = TRUST_ICON[k];
-            return <div key={k}><span className="ic"><Icon /></span><span><b>{v.label}</b><span>{v.hint}</span></span></div>;
-          })}
+          <div><span className="ic"><ShieldCheck /></span><span><b>Roles: the company’s own hiring system</b><span>Public job-board APIs (Greenhouse, Lever, Ashby, Workable, Recruitee, SmartRecruiters) and Y Combinator’s company pages. Nobody else can post there.</span></span></div>
+          <div><span className="ic"><Newspaper /></span><span><b>Signals: startup news</b><span>Funding rounds from Entrackr, Inc42 and StartupTalky, and launches on YC. Only clear “X raised Y” headlines count.</span></span></div>
+          <div><span className="ic"><Mail /></span><span><b>Founders: public pages only</b><span>YC company pages and the startup’s own website. Email guesses are labelled as guesses. Never LinkedIn.</span></span></div>
         </div>
-        {filtered.length > 0 && (
+        {sum && (
           <div style={{ marginTop: 26 }}>
-            <h4 style={{ fontSize: 16, marginBottom: 10 }}>Filtered out last refresh</h4>
+            <h4 style={{ fontSize: 16, marginBottom: 10 }}>Last morning run</h4>
             <ul className="src-list">
-              {filtered.map(([reason, n]) => <li key={reason} style={{ justifyContent: 'space-between' }}><span style={{ color: 'var(--muted)' }}>{reason}</span><b className="tab">{n}</b></li>)}
+              {sum.funding && !sum.funding.error && row('Funding rounds in the news', sum.funding.raises)}
+              {sum.yc && !sum.yc.error && row('YC startups hiring (recent batches)', sum.yc.companies)}
+              {sum.boards && !sum.boards.error && row('Job boards read · new roles', `${sum.boards.boards} · ${sum.boards.newRoles}`)}
+              {sum.discover && !sum.discover.error && row('New job boards found', sum.discover.found)}
             </ul>
+          </div>
+        )}
+        {boards.length > 0 && (
+          <div style={{ marginTop: 26 }}>
+            <h4 style={{ fontSize: 16, marginBottom: 10 }}>Job boards</h4>
+            <ul className="src-list">
+              {boards.map((b) => (
+                <li key={b.ats} style={{ alignItems: 'center' }}>
+                  <CheckCircle2 style={{ color: b.ok === b.n ? 'var(--green)' : 'var(--muted)' }} />
+                  <span style={{ flex: 1 }}>{ATS_NAME[b.ats] || b.ats}</span>
+                  <span style={{ fontSize: 13, color: 'var(--muted)' }} className="tab">{b.ok}/{b.n} reachable · {b.kept} roles</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {signals.length > 0 && (
+          <div style={{ marginTop: 26 }}>
+            <h4 style={{ fontSize: 16, marginBottom: 10 }}>News in the last 30 days</h4>
+            <ul className="src-list">{signals.map((x) => row(LABELS.news[x.source] || x.source, x.n))}</ul>
           </div>
         )}
         {blocked.length > 0 && (
@@ -250,36 +236,22 @@ export function Sources({ open, onClose, meta, onChanged }) {
             </ul>
           </div>
         )}
-        {sources.length > 0 && (
-          <div style={{ marginTop: 26 }}>
-            <h4 style={{ fontSize: 16, marginBottom: 10 }}>Boards</h4>
-            <ul className="src-list">
-              {sources.map((s) => (
-                <li key={s.key}>
-                  {s.ok ? <CircleCheck style={{ color: 'var(--green)' }} /> : <CircleX style={{ color: 'var(--red)' }} />}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                      <b style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.label}</b>
-                      <span style={{ fontSize: 12, color: 'var(--muted)', flex: 'none' }}>{LABELS.source[s.source] || s.source}</span>
-                    </div>
-                    <div style={{ fontSize: 12.5, color: 'var(--muted)' }}>{s.ok ? `${s.kept} relevant of ${s.fetched}${s.blocked ? ` · ${s.blocked} blocked` : ''}` : s.error}</div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-        {direct.length > 0 && <CheckDirectly list={direct} />}
       </div>
     </Layer>
   );
 }
 
 /* ------------------------------------------------------------------ advanced filters */
+const DEADLINES = [
+  { id: '', label: 'Open now' },
+  { id: 'week', label: 'Closing this week', urgent: true },
+  { id: 'has', label: 'Has a last date' },
+];
+
 export function Filters({ open, onClose, filters, setFilters, facets, onReset, total }) {
   const set = (patch) => setFilters((f) => ({ ...f, ...patch }));
   const toggle = (key, v) => setFilters((f) => ({ ...f, [key]: f[key].includes(v) ? f[key].filter((x) => x !== v) : [...f[key], v] }));
-  const dl = { week: facets?.closingThisWeek, month: facets?.closingThisMonth, has: facets?.withDeadline, ended: facets?.ended, '': facets?.total };
+  const dl = { week: facets?.closingThisWeek, has: facets?.withDeadline, '': facets?.total };
   const langs = [...LANGUAGES].sort((a, b) => (facets?.byLanguage?.[b] || 0) - (facets?.byLanguage?.[a] || 0));
   return (
     <Layer open={open} onClose={onClose} kind="panel" label="Filters">
@@ -289,10 +261,12 @@ export function Filters({ open, onClose, filters, setFilters, facets, onReset, t
       </div>
       <div className="p-body" style={{ paddingTop: 4 }}>
         <div className="fsec">
-          <h4>Show</h4>
-          <div className="seg">
-            {[['', 'Everything'], ['roles', 'Company roles'], ['programs', 'Programs']].map(([id, l]) => (
-              <button key={id || 'all'} className={cx(filters.type === id && 'on')} onClick={() => set({ type: id })}>{l}</button>
+          <h4>Startup news</h4>
+          <div className="fwrap">
+            {[['', 'Any'], ['funded', 'Raised in the last 90 days'], ['new', 'Roles new this week']].map(([id, l]) => (
+              <button key={id || 'any'} className="fchip" aria-pressed={(filters.signal || '') === id} onClick={() => set({ signal: id })}>
+                {id === 'funded' && <Banknote />}{l} <span className="n">{id === 'funded' ? facets?.funded || '' : ''}</span>
+              </button>
             ))}
           </div>
         </div>
@@ -313,7 +287,7 @@ export function Filters({ open, onClose, filters, setFilters, facets, onReset, t
             {DEADLINES.map((d) => (
               <button key={d.id || 'open'} className={cx(filters.deadline === d.id && 'on')} onClick={() => set({ deadline: d.id })}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
-                  <i className={cx('dot', d.urgent && 'red')} style={{ animation: 'none', background: d.id === 'ended' ? '#b7b7bc' : undefined }} />{d.label}
+                  <i className={cx('dot', d.urgent && 'red')} style={{ animation: 'none' }} />{d.label}
                 </span>
                 <span className="n tab">{dl[d.id] || ''}</span>
               </button>
@@ -360,8 +334,7 @@ export function Filters({ open, onClose, filters, setFilters, facets, onReset, t
           )}
         </div>
         <div className="fsec">
-          <div className="switch-row"><span>Verified company pages only</span><Switch checked={Boolean(filters.companyOnly)} onChange={(v) => set({ companyOnly: v })} label="Verified company pages only" /></div>
-          <div className="switch-row"><span>Hide ones I’ve applied to</span><Switch checked={filters.hideApplied} onChange={(v) => set({ hideApplied: v })} label="Hide applied" /></div>
+          <div className="switch-row"><span>Hide ones I’ve emailed or applied to</span><Switch checked={filters.hideApplied} onChange={(v) => set({ hideApplied: v })} label="Hide applied" /></div>
         </div>
       </div>
       <div className="p-foot">

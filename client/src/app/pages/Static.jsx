@@ -3,46 +3,53 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { LogoMark, Words, useReveal } from '@/app/ui';
 
 // Privacy, Terms and 404, in the landing page's look. Legal text is written from what the app actually
-// stores (server/src/db.js). Not legal advice: have someone check it before charging money.
-const UPDATED = '6 November 2026';
-// Put a real inbox here before launch.
-const CONTACT = '';
+// stores (server/src/db/schema.sql). Not legal advice: have someone check it before charging money.
+const UPDATED = '7 November 2026';
 
 const PRIVACY = [
-  ['What we store', [
-    'If you sign in with Google: your name, email address, profile picture and Google account ID, plus when you created your account and last signed in.',
-    'Your tracker: the roles you save or mark as applied, interviewing, offer, rejected or no reply, any notes you write, and when you changed them.',
-    'Your reports: roles you report as a scam, fake, expired or “never heard back”, and companies you block.',
-    'A sign-in session, kept as a scrambled (hashed) token so the raw token never sits in our database.',
+  ['What we store about you', [
+    'Your account: name, email and profile picture from Google sign-in, or your Telegram name and chat ID if you use the bot.',
+    'Your profile: the skills, role choices, links and “things you built” lines you give us, and a one-line summary. When you upload a resume on the web it is read in your browser and only the skill list leaves your device. When you send a PDF to the Telegram bot, we read it once to pull out the same list and don’t keep the file.',
+    'Your emails: the drafts we write for you, your edits (used to learn your writing style), what you approved, when it was sent and whether someone replied.',
+    'Your pipeline, notes, reports and blocked companies, and a hashed sign-in session token.',
   ]],
-  ['What stays in your browser', ['Your filters, the last page you opened, your weekly goal and, if you join an early-access list, the email you typed. These live in your browser’s local storage and never reach our server.']],
+  ['Gmail', [
+    'Connecting Gmail is optional. We ask for two permissions: create drafts and send email (gmail.compose), and read message headers (gmail.metadata) so follow-ups stop when someone replies. We never read the body of any email in your inbox.',
+    'We only send an email after you approve that exact email, from your own address, within your daily limit. Your Google token is stored encrypted and you can disconnect at any time.',
+  ]],
+  ['Founders and other people', [
+    'Founder names come from public pages only: Y Combinator company pages and the startup’s own website. We never scrape LinkedIn.',
+    'Email addresses are marked as verified, found on their website, or a best guess from the usual pattern. Every contact records where it came from.',
+    'Every email we draft ends with an easy way to say no, and we stop all follow-ups the moment someone replies.',
+  ]],
+  ['AI', ['If AI drafting is switched on, the facts for one email (the startup fact and your proof point, not your resume) are sent to Google’s Gemini API on a paid plan, which doesn’t use them to train models. Without it, drafts are written from a template on our own server.']],
   ['What we don’t do', [
-    'We don’t sell or share your data, run ads, or add ad or analytics trackers. The only outside services the site loads are Google’s sign-in button and Google Fonts.',
-    'Browsing roles never needs an account.',
-    'We read job listings only from companies’ own hiring systems, official program pages and a few vetted job boards. We don’t scrape LinkedIn or similar sites.',
+    'We don’t sell or share your data, run ads, or add ad or analytics trackers.',
+    'We never send an email you didn’t approve.',
   ]],
-  ['Coming features', ['Resume matching and founder drafts aren’t live yet. When they are, we’ll update this page first and ask before using your resume or Gmail. Drafts will go to your own Gmail, and nothing will be sent without your approval.']],
   ['Delete your data', [
-    CONTACT ? `Email ${CONTACT} from the address you signed in with and we’ll delete your account, tracker, notes and reports.` : 'Write to us from the email you signed in with and we’ll delete your account, tracker, notes and reports. A one-tap delete button is on the way.',
-    'Signing out removes the session from your browser. Clearing your browser storage removes everything kept locally.',
+    'Settings → Delete my data (or /delete in the Telegram bot) removes your account, profile, drafts, sent history, pipeline and Gmail connection straight away. Settings → Download my data gives you a copy first.',
   ]],
 ];
 
 const TERMS = [
-  ['What InternHunt is', ['A free, invite-only tool that collects internships and early-career roles from official sources and helps you keep track of your applications.']],
-  ['Listings', [
-    'Roles come from companies’ hiring systems and official pages. We filter scam-like and stale posts, but we can’t guarantee every listing is accurate or still open. Always check the official page before applying.',
-    'A real employer or government program never asks you to pay. If one does, report it and don’t pay.',
+  ['What Knockd is', ['A free, invite-only tool that finds startups that are hiring or just raised money, writes a short email to a founder for you to review, and helps you keep track of what you sent.']],
+  ['Your emails are yours', [
+    'You approve every email, and it goes out from your own account. Be honest, write to one person at a time, and take no for an answer. Don’t use Knockd for bulk or unrelated outreach.',
+    'Check names and email addresses before you send. Guesses are labelled as guesses.',
   ]],
-  ['Your account', ['Use your own Google account and keep your sign-in to yourself. Don’t misuse the service, scrape it, or try to break it.']],
-  ['Changes', ['The service may change or pause while it’s in beta. Paid plans, if we add them, will be priced in ₹ and only charged after you agree to them.']],
+  ['Listings', [
+    'Roles come from companies’ own hiring systems and Y Combinator’s public pages. We filter scam-like and stale posts, but we can’t guarantee every listing is accurate or still open.',
+    'A real employer never asks you to pay. If one does, report it and don’t pay.',
+  ]],
+  ['Changes', ['The service may change or pause while it’s in beta. A Pro plan, if we add it, will be priced in ₹, paid by UPI, and only charged after you agree to it.']],
 ];
 
 function Bar() {
   return (
     <header className="nav">
       <div className="nav-in">
-        <a href="#/" className="logo" aria-label="InternHunt home"><span className="logo-mark"><LogoMark /></span><span className="t">InternHunt</span></a>
+        <a href="#/" className="logo" aria-label="Knockd home"><span className="logo-mark"><LogoMark /></span><span className="t">Knockd</span></a>
         <div className="nav-side"><a className="nav-cta" href="#/app">Open the app <ArrowRight size={15} /></a></div>
       </div>
     </header>
@@ -53,7 +60,7 @@ export function Legal({ kind }) {
   const privacy = kind === 'privacy';
   const ref = useReveal(kind);
   useEffect(() => {
-    document.title = `${privacy ? 'Privacy' : 'Terms'} · InternHunt`;
+    document.title = `${privacy ? 'Privacy' : 'Terms'} · Knockd`;
     window.scrollTo(0, 0);
   }, [privacy]);
   return (
@@ -80,7 +87,7 @@ export function Legal({ kind }) {
 }
 
 export function NotFound() {
-  useEffect(() => { document.title = 'Page not found · InternHunt'; }, []);
+  useEffect(() => { document.title = 'Page not found · Knockd'; }, []);
   return (
     <div className="ih">
       <Bar />

@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import {
-  ArrowRight, BadgeCheck, Building2, Check, ChevronRight, Clock, FileText, GraduationCap, House, IndianRupee, LayoutGrid, Lock,
-  Mail, Newspaper, Plus, Rocket, Send, Settings, ShieldCheck, Sparkles, Wallet, Zap, KanbanSquare, Inbox, Trash2, Search,
+  ArrowRight, BadgeCheck, BellRing, Building2, Check, ChevronLeft, ChevronRight, Clock, FileText, GraduationCap, House, IndianRupee, LayoutGrid, Lock,
+  Mail, Newspaper, Plus, Reply, Rocket, Send, Settings, ShieldCheck, Sparkles, Wallet, Zap, KanbanSquare, Inbox, Trash2, Search,
 } from 'lucide-react';
+import { BRAND, siteConfig, telegramUrl } from '@/brand';
 import './landing.css';
+import './landing-tg.css';
 
 // Palette copied from backdoorai.app (see backdoorai.app.md): white page, #111 ink, #6E6E72 muted, #F5F4F1 chips,
 // pastel tiles, one dark band, Gmail-style red/green highlights. Hero is a real photo (Unsplash, billy_huy)
@@ -13,7 +15,7 @@ const APP_HREF = '#/app';
 const reduced = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ------------------------------------------------------------------ data */
-const WORDS = ['Inc42', 'Entrackr', 'Product Hunt', 'YC', 'Greenhouse', 'Lever', 'Ashby', 'StartupTalky', 'GitHub', 'Hackathons', 'Careers pages'];
+const WORDS = ['Inc42', 'Entrackr', 'Y Combinator', 'Greenhouse', 'Lever', 'Ashby', 'StartupTalky', 'Workable', 'Recruitee', 'SmartRecruiters', 'Careers pages'];
 
 const COMPANIES = [
   { n: 'Lumen Labs', l: 'L', city: 'Bengaluru', role: 'ML intern', stipend: 25, wfh: true, batch: 2027, funded: true, sig: 'Raised a seed round' },
@@ -60,19 +62,20 @@ const STEPS = [
 
 const FAQ = [
   ['Is this just cold emailing?', 'No. You get two things: every listed internship from company careers pages and official programs, with last dates, and a daily list of startups that are recruiting but may not have posted yet. Outreach is for the second kind.'],
-  ['Do you send emails without my approval?', 'Never. Every email is a draft that you read, edit and approve. It is created in your own Gmail, and nothing is sent until you say so.'],
+  ['Do you send emails without my approval?', 'Never. Every email is a draft you read, edit and approve, on the web or in Telegram. It goes out from your own Gmail, within a daily limit you set, and nothing is sent until you tap Send.'],
   ['Will my emails sound like AI?', 'Each draft may use only facts we checked: one thing about the company and one real thing from your resume. A second pass checks those facts, code checks length and banned phrases, and we learn your style from your edits.'],
   ['Is it really free?', 'Yes. We are free and invite-only while we learn from our first users. A Pro plan is coming, priced in ₹ and paid by UPI, and early joiners get a better price.'],
-  ['What do you store from my resume?', 'Only what is needed to match and draft. We log where every contact came from, and you can ask us to delete your data at any time.'],
-  ['Where do founder emails come from?', 'Public pages first. When we have to guess an address, we label it as a guess and verify it before you use it. We also draft a short LinkedIn or X message that you send yourself.'],
-  ['Is there a Telegram or WhatsApp bot?', 'Telegram comes first, then WhatsApp once there are enough users to cover its fixed cost. For now the web app is live.'],
+  ['What do you store from my resume?', 'Only the list of skills and a one-line summary. On the web your resume is read in your browser; in Telegram we read the PDF once and don’t keep it. Delete everything from Settings, or send /delete to the bot.'],
+  ['Where do founder emails come from?', 'Public pages only: Y Combinator company pages and the startup’s own website. Every address is labelled: verified, found on their site, or a best guess from the usual pattern. We never scrape LinkedIn.'],
+  ['Is there a Telegram bot?', 'Yes. Open it, tap Start, send your resume as a PDF and pick your roles. Every morning at 8:30 you get a few startups that fit, and each email can be sent, edited or skipped right in the chat. WhatsApp comes later.'],
+  ['What happens if they don’t reply?', 'Up to three short follow-ups in the same thread, a few days apart, and each one waits for your OK. The moment anyone replies, follow-ups stop.'],
 ];
 
 /* ------------------------------------------------------------------ pieces */
 function LogoMark({ size = 16, color = '#fff' }) {
   return (
     <svg viewBox="0 0 32 32" width={size} height={size} aria-hidden="true">
-      <path d="M9 23V9h3v14zm6 0V9h3l4.2 8.1V9H25v14h-2.8L18 14.9V23z" fill={color} />
+      <path d="M9 7.5h3.4v7.2L19.3 7.5h4.5l-7.4 7.6 7.8 9.4h-4.5l-5.7-7-1.6 1.7v5.3H9z" fill={color} />
     </svg>
   );
 }
@@ -118,7 +121,7 @@ function Dashboard() {
       <div className="lp-dash" role="img" aria-label="Example product screen showing today's startup matches, a fit breakdown and a drafted email">
         <div className="lp-win">
           <aside className="lp-side">
-            <div className="brand"><i /> InternHunt</div>
+            <div className="brand"><i /> Knockd</div>
             {[[LayoutGrid, 'Today', 1], [Sparkles, 'Matches'], [Mail, 'Drafts'], [KanbanSquare, 'Pipeline'], [Inbox, 'Replies'], [Settings, 'Settings']].map(([I, t, on]) => (
               <div key={t} className={`it ${on ? 'on' : ''}`}><I size={15} aria-hidden="true" /> {t}</div>
             ))}
@@ -274,11 +277,13 @@ function Faq() {
   return (
     <div className="lp-faq">
       {FAQ.map(([q, a], i) => (
-        <div key={q} className={`lp-q rv ${open === i ? 'open' : ''}`} style={{ '--d': i }}>
-          <button aria-expanded={open === i} aria-controls={`faq-${i}`} onClick={() => setOpen(open === i ? -1 : i)}>
-            {q}<span className="plus"><Plus size={16} aria-hidden="true" /></span>
-          </button>
-          <div className="lp-a" id={`faq-${i}`} role="region"><div><p>{a}</p></div></div>
+        <div key={q} className="rv" style={{ '--d': i }}>
+          <div className={`lp-q ${open === i ? 'open' : ''}`}>
+            <button aria-expanded={open === i} aria-controls={`faq-${i}`} onClick={() => setOpen(open === i ? -1 : i)}>
+              {q}<span className="plus"><Plus size={16} aria-hidden="true" /></span>
+            </button>
+            <div className="lp-a" id={`faq-${i}`} role="region"><div><p>{a}</p></div></div>
+          </div>
         </div>
       ))}
     </div>
@@ -334,9 +339,11 @@ function Waitlist() {
     e.preventDefault();
     if (!/^\S+@\S+\.\S+$/.test(email)) return setErr('That email doesn’t look right.');
     setErr('');
-    try { localStorage.setItem('ih.waitlist', email); } catch { /* private mode */ }
-    setDone(true);
-    confetti(e.currentTarget.querySelector('button'));
+    const btn = e.currentTarget.querySelector('button');
+    fetch('/api/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, kind: 'pro' }) })
+      .then((r) => r.json().then((b) => (r.ok ? b : Promise.reject(new Error(b.error || 'Try again')))))
+      .then(() => { setDone(true); confetti(btn); })
+      .catch((x) => setErr(x.message));
   };
   if (done) return <div className="lp-ok" role="status" style={{ marginTop: 'auto' }}><BadgeCheck size={20} aria-hidden="true" /> You’re on the list. We’ll email you before Pro opens.</div>;
   return (
@@ -350,6 +357,139 @@ function Waitlist() {
   );
 }
 
+/* ------------------------------------------------------------------ Telegram */
+// The morning chat, played as a short scene: typing dots, then each message. Everything in it is an example.
+const CHAT = [
+  { who: 'bot', t: 'text', text: '☀️ Morning, Riya. 3 new startups for you today:', at: '8:30' },
+  { who: 'bot', t: 'pick', at: '8:30' },
+  { who: 'tap', target: 'write' },
+  { who: 'bot', t: 'draft', at: '8:31' },
+  { who: 'tap', target: 'send' },
+  { who: 'bot', t: 'sent', at: '8:31' },
+];
+
+function TgPhone({ bot }) {
+  const ref = useRef(null);
+  const [step, setStep] = useState(reduced() ? CHAT.length : 0);
+  const [typing, setTyping] = useState(false);
+  const [live, setLive] = useState(false);
+  useEffect(() => {
+    if (reduced()) return;
+    const io = new IntersectionObserver(([e]) => setLive(e.isIntersecting), { threshold: 0.35 });
+    io.observe(ref.current);
+    return () => io.disconnect();
+  }, []);
+  useEffect(() => {
+    if (!live || reduced()) return;
+    let t;
+    if (step >= CHAT.length) {
+      t = setTimeout(() => setStep(0), 6000);
+    } else if (CHAT[step].who === 'bot') {
+      setTyping(true);
+      t = setTimeout(() => { setTyping(false); setStep((s) => s + 1); }, step === 0 ? 900 : 1300);
+    } else {
+      t = setTimeout(() => setStep((s) => s + 1), 1100);
+    }
+    return () => clearTimeout(t);
+  }, [step, live]);
+  const shown = CHAT.slice(0, step);
+  const tapped = (target) => shown.some((m) => m.who === 'tap' && m.target === target);
+  const scroller = useRef(null);
+  useEffect(() => { const el = scroller.current; if (el) el.scrollTo({ top: el.scrollHeight, behavior: reduced() ? 'auto' : 'smooth' }); }, [step, typing]);
+
+  return (
+    <div className="tg-phone" ref={ref} role="img" aria-label={`Example ${BRAND} Telegram chat: a morning pick, a drafted email with Send, Edit and Skip buttons, and a sent confirmation`}>
+      <div className="tg-notch" />
+      <div className="tg-top">
+        <ChevronLeft size={20} aria-hidden="true" />
+        <span className="tg-av"><LogoMark size={15} /></span>
+        <div><b>{BRAND}</b><small>{typing ? 'typing…' : 'bot'}</small></div>
+      </div>
+      <div className="tg-chat" ref={scroller}>
+        <span className="tg-day">Today</span>
+        {shown.map((m, i) => {
+          if (m.who === 'tap') return null;
+          if (m.t === 'text') return <div key={i} className="tg-b in">{m.text}<time>{m.at}</time></div>;
+          if (m.t === 'pick') {
+            return (
+              <div key={i} className="tg-grp">
+                <div className="tg-b in">
+                  <b>1. Lumen Labs</b> · resume screening for colleges<br />
+                  💸 Raised $2 Mn seed · yesterday<br />
+                  Hiring: <u>ML Intern</u> · Remote<br />
+                  <i>Python and PyTorch from your profile are in this role</i>
+                  <time>{m.at}</time>
+                </div>
+                <div className="tg-kb two"><span className={tapped('write') ? 'tap' : ''}>✍️ Write the email</span><span>Skip</span></div>
+              </div>
+            );
+          }
+          if (m.t === 'draft') {
+            return (
+              <div key={i} className="tg-grp">
+                <div className="tg-b in draft">
+                  ✉️ <b>To Aditya</b> (CEO, Lumen Labs)<br />
+                  <span className="mono">aditya@lumenlabs.in</span> · best guess<br />
+                  <b>Subject:</b> ML intern, and a 2,000-resume ranker
+                  <blockquote>Hi Aditya, congrats on the $2 Mn seed. Last term I built a resume ranker that sorted 2,000 applications for our placement cell… <em>(74 words)</em></blockquote>
+                  <span className="ok">✓ 74 words · ✓ no AI phrases · ✓ opt-out line</span>
+                  <time>{m.at}</time>
+                </div>
+                <div className="tg-kb three"><span className={tapped('send') ? 'tap' : ''}>✅ Send</span><span>✏️ Edit</span><span>⏭ Skip</span></div>
+              </div>
+            );
+          }
+          return (
+            <div key={i} className="tg-grp">
+              <div className="tg-b in">📤 Sent from your Gmail. I’ll follow up in 4 days if Aditya doesn’t reply.<time>{m.at}</time></div>
+              <div className="tg-kb"><span>🎉 I got a reply</span></div>
+            </div>
+          );
+        })}
+        {typing && <div className="tg-b in typing" aria-hidden="true"><i /><i /><i /></div>}
+      </div>
+      <div className="tg-input"><span>Message</span><i /></div>
+      <span className="tg-label">Example chat</span>
+    </div>
+  );
+}
+
+function TelegramSection({ bot }) {
+  const href = telegramUrl(bot) || APP_HREF + '/settings';
+  const points = [
+    [BellRing, 'Morning picks, only new ones', 'Every day at 8:30: startups that just raised, launched or opened a role, matched to you. Never the same one twice.'],
+    [Mail, 'SEND, EDIT, SKIP', 'Tap “Write the email” and it’s ready in seconds. Edit by replying with your version. Nothing goes without your tap.'],
+    [Reply, 'Follow-ups that stop themselves', 'Up to three short nudges in the same thread, each one waits for your OK, and they stop the moment someone replies.'],
+    [FileText, 'Your resume, as a PDF', 'Send it once. We keep the list of skills, never the file. /delete wipes everything.'],
+  ];
+  return (
+    <section className="lp-sec" id="telegram">
+      <div className="lp-wrap lp-tg">
+        <div className="lp-tg-copy">
+          <span className="lp-eyebrow rv"><i className="dot" style={{ background: '#229ed9' }} /> New · Telegram bot</span>
+          <h2 className="lp-h2 rv" style={{ '--d': 1 }}>Your mornings, sorted. <span className="tgword">In Telegram.</span></h2>
+          <p className="lp-sub rv" style={{ '--d': 2 }}>The whole thing works from one chat. Wake up to a few startups worth writing to, and approve each email with one tap.</p>
+          <ul className="lp-tg-pts">
+            {points.map(([Icon, t, d], k) => (
+              <li key={t} className="rv" style={{ '--d': 3 + k }}><span className="ic"><Icon size={18} aria-hidden="true" /></span><div><b>{t}</b><p>{d}</p></div></li>
+            ))}
+          </ul>
+          <div className="lp-cta-row rv" style={{ '--d': 7, justifyContent: 'flex-start' }}>
+            <a className="btn tg" href={href} target={bot ? '_blank' : undefined} rel="noopener noreferrer" data-mag><TgIcon /> Open {BRAND} in Telegram</a>
+            <a className="btn light" href={APP_HREF} data-mag>Or use the web app</a>
+          </div>
+          <p className="lp-trust rv" style={{ '--d': 8 }}><Lock size={14} aria-hidden="true" /> Free. Telegram bots cost us nothing to run, so they cost you nothing.</p>
+        </div>
+        <div className="lp-tg-phone rv" style={{ '--d': 2 }}><TgPhone bot={bot} /></div>
+      </div>
+    </section>
+  );
+}
+
+const TgIcon = () => (
+  <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M21.9 4.6 18.6 20c-.2 1.1-.9 1.4-1.8.9l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.1L18 6.6c.4-.4-.1-.6-.6-.2L6 13.6l-4.9-1.5c-1.1-.3-1.1-1.1.2-1.6L20.6 3c.9-.3 1.7.2 1.3 1.6z" /></svg>
+);
+
 const Squiggle = () => (
   <svg className="draw" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M2 6 C 14 1, 22 9, 34 5 S 56 1, 68 6 S 88 9, 98 4" /></svg>
 );
@@ -360,20 +500,22 @@ export default function Landing() {
   const hero = useRef(null);
   const [hide, setHide] = useState(false);
   const [spy, setSpy] = useState('');
+  const [bot, setBot] = useState(null);
+  useEffect(() => { siteConfig().then((c) => setBot(c.telegramBot || null)); }, []);
 
   useEffect(() => {
-    document.title = 'InternHunt — find who’s hiring, land the internship';
+    document.title = `${BRAND}: startups that are hiring, and emails you approve`;
     window.scrollTo(0, 0);
     const el = root.current;
     const motion = !reduced();
 
     const io = new IntersectionObserver(
-      (entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }),
+      (entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); e.target.setAttribute('data-in', ''); io.unobserve(e.target); } }),
       { threshold: 0.15, rootMargin: '0px 0px -8% 0px' }
     );
     el.querySelectorAll('.rv').forEach((n) => io.observe(n));
 
-    const ids = ['how', 'diff', 'india', 'pricing', 'faq'];
+    const ids = ['how', 'telegram', 'diff', 'india', 'pricing', 'faq'];
     let lastY = 0, raf = 0;
     const onScroll = () => {
       cancelAnimationFrame(raf);
@@ -431,7 +573,7 @@ export default function Landing() {
   }, []);
 
   const words = ['Find', 'who’s', 'hiring.', 'Land', 'the', 'internship.'];
-  const links = [['how', 'How it works'], ['diff', 'Why it works'], ['india', 'Built for India'], ['pricing', 'Pricing'], ['faq', 'FAQ']];
+  const links = [['how', 'How it works'], ['telegram', 'Telegram'], ['diff', 'Why it works'], ['pricing', 'Pricing'], ['faq', 'FAQ']];
 
   return (
     <div className="lp" ref={root}>
@@ -439,7 +581,7 @@ export default function Landing() {
 
       <header className={`lp-nav ${hide ? 'hide' : ''}`}>
         <div className="lp-nav-in">
-          <a href="#top" className="lp-logo" aria-label="InternHunt home"><span className="lp-logo-mark"><LogoMark size={15} /></span><span className="t">InternHunt</span></a>
+          <a href="#top" className="lp-logo" aria-label="Knockd home"><span className="lp-logo-mark"><LogoMark size={15} /></span><span className="t">Knockd</span></a>
           <nav className="lp-nav-links" aria-label="Sections">
             {links.map(([id, t]) => <a key={id} href={`#${id}`} className={spy === id ? 'on' : ''}>{t}</a>)}
           </nav>
@@ -452,7 +594,7 @@ export default function Landing() {
         <section className="lp-hero" ref={hero}>
           <PhotoBg />
           <div className="lp-wrap">
-            <div className="lp-badge rv"><b>New</b><span>Who’s recruiting + every listed internship</span><a href="#how">Try now <ChevronRight size={14} aria-hidden="true" /></a></div>
+            <div className="lp-badge rv"><b>New</b><span>The {BRAND} Telegram bot is live</span><a href="#telegram">See it <ChevronRight size={14} aria-hidden="true" /></a></div>
             <h1 className="lp-h1" aria-label="Find who’s hiring. Land the internship.">
               {words.map((w, i) => (
                 <span key={i} aria-hidden="true" className={w === 'internship.' ? 'hand' : undefined}>
@@ -462,10 +604,10 @@ export default function Landing() {
                 </span>
               ))}
             </h1>
-            <p className="lp-lead rv" style={{ '--d': 4 }}>We track which startups are recruiting right now, list every open internship with its last date, and help you reach the founder with a short email you approve.</p>
+            <p className="lp-lead rv" style={{ '--d': 4 }}>Every morning: startups that just raised or are hiring, matched to you, with a short email to the founder already written. You approve every one.</p>
             <div className="lp-cta-row rv" style={{ '--d': 5 }}>
               <a className="btn dark" href={APP_HREF} data-mag>Get my free matches <ArrowRight size={17} className="nudge" aria-hidden="true" /></a>
-              <a className="btn light" href="#how" data-mag>See how it works</a>
+              <a className="btn light" href={telegramUrl(bot) || '#telegram'} target={bot ? '_blank' : undefined} rel="noopener noreferrer" data-mag><TgIcon /> Open in Telegram</a>
             </div>
             <p className="lp-trust rv" style={{ '--d': 6 }}><Lock size={14} aria-hidden="true" /> Free and invite-only · Nothing is ever sent without your tap.</p>
           </div>
@@ -490,6 +632,8 @@ export default function Landing() {
           </div>
         </section>
 
+        <TelegramSection bot={bot} />
+
         {/* SOURCES */}
         <section className="lp-sec lp-center" style={{ paddingTop: 0 }}>
           <div className="lp-wrap">
@@ -499,8 +643,8 @@ export default function Landing() {
             <div className="lp-bento">
               {[
                 { i: Newspaper, t: 'Funding news', d: 'Who just raised, from Indian startup news roundups. Fresh money usually means open seats.', tags: ['Inc42', 'Entrackr', 'StartupTalky'] },
-                { i: Rocket, t: 'Launches and communities', d: 'Products going live, repos taking off and hackathon winners are small teams worth knowing.', tags: ['Product Hunt', 'GitHub', 'YC directory'] },
-                { i: Building2, t: 'Listed internships', d: 'Open roles read straight from company careers pages and official programs, with last dates. No stale listings.', tags: ['Greenhouse', 'Lever', 'Ashby'] },
+                { i: Rocket, t: 'Y Combinator, every batch', d: 'Every YC startup that’s hiring, with its founders, its open roles and its latest launch. Recent batches first.', tags: ['YC directory', 'Founders', 'Launches'] },
+                { i: Building2, t: 'Listed roles, straight from the source', d: 'Read from startups’ own hiring systems every morning. Scam-like, agency and ghost posts are filtered out.', tags: ['Greenhouse', 'Lever', 'Ashby'] },
               ].map(({ i: Icon, t, d, tags }, k) => (
                 <article key={t} className="lp-card rv" style={{ '--d': k }}>
                   <span className="lp-ico"><Icon size={22} aria-hidden="true" /></span>
@@ -562,7 +706,7 @@ export default function Landing() {
             <p className="lp-sub rv" style={{ '--d': 2, fontSize: 19, lineHeight: 1.7, maxWidth: 620 }}>
               Finding startups <span className="ichip"><Search aria-hidden="true" /></span>, matching <span className="ichip"><Sparkles aria-hidden="true" /></span> and drafts in your
               Gmail <span className="ichip"><Mail aria-hidden="true" /></span> are <span className="squig">free<Squiggle /></span> while we’re invite-only.
-              Pro adds verified founder emails and follow-ups.
+              Pro adds verified founder emails and more drafts every day.
             </p>
             <div className="lp-price">
               <article className="lp-plan rv">
@@ -571,7 +715,8 @@ export default function Landing() {
                 <ul>
                   <li><Check size={16} aria-hidden="true" /> Every listed internship, with last dates</li>
                   <li><Check size={16} aria-hidden="true" /> A few recruiting startups every day</li>
-                  <li><Check size={16} aria-hidden="true" /> Limited drafts, all in your own voice</li>
+                  <li><Check size={16} aria-hidden="true" /> Drafts in your own voice, sent from your Gmail</li>
+                  <li><Check size={16} aria-hidden="true" /> The Telegram bot, with morning picks</li>
                   <li><Check size={16} aria-hidden="true" /> Filters for stipend, duration, WFH and batch</li>
                   <li><Check size={16} aria-hidden="true" /> You approve every email</li>
                 </ul>
@@ -583,8 +728,8 @@ export default function Landing() {
                 <div className="amt">In ₹<small>paid by UPI</small></div>
                 <ul>
                   <li><Check size={16} aria-hidden="true" /> More drafts every day</li>
-                  <li><Check size={16} aria-hidden="true" /> Founder email lookup with verification</li>
-                  <li><Check size={16} aria-hidden="true" /> Follow-ups in the same thread</li>
+                  <li><Check size={16} aria-hidden="true" /> Verified founder emails</li>
+                  <li><Check size={16} aria-hidden="true" /> More follow-ups and WhatsApp</li>
                   <li><Check size={16} aria-hidden="true" /> “My writing style” learned from your edits</li>
                 </ul>
                 <p className="muted">The first 20 people on the waitlist get an early-bird price.</p>
@@ -608,7 +753,7 @@ export default function Landing() {
           <PhotoBg birds={false} pos="50% 70%" />
           <div className="lp-wrap">
             <h2 className="rv">Your next internship is already out there.</h2>
-            <p className="rv" style={{ '--d': 1 }}>We’ll show you who’s hiring and what’s open. Free while we’re invite-only.</p>
+            <p className="rv" style={{ '--d': 1 }}>We’ll show you who’s hiring and write the first email. Free while we’re invite-only.</p>
             <a className="btn dark rv" style={{ '--d': 2 }} href={APP_HREF} data-mag>Get my free matches <ArrowRight size={18} className="nudge" aria-hidden="true" /></a>
           </div>
         </section>
@@ -616,8 +761,8 @@ export default function Landing() {
 
       <footer className="lp-foot">
         <div className="lp-wrap lp-foot-in">
-          <span>© {new Date().getFullYear()} InternHunt · Made for Indian students</span>
-          <nav aria-label="Footer"><a href="#/privacy">Privacy</a><a href="#/terms">Terms</a><a href="#/privacy">Delete my data</a><a href={APP_HREF}>Open the app</a><a href="https://unsplash.com/photos/cloudy-sky-at-daytime-v9bnfMCyKbg" target="_blank" rel="noopener noreferrer">Photo: billy_huy / Unsplash</a></nav>
+          <span>© {new Date().getFullYear()} Knockd · Made for Indian students</span>
+          <nav aria-label="Footer"><a href="#/privacy">Privacy</a><a href="#/terms">Terms</a><a href="#/app/settings">Delete my data</a><a href={APP_HREF}>Open the app</a><a href="https://unsplash.com/photos/cloudy-sky-at-daytime-v9bnfMCyKbg" target="_blank" rel="noopener noreferrer">Photo: billy_huy / Unsplash</a></nav>
         </div>
       </footer>
     </div>

@@ -60,6 +60,7 @@ export async function draftView(d) {
     facts: d.facts || {},
     checks: d.checks || {},
     model: d.model,
+    contactId: d.contact_id || null,
     error: d.error || null,
     gmailDraftId: d.gmail_draft_id || null,
     send: send ? { id: send.id, status: send.status, sendAfter: iso(send.send_after), sentAt: iso(send.sent_at), repliedAt: iso(send.replied_at), followups: send.followups, nextFollowupAt: iso(send.next_followup_at), error: send.error } : null,

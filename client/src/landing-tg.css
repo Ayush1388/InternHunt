@@ -1,0 +1,69 @@
+/* Landing: the Telegram section (phone + chat scene), plus the reveal fallback. Same tokens as landing.css. */
+.lp .rv[data-in] { opacity: 1; transform: none; }
+.lp .btn.tg { background: linear-gradient(#37b6f3, #229ed9); color: #fff; box-shadow: inset 0 1px 0 rgb(255 255 255 / .25), 0 14px 28px -12px rgb(34 158 217 / .55); }
+.lp .btn.tg:hover { box-shadow: inset 0 1px 0 rgb(255 255 255 / .3), 0 22px 34px -14px rgb(34 158 217 / .6); }
+.lp .btn.light svg { color: #229ed9; }
+.lp-logo-mark { box-shadow: inset 0 1px 0 rgb(255 255 255 / .4), 0 6px 14px -6px rgb(91 80 240 / .8); }
+
+.lp-tg { display: grid; gap: 48px; align-items: center; }
+@media (min-width: 980px) { .lp-tg { grid-template-columns: 1.05fr 1fr; gap: 64px; } }
+.lp-tg-copy .lp-sub { margin-left: 0; }
+.tgword { position: relative; color: #1d8fd0; white-space: nowrap; }
+.lp-tg-pts { list-style: none; margin: 32px 0 0; padding: 0; display: grid; gap: 4px; }
+.lp-tg-pts li { display: flex; gap: 14px; padding: 14px 16px; border-radius: 20px; transition: background .3s; }
+.lp-tg-pts li:hover { background: var(--bg2); }
+.lp-tg-pts .ic { flex: none; width: 40px; height: 40px; border-radius: 14px; display: grid; place-items: center; background: #e8f5fd; color: #1d8fd0; transition: transform .5s var(--ease); }
+.lp-tg-pts li:hover .ic { transform: rotate(-8deg); }
+.lp-tg-pts b { display: block; font-weight: 500; font-size: 16px; letter-spacing: -0.02em; }
+.lp-tg-pts p { margin-top: 2px; font-size: 14.5px; color: var(--muted); }
+.lp-tg-copy .lp-cta-row { margin-top: 28px; }
+
+.lp-tg-phone { display: flex; justify-content: center; position: relative; }
+.lp-tg-phone::before { content: ''; position: absolute; inset: 8% -6% 4%; border-radius: 50%; background: radial-gradient(closest-side, rgb(55 182 243 / .22), transparent 70%); filter: blur(10px); z-index: -1; }
+.tg-phone { position: relative; width: min(372px, 100%); height: 680px; border-radius: 52px; padding: 12px; background: linear-gradient(145deg, #2c2c2f, #0d0d0f); box-shadow: 0 60px 100px -50px rgb(0 0 0 / .65), inset 0 0 0 1.5px rgb(255 255 255 / .08); display: flex; flex-direction: column; }
+@media (max-width: 420px) { .tg-phone { height: 620px; border-radius: 44px; } }
+.tg-phone > * { position: relative; }
+.tg-notch { position: absolute; top: 22px; left: 50%; translate: -50% 0; width: 96px; height: 26px; border-radius: 99px; background: #000; z-index: 3; }
+.tg-top { z-index: 2; display: flex; align-items: center; gap: 10px; padding: 52px 16px 12px; border-radius: 40px 40px 0 0; background: rgb(255 255 255 / .94); backdrop-filter: blur(10px); color: #229ed9; border-bottom: 1px solid #e6e6e9; }
+.tg-top div { line-height: 1.2; color: #111; }
+.tg-top b { display: block; font-size: 15px; font-weight: 600; }
+.tg-top small { font-size: 12px; color: #229ed9; }
+.tg-av { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(150deg, #8f88ff 0%, #5b50f0 55%, #4338ca 100%); color: #fff; }
+.tg-chat { flex: 1; overflow-y: auto; scrollbar-width: none; padding: 12px 10px 14px; display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; line-height: 1.45; color: #111;
+  background-color: #cfe4c4;
+  background-image: radial-gradient(circle at 20% 30%, rgb(255 255 255 / .35) 0 2px, transparent 3px), radial-gradient(circle at 70% 80%, rgb(255 255 255 / .3) 0 1.5px, transparent 2.5px), linear-gradient(160deg, #d8ecc8, #b9dcc2 55%, #a9d3cf);
+  background-size: 46px 46px, 38px 38px, 100% 100%; }
+.tg-chat::-webkit-scrollbar { display: none; }
+.tg-day { align-self: center; margin: 2px 0 4px; padding: 2px 10px; border-radius: 99px; background: rgb(0 0 0 / .18); color: #fff; font-size: 12px; font-weight: 500; }
+.tg-b { position: relative; align-self: flex-start; max-width: 88%; padding: 7px 10px 18px; border-radius: 16px 16px 16px 6px; background: #fff; box-shadow: 0 1px 1px rgb(0 0 0 / .12); animation: tgin .45s var(--ease) both; }
+.tg-b time { position: absolute; right: 9px; bottom: 4px; font-size: 10.5px; color: #8e8e93; }
+.tg-b b { font-weight: 600; }
+.tg-b i { color: #5b5b60; }
+.tg-b u { text-decoration-color: #229ed9; text-underline-offset: 2px; color: #1d8fd0; text-decoration-line: underline; }
+.tg-b .mono { font-family: 'Geist Mono Variable', ui-monospace, monospace; font-size: 12px; }
+.tg-b blockquote { margin: 6px 0 4px; padding: 4px 8px; border-left: 3px solid #229ed9; border-radius: 4px; background: #eef7fd; font-size: 12.5px; }
+.tg-b blockquote em { color: #8e8e93; font-style: normal; }
+.tg-b .ok { display: block; font-size: 11.5px; color: #137333; font-weight: 500; }
+.tg-b.typing { padding: 12px 14px; display: inline-flex; gap: 4px; }
+.tg-b.typing i { width: 7px; height: 7px; border-radius: 50%; background: #a1a1a6; animation: tgdot 1.1s ease-in-out infinite; }
+.tg-b.typing i:nth-child(2) { animation-delay: .15s; }
+.tg-b.typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes tgdot { 0%, 60%, 100% { transform: none; opacity: .5; } 30% { transform: translateY(-3px); opacity: 1; } }
+@keyframes tgin { from { opacity: 0; transform: translateY(8px) scale(.97); transform-origin: 0 100%; } }
+.tg-grp { display: grid; gap: 4px; align-self: flex-start; max-width: 88%; }
+.tg-grp .tg-b { max-width: 100%; }
+.tg-kb { display: grid; gap: 4px; animation: tgin .45s var(--ease) .1s both; }
+.tg-kb.two { grid-template-columns: 1.5fr 1fr; }
+.tg-kb.three { grid-template-columns: repeat(3, 1fr); }
+.tg-kb span { display: grid; place-items: center; height: 34px; padding: 0 6px; border-radius: 10px; background: rgb(0 0 0 / .2); backdrop-filter: blur(6px); color: #fff; font-size: 12.5px; font-weight: 500; white-space: nowrap; transition: background .2s, transform .2s; }
+.tg-kb span.tap { animation: tgtap .9s var(--ease) both; }
+@keyframes tgtap { 0% { transform: none; } 30% { transform: scale(.92); background: rgb(0 0 0 / .42); } 60% { transform: none; background: rgb(0 0 0 / .3); } 100% { background: rgb(0 0 0 / .2); } }
+.tg-input { display: flex; align-items: center; gap: 10px; margin-top: 0; padding: 10px 12px 16px; border-radius: 0 0 40px 40px; background: #fff; color: #a1a1a6; font-size: 14px; }
+.tg-input span { flex: 1; height: 36px; padding: 0 14px; border-radius: 99px; border: 1px solid #e6e6e9; display: flex; align-items: center; }
+.tg-input i { width: 36px; height: 36px; border-radius: 50%; background: #229ed9; }
+.tg-label { position: absolute !important; right: -6px; top: 64px; z-index: 4; padding: 4px 12px; border-radius: 99px; background: #fff; color: var(--muted); font-size: 12px; font-weight: 500; box-shadow: 0 10px 20px -10px rgb(0 0 0 / .35); transform: rotate(4deg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tg-b, .tg-kb, .tg-kb span.tap { animation: none; }
+}
+.lp .lp-lead { text-wrap: pretty; }

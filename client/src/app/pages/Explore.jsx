@@ -1,23 +1,56 @@
-import { forwardRef } from 'react';
-import { CalendarClock, Inbox, RefreshCw, Search, SlidersHorizontal, Sparkles, X } from 'lucide-react';
-import { LABELS, timeAgo } from '@/api';
+import { forwardRef, useEffect, useState } from 'react';
+import { ArrowRight, Banknote, CalendarClock, Inbox, RefreshCw, Rocket, Search, SlidersHorizontal, Sparkles, X } from 'lucide-react';
+import { api, LABELS, timeAgo } from '@/api';
 import { ROLES, ROLE, DEADLINES } from '@/lib/roles';
 import { compact } from '@/lib/format';
-import { Empty, RowsSkeleton, Select, Words, cx, useReveal } from '@/app/ui';
+import { Avatar, Empty, RowsSkeleton, Select, Words, cx, useReveal } from '@/app/ui';
 import { CompanyGroup, JobCard } from '@/app/jobs';
 import { BackedChips, KindToggle, RegionChips } from '@/app/scope';
 
 const TRY = ['react intern', 'python', 'machine learning', 'design', 'backend'];
 
+/** Startups with news worth mentioning: they just raised or launched. Tap one to see its roles. */
+function FreshRail({ onPick }) {
+  const [list, setList] = useState(null);
+  useEffect(() => { api.fresh(45, 14).then((r) => setList(r.startups)).catch(() => setList([])); }, []);
+  if (!list?.length) return null;
+  return (
+    <section className="rail rv" aria-label="Just raised">
+      <div className="rail-h">
+        <h2><Banknote /> Just raised or launched</h2>
+        <p>Fresh money usually means open seats. From Entrackr, Inc42, StartupTalky and YC.</p>
+      </div>
+      <div className="rail-track">
+        {list.map((c, i) => (
+          <button key={c.key} className="fresh pop" style={{ '--d': i }} onClick={() => onPick(c)}>
+            <div className="fr-top">
+              <Avatar name={c.name} size="sm" />
+              <b>{c.name}</b>
+              {c.ycBatch && <span className="tag yc" style={{ height: 22 }}><i className="y">Y</i>YC</span>}
+            </div>
+            <div className={cx('fr-sig', c.signal.kind)}>
+              {c.signal.kind === 'funding' ? <Banknote /> : <Rocket />}
+              <span><b>{c.signal.kind === 'funding' ? (c.signal.amount || 'Raised') : 'Launched'}</b>{c.signal.round ? ` · ${c.signal.round}` : ''}</span>
+            </div>
+            <div className="fr-foot">
+              <span>{LABELS.news[c.signal.source] || c.signal.source} · {timeAgo(c.signal.date)}</span>
+              <span className={c.roles ? 'roles' : 'noroles'}>{c.roles ? `${c.roles} open role${c.roles === 1 ? '' : 's'}` : 'Write to them'} <ArrowRight /></span>
+            </div>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function activeChips(f) {
   const chips = [];
-  if (f.type) chips.push(['type', f.type, f.type === 'programs' ? 'Programs only' : 'Company roles only']);
+  if (f.signal) chips.push(['signal', f.signal, f.signal === 'funded' ? 'Recently funded' : 'New this week']);
   if (f.deadline) chips.push(['deadline', f.deadline, DEADLINES.find((d) => d.id === f.deadline)?.label]);
   for (const k of f.category) chips.push(['category', k, ROLE[k]?.short]);
   for (const k of f.exp || []) chips.push(['exp', k, LABELS.exp[k]]);
   for (const k of f.lang) chips.push(['lang', k, k]);
   if (f.city) chips.push(['city', f.city, f.city]);
-  if (f.companyOnly) chips.push(['companyOnly', true, 'Verified pages only']);
   return chips;
 }
 
@@ -28,10 +61,10 @@ const Explore = forwardRef(function Explore(
 ) {
   const ref = useReveal(groups.length);
   const chips = activeChips(filters);
-  const advanced = chips.filter(([k]) => k !== 'category').length;
+  const advanced = chips.filter(([k]) => k !== 'category' && k !== 'signal').length;
   const visible = groups.filter((g) => !(g.count === 1 ? isHidden(withPatch(g.jobs[0])) : isHidden({ company: g.company })));
   const remove = ([field, value]) =>
-    setFilters((f) => ({ ...f, [field]: Array.isArray(f[field]) ? f[field].filter((x) => x !== value) : field === 'companyOnly' ? false : '' }));
+    setFilters((f) => ({ ...f, [field]: Array.isArray(f[field]) ? f[field].filter((x) => x !== value) : '' }));
   const toggleRole = (id) => setFilters((f) => ({ ...f, category: f.category.includes(id) ? f.category.filter((x) => x !== id) : [...f.category, id] }));
   const count = facets?.total;
   const noun = filters.kind === 'intern' ? 'internships' : filters.kind === 'job' ? 'jobs' : 'roles';
@@ -41,11 +74,11 @@ const Explore = forwardRef(function Explore(
     <div ref={ref}>
       <section className="hero photo">
         <div className="hero-photo" aria-hidden="true"><img src="/hero-sky.jpg" alt="" /></div>
-        <span className="eyebrow"><i className="dot" /> {facets?.newToday ? `${facets.newToday.toLocaleString('en-IN')} new today` : 'Updated every few hours'} · worldwide</span>
+        <span className="eyebrow"><i className="dot" /> {facets?.newToday ? `${facets.newToday.toLocaleString('en-IN')} new today` : 'Updated every morning'} · {facets?.companies ? `${compact(facets.companies)} startups and companies` : 'worldwide'}</span>
         <h1 key={`${filters.kind}-${count ?? 'x'}`} style={{ maxWidth: 900 }}>
           <Words text={`${count == null ? '' : `${compact(count)} `}open ${noun}. One search.`} mark="search." />
         </h1>
-        <p className="lead">Internships and early jobs from company careers pages and official programs, with last dates and scam filtering. Startups backed by Y Combinator and Techstars are one tap away.</p>
+        <p className="lead">Internships and early jobs read straight from startups’ own hiring pages and Y Combinator, scam-filtered. Every role comes with the founder to write to.</p>
         <label className="hero-search">
           <Search aria-hidden="true" />
           <span className="sr">Search {noun}</span>
@@ -58,10 +91,15 @@ const Explore = forwardRef(function Explore(
         </div>
       </section>
 
+      <FreshRail onPick={(c) => (c.roles ? set({ q: c.name, signal: '' }) : handlers.onDraftCompany?.(c))} />
+
       <div className="card deck">
         <div className="deck-top">
           <KindToggle value={filters.kind} onChange={(kind) => set({ kind })} counts={kindCounts} />
           <div className="right">
+            <button className="fchip" aria-pressed={filters.signal === 'funded'} onClick={() => set({ signal: filters.signal === 'funded' ? '' : 'funded' })}>
+              <Banknote /> Recently funded <span className="n tab">{facets?.funded || ''}</span>
+            </button>
             <button className="btn light" onClick={onOpenFilters}>
               <SlidersHorizontal /> Filters
               {advanced > 0 && <span className="tag ink" style={{ height: 22, padding: '0 8px' }}>{advanced}</span>}
@@ -112,10 +150,10 @@ const Explore = forwardRef(function Explore(
       ) : loading && !groups.length ? (
         <div className="card"><RowsSkeleton n={5} /></div>
       ) : visible.length === 0 ? (
-        facets?.total || facets?.ended ? (
+        facets?.total ? (
           <Empty icon={Search} title={`No ${noun} match`} action={<button className="btn dark" onClick={onReset}>Reset filters</button>}>Try another role, fewer languages, or a wider place.</Empty>
         ) : (
-          <Empty icon={Inbox} title="Nothing fetched yet">Listings are being fetched from every source. This takes a minute or two on first load.</Empty>
+          <Empty icon={Inbox} title="Nothing fetched yet">The first read of every job board runs in the background. Give it a few minutes.</Empty>
         )
       ) : (
         <div className="list">

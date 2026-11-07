@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  ArrowRight, Bookmark, FileText, GitBranch, Link2, Loader2, Lock, Mail, Plus, RotateCcw, ShieldCheck, Sparkles, Trash2, Upload, X,
+  Bookmark, FileText, GitBranch, Hammer, Link2, Loader2, Lock, Mail, Plus, RotateCcw, ShieldCheck, Sparkles, Trash2, Upload, X,
 } from 'lucide-react';
 import { api } from '@/api';
 import { ALL_SKILLS, EMPTY_PROFILE, hasProfile, linksFromText, looksLikeStudent, profileStore, rolesFromSkills, skillsFromGithub, skillsFromText, summaryFromText, textFromFile } from '@/lib/profile';
@@ -8,6 +8,35 @@ import { Empty, RowsSkeleton, Words, cx, toast, useReveal } from '@/app/ui';
 import { JobCard } from '@/app/jobs';
 import { BackedChips, KindToggle, RegionChips } from '@/app/scope';
 import { useAuth } from '@/app/auth';
+import { go } from '@/app/App';
+
+/** "One thing you built", in a sentence: the proof point every email uses. Never invented. */
+function Proofs({ proofs = [], onChange }) {
+  const [v, setV] = useState('');
+  const add = () => {
+    const t = v.replace(/\s+/g, ' ').trim();
+    if (t.length >= 12 && !proofs.includes(t)) onChange([...proofs, t].slice(0, 5));
+    setV('');
+  };
+  return (
+    <div className="src proofs">
+      <div className="src-h"><span className="tile"><Hammer /></span> Things you built <span className="tag got">{proofs.length || 'needed'}</span></div>
+      {proofs.map((p, i) => (
+        <div key={p} className="proof">
+          <span className="n">{i + 1}</span><span className="t">{p}</span>
+          <button aria-label="Remove" onClick={() => onChange(proofs.filter((x) => x !== p))}><X /></button>
+        </div>
+      ))}
+      {proofs.length < 5 && (
+        <div className="addskill">
+          <input className="mini" placeholder="e.g. Built a React app for our canteen, 600 students use it" aria-label="Something you built" value={v} onChange={(e) => setV(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), add())} />
+          <button className="btn dark icon" aria-label="Add" onClick={add} disabled={v.trim().length < 12}><Plus /></button>
+        </div>
+      )}
+      <p className="note" style={{ margin: 0 }}>One sentence each, with a real number if you have one. Emails quote these, and nothing else about you.</p>
+    </div>
+  );
+}
 
 const initialsOf = (p) => (p.github ? p.github.slice(0, 2) : (p.resumeName || 'Me').slice(0, 2)).toUpperCase();
 
@@ -120,6 +149,7 @@ function Builder({ profile, onDone, busy, setBusy }) {
         <p className="note" style={{ margin: 0 }}>Saved to use in your emails. We don’t scan these pages.</p>
       </div>
 
+      <Proofs proofs={draft.proofs || []} onChange={(proofs) => setDraft((d) => ({ ...d, proofs }))} />
       {draft.skills.length > 0 && <SkillEditor skills={draft.skills} onChange={(skills) => setDraft((d) => ({ ...d, skills }))} />}
       {error && <p className="res bad" style={{ margin: 0 }}>{error}</p>}
       <button className="btn lg dark" disabled={!ready || busy} onClick={finish}>
@@ -153,7 +183,7 @@ function SkillEditor({ skills, onChange }) {
 }
 
 /* ------------------------------------------------------------------ page */
-export default function ForYou({ version, onOpen, onTrack, onReport, onApply, facets }) {
+export default function ForYou({ version, onOpen, onTrack, onReport, onApply, onDraft, drafting, facets }) {
   const auth = useAuth();
   const [profile, setProfile] = useState(() => profileStore.get());
   const [editing, setEditing] = useState(() => !hasProfile(profileStore.get()));
@@ -161,7 +191,8 @@ export default function ForYou({ version, onOpen, onTrack, onReport, onApply, fa
   const [view, setView] = useState({ kind: profileStore.get().kind || '', backed: '', loc: profileStore.get().loc || [] });
   const [res, setRes] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [selected, setSelected] = useState(() => new Set(JSON.parse(localStorage.getItem('ih.selected') || '[]')));
+  const [selected, setSelected] = useState(() => { try { return new Set(JSON.parse(localStorage.getItem('ih.selected') || '[]')); } catch { return new Set(); } });
+  const [writing, setWriting] = useState(false);
   const ref = useReveal(res?.matches.length);
   const reqId = useRef(0);
 
@@ -187,7 +218,7 @@ export default function ForYou({ version, onOpen, onTrack, onReport, onApply, fa
     }
   }, []);
   useEffect(() => { if (hasProfile(profile) && !editing) run(profile, view); }, [profile, view, editing, version, run]);
-  useEffect(() => { localStorage.setItem('ih.selected', JSON.stringify([...selected])); }, [selected]);
+  useEffect(() => { try { localStorage.setItem('ih.selected', JSON.stringify([...selected])); } catch { /* private mode */ } }, [selected]);
 
   function saveProfile(p) {
     setProfile(p);
@@ -210,7 +241,21 @@ export default function ForYou({ version, onOpen, onTrack, onReport, onApply, fa
     if (!auth?.user) return auth?.requestSignIn('Sign in to save the roles you picked to your tracker.');
     let n = 0;
     for (const j of picked) if (!j.status) { await onTrack(j, 'saved'); n++; }
-    toast(n ? `Saved ${n} role${n === 1 ? '' : 's'} to your tracker` : 'They’re all saved already');
+    toast(n ? `Saved ${n} role${n === 1 ? '' : 's'} to your pipeline` : 'They’re all saved already');
+  }
+  async function writeEmails() {
+    if (!auth?.user) return auth?.requestSignIn('Sign in so the emails can use your profile. You review every one before it’s sent.');
+    setWriting(true);
+    try {
+      const r = await api.drafts.batch(picked.slice(0, 10).map((j) => j.id));
+      setSelected(new Set());
+      toast(`${r.drafts.length} email${r.drafts.length === 1 ? '' : 's'} ready to review`, { description: r.errors.length ? `${r.errors.length} couldn’t be written` : 'Nothing is sent until you approve each one.' });
+      go(r.drafts[0] ? `drafts/${r.drafts[0].id}` : 'drafts');
+    } catch (e) {
+      toast(e.message);
+    } finally {
+      setWriting(false);
+    }
   }
 
   const profiled = hasProfile(profile) && !editing;
@@ -222,7 +267,7 @@ export default function ForYou({ version, onOpen, onTrack, onReport, onApply, fa
         <div className="hero-photo" aria-hidden="true"><img src="/hero-sky.jpg" alt="" /></div>
         <span className="eyebrow"><i className="dot" /> {profiled ? 'Matched to your skills' : 'Takes about a minute'}</span>
         <h1 style={{ maxWidth: 860 }}><Words text="Curated for you, from your own work" mark="you," /></h1>
-        <p className="lead">Share your resume, GitHub or portfolio once. We read the skills, rank every open internship and job against them, and show why each one fits.</p>
+        <p className="lead">Share your resume, GitHub or portfolio once. We rank every open role against it, say why each one fits, and write the email to the founder for the ones you pick.</p>
       </section>
 
       <div className="fy">
@@ -237,6 +282,7 @@ export default function ForYou({ version, onOpen, onTrack, onReport, onApply, fa
                 </div>
               </div>
               {profile.summary && <p style={{ fontSize: 14, color: 'var(--ink2)' }}>{profile.summary}</p>}
+              <Proofs proofs={profile.proofs || []} onChange={(proofs) => saveProfile({ ...profile, proofs })} />
               <div className="skills">
                 {profile.skills.slice(0, 18).map((s) => <span key={s} className="skill" style={{ paddingRight: 12 }}>{s}</span>)}
                 {profile.skills.length > 18 && <span className="tag">+{profile.skills.length - 18}</span>}
@@ -258,7 +304,7 @@ export default function ForYou({ version, onOpen, onTrack, onReport, onApply, fa
             <>
               <div>
                 <h3>Build your profile</h3>
-                <p className="sub">Use any of these. More is better.</p>
+                <p className="sub">Use any of these. The more real detail, the better your emails.</p>
               </div>
               <Builder profile={profile} onDone={saveProfile} busy={busy} setBusy={setBusy} />
               {hasProfile(profile) && <button className="linkbtn" onClick={() => setEditing(false)}>Cancel</button>}
@@ -307,7 +353,7 @@ export default function ForYou({ version, onOpen, onTrack, onReport, onApply, fa
               ) : (
                 <div className="list" style={{ opacity: loading ? 0.6 : 1, transition: 'opacity .2s' }}>
                   {matches.map((job, i) => (
-                    <JobCard key={job.id} i={i} job={job} match={{ fit: job.fit, why: job.why }} selected={selected.has(job.id)} onSelect={toggleSelect} onOpen={onOpen} onTrack={onTrack} onReport={onReport} onApply={onApply} />
+                    <JobCard key={job.id} i={i} job={job} match={{ fit: job.fit, why: job.why }} selected={selected.has(job.id)} onSelect={toggleSelect} onOpen={onOpen} onTrack={onTrack} onReport={onReport} onApply={onApply} onDraft={onDraft} drafting={drafting} />
                   ))}
                 </div>
               )}
@@ -315,8 +361,8 @@ export default function ForYou({ version, onOpen, onTrack, onReport, onApply, fa
                 <div className="tray" role="region" aria-label="Selected roles">
                   <div className="tx"><b>{picked.length} role{picked.length === 1 ? '' : 's'} selected</b><span>{picked.slice(0, 3).map((j) => j.company).join(', ')}{picked.length > 3 ? ` +${picked.length - 3}` : ''}</span></div>
                   <button className="btn light" onClick={() => setSelected(new Set())}>Clear</button>
-                  <button className="btn light" onClick={saveSelected}><Bookmark /> Save to tracker</button>
-                  <span className="soon"><Mail size={16} /> Write the emails <i>Coming soon</i></span>
+                  <button className="btn light" onClick={saveSelected}><Bookmark /> Save</button>
+                  <button className="btn mint" onClick={writeEmails} disabled={writing}>{writing ? <Loader2 className="spin" /> : <Mail />} {writing ? 'Writing…' : `Write ${Math.min(picked.length, 10)} email${picked.length === 1 ? '' : 's'}`}</button>
                 </div>
               )}
             </>

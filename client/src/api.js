@@ -15,41 +15,75 @@ async function request(path, options = {}) {
   if (!res.ok && res.status !== 202) {
     const err = new Error(body.error || body.message || `Request failed (${res.status})`);
     err.status = res.status;
+    err.code = body.code;
     err.body = body;
     throw err;
   }
   return body;
 }
+const post = (path, body) => request(path, { method: 'POST', body: JSON.stringify(body || {}) });
+const patch = (path, body) => request(path, { method: 'PATCH', body: JSON.stringify(body || {}) });
+const del = (path) => request(path, { method: 'DELETE' });
 
 export const api = {
+  config: () => request('/config'),
   jobs: (params) => request(`/jobs?${new URLSearchParams(params)}`),
+  job: (id) => request(`/jobs/${encodeURIComponent(id)}`),
   facets: (kind = 'all') => request(`/facets?kind=${kind}`),
-  match: (body) => request('/match', { method: 'POST', body: JSON.stringify(body) }),
+  meta: () => request('/meta'),
+  fresh: (days = 30, limit = 24) => request(`/fresh?days=${days}&limit=${limit}`),
+  match: (body) => post('/match', body),
+  refresh: () => post('/refresh'),
+  add: (url, name) => post('/add', { url, name }),
+  report: (id, reason) => post(`/jobs/${encodeURIComponent(id)}/report`, { reason }),
+  blocked: () => request('/blocked'),
+  unblock: (key) => del(`/blocked/${encodeURIComponent(key)}`),
+  track: (id, status, notes = '') => request(`/jobs/${encodeURIComponent(id)}/track`, { method: 'PUT', body: JSON.stringify({ status, notes }) }),
+  untrack: (id) => del(`/jobs/${encodeURIComponent(id)}/track`),
+  company: (key) => request(`/companies/${encodeURIComponent(key)}`),
+  findContacts: (key, verify = false) => post(`/companies/${encodeURIComponent(key)}/contacts`, { verify }),
   profile: {
     get: () => request('/profile'),
     save: (profile) => request('/profile', { method: 'PUT', body: JSON.stringify({ profile }) }),
-    remove: () => request('/profile', { method: 'DELETE' }),
+    remove: () => del('/profile'),
   },
-  job: (id) => request(`/jobs/${encodeURIComponent(id)}`),
-  meta: () => request('/meta'),
-  refresh: () => request('/refresh', { method: 'POST' }),
-  report: (id, reason) => request(`/jobs/${encodeURIComponent(id)}/report`, { method: 'POST', body: JSON.stringify({ reason }) }),
-  blocked: () => request('/blocked'),
-  programs: () => request('/programs'),
-  add: (url, name) => request('/add', { method: 'POST', body: JSON.stringify({ url, name }) }),
-  removeProgram: (id) => request(`/programs/${encodeURIComponent(id)}`, { method: 'DELETE' }),
-  checkPrograms: () => request('/programs/check', { method: 'POST' }),
-  unblock: (key) => request(`/blocked/${encodeURIComponent(key)}`, { method: 'DELETE' }),
-  track: (id, status, notes = '') =>
-    request(`/jobs/${encodeURIComponent(id)}/track`, { method: 'PUT', body: JSON.stringify({ status, notes }) }),
-  untrack: (id) => request(`/jobs/${encodeURIComponent(id)}/track`, { method: 'DELETE' }),
+  drafts: {
+    list: (status = '') => request(`/drafts${status ? `?status=${status}` : ''}`),
+    get: (id) => request(`/drafts/${id}`),
+    create: (body) => post('/drafts', body),
+    batch: (jobIds) => post('/drafts/batch', { jobIds }),
+    edit: (id, body) => patch(`/drafts/${id}`, body),
+    approve: (id, mode = 'send') => post(`/drafts/${id}/approve`, { mode }),
+    skip: (id) => post(`/drafts/${id}/skip`),
+    replied: (id) => post(`/drafts/${id}/replied`),
+  },
+  pipeline: () => request('/pipeline'),
+  me: {
+    get: () => request('/me'),
+    update: (body) => patch('/me', body),
+    remove: () => del('/me'),
+    exportUrl: '/api/me/export',
+  },
+  gmail: { connect: () => request('/gmail/connect'), disconnect: () => del('/gmail') },
+  telegram: { link: () => post('/telegram/link'), unlink: () => del('/telegram/link') },
+  waitlist: (email, kind = 'pro') => post('/waitlist', { email, kind }),
   auth: {
     config: () => request('/auth/config'),
     me: () => request('/auth/me'),
-    google: (credential) => request('/auth/google', { method: 'POST', body: JSON.stringify({ credential }) }),
-    logout: () => request('/auth/logout', { method: 'POST' }),
+    google: (credential) => post('/auth/google', { credential }),
+    logout: () => post('/auth/logout'),
   },
 };
+
+/** Download my data as a JSON file (needs the session header, so it goes through fetch). */
+export async function downloadMyData() {
+  const res = await fetch(api.me.exportUrl, { headers: { Authorization: `Bearer ${session.get()}` } });
+  if (!res.ok) throw new Error('Couldn’t export your data');
+  const url = URL.createObjectURL(await res.blob());
+  const a = Object.assign(document.createElement('a'), { href: url, download: 'knockd-my-data.json' });
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
 export const LABELS = {
   level: { intern: 'Internship', job: 'Job' },
@@ -58,17 +92,17 @@ export const LABELS = {
     india_onsite: 'India · on-site/hybrid', remote_india: 'Remote · India/APAC', remote_worldwide: 'Remote · worldwide',
     remote_region: 'Remote · one region', abroad_onsite: 'Outside India · on-site',
   },
-  status: { saved: 'Saved', applied: 'Applied', interview: 'Interviewing', offer: 'Offer', rejected: 'Rejected', no_reply: 'No reply' },
+  status: {
+    saved: 'Saved', drafted: 'Drafted', applied: 'Sent', replied: 'Replied', interview: 'Interviewing', offer: 'Offer',
+    rejected: 'Rejected', no_reply: 'No reply',
+  },
   trust: {
-    company: { label: 'Company careers page', hint: 'Read directly from the company’s own hiring system' },
-    board: { label: 'Job board', hint: 'Posted on a paid or curated job board — check the company before applying' },
-    community: { label: 'HN community post', hint: 'Posted by someone at the company on Hacker News — unverified' },
+    company: { label: 'Company’s own hiring page', hint: 'Read directly from the company’s own hiring system' },
   },
   flags: {
     open_long: 'Open 45+ days — may be a ghost job',
     reposted: 'Reposted after closing',
     thin_description: 'Very short description',
-    deadline_estimated: 'Last date is the usual one — confirm on the official page',
     region_locked: 'May need work authorisation in a specific country',
   },
   reportReasons: {
@@ -79,16 +113,24 @@ export const LABELS = {
   },
   source: {
     greenhouse: 'Greenhouse', lever: 'Lever', ashby: 'Ashby', workable: 'Workable', recruitee: 'Recruitee',
-    personio: 'Personio', smartrecruiters: 'SmartRecruiters', workday: 'Workday', amazon: 'amazon.jobs',
-    microsoft: 'Microsoft Careers', hn: 'HN Who is Hiring',
-    weworkremotely: 'We Work Remotely', remotive: 'Remotive', remoteok: 'Remote OK',
-    workingnomads: 'Working Nomads', themuse: 'The Muse', program: 'Official program page',
+    smartrecruiters: 'SmartRecruiters', yc: 'Y Combinator',
   },
+  news: { entrackr: 'Entrackr', inc42: 'Inc42', startuptalky: 'StartupTalky', yc: 'YC' },
+  email: {
+    verified: { label: 'Verified', tone: 'mint' },
+    unverified: { label: 'Found, not verified', tone: 'blue' },
+    on_site: { label: 'On their website', tone: 'blue' },
+    guess: { label: 'Best guess', tone: 'butter' },
+    user: { label: 'Added by you', tone: 'mint' },
+    none: { label: 'No email yet', tone: 'red' },
+  },
+  contactSource: { yc_page: 'YC company page', company_site: 'their website', apify: 'email finder', user: 'you' },
 };
 
 export function timeAgo(iso) {
   if (!iso) return '';
   const s = (Date.now() - Date.parse(iso)) / 1000;
+  if (s < 0) return 'soon';
   if (s < 60) return 'just now';
   if (s < 3600) return `${Math.floor(s / 60)}m ago`;
   if (s < 86400) return `${Math.floor(s / 3600)}h ago`;

@@ -9,10 +9,19 @@ export const cx = (...a) => a.filter(Boolean).join(' ');
 export const reduced = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ------------------------------------------------------------------ brand */
+/** The Knockd "K": a door frame (the stem) and two strokes knocking on it. */
 export function LogoMark({ size = 15 }) {
   return (
     <svg viewBox="0 0 32 32" width={size} height={size} aria-hidden="true">
-      <path d="M9 23V9h3v14zm6 0V9h3l4.2 8.1V9H25v14h-2.8L18 14.9V23z" fill="currentColor" />
+      <path d="M9 7.5h3.4v7.2L19.3 7.5h4.5l-7.4 7.6 7.8 9.4h-4.5l-5.7-7-1.6 1.7v5.3H9z" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function TelegramIcon({ size = 18 }) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true" fill="currentColor">
+      <path d="M21.9 4.6 18.6 20c-.2 1.1-.9 1.4-1.8.9l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.1L18 6.6c.4-.4-.1-.6-.6-.2L6 13.6l-4.9-1.5c-1.1-.3-1.1-1.1.2-1.6L20.6 3c.9-.3 1.7.2 1.3 1.6z" />
     </svg>
   );
 }
@@ -120,20 +129,28 @@ export function Empty({ icon: Icon, title, children, action }) {
 }
 
 /* ------------------------------------------------------------------ reveal on scroll */
+// Marks an element as shown with both the `in` class and a `data-in` attribute. React rewrites `className`
+// whenever a component re-renders (and would drop `in`), but it never touches an attribute it didn't set,
+// so `[data-in]` keeps the element visible (app.css / landing.css).
+export const markShown = (n) => {
+  n.classList.add('in');
+  n.setAttribute('data-in', '');
+};
+
 export function useReveal(dep) {
   const ref = useRef(null);
   useEffect(() => {
     const root = ref.current;
     if (!root) return;
     if (reduced()) {
-      root.querySelectorAll('.rv').forEach((n) => n.classList.add('in'));
+      root.querySelectorAll('.rv').forEach(markShown);
       return;
     }
     const io = new IntersectionObserver(
-      (es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }),
+      (es) => es.forEach((e) => { if (e.isIntersecting) { markShown(e.target); io.unobserve(e.target); } }),
       { threshold: 0.08, rootMargin: '0px 0px -6% 0px' }
     );
-    const scan = () => root.querySelectorAll('.rv:not(.in)').forEach((n) => io.observe(n));
+    const scan = () => root.querySelectorAll('.rv:not([data-in])').forEach((n) => io.observe(n));
     scan();
     const mo = new MutationObserver(scan);
     mo.observe(root, { childList: true, subtree: true });

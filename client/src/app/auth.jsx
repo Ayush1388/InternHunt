@@ -1,10 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { LogOut, UserRound } from 'lucide-react';
+import { LogOut, Settings, UserRound } from 'lucide-react';
 import { api, session } from '@/api';
 import { Layer, Menu, toast } from '@/app/ui';
 
 // Google sign-in: Google Identity Services renders its own button and hands us a signed ID token,
-// which the server checks and swaps for an InternHunt session token (kept in localStorage).
+// which the server checks and swaps for an Knockd session token (kept in localStorage).
 const AuthContext = createContext(null);
 
 let gisLoading = null;
@@ -72,8 +72,8 @@ export function AuthProvider({ children }) {
       {children}
       <Layer open={dialog.open} onClose={() => setDialog((d) => ({ ...d, open: false }))} label="Sign in">
         <span className="m-ico"><UserRound /></span>
-        <h2>Sign in to InternHunt</h2>
-        <p className="sub">{dialog.reason || 'Keep your own saved roles and application tracker, on any device.'}</p>
+        <h2>Sign in to Knockd</h2>
+        <p className="sub">{dialog.reason || 'Write to founders with emails you approve, and keep your pipeline on any device.'}</p>
         <div style={{ marginTop: 22 }}>
           {clientId ? (
             dialog.open && <GoogleButton clientId={clientId} onCredential={onCredential} />
@@ -81,7 +81,7 @@ export function AuthProvider({ children }) {
             <p className="res bad" style={{ marginTop: 0 }}>Sign-in isn’t set up on this server yet (GOOGLE_CLIENT_ID is missing).</p>
           )}
         </div>
-        <p className="note">We only use your name and email to keep your tracker. Browsing never needs an account.</p>
+        <p className="note">We use your name and email for your account. Browsing never needs one. Gmail is a separate, optional step.</p>
       </Layer>
     </AuthContext.Provider>
   );
@@ -125,6 +125,7 @@ export function NavAccount() {
     >
       <h6>{user.name}<br />{user.email}</h6>
       <hr />
+      <button role="menuitem" onClick={() => { window.location.hash = '#/app/settings'; }}><Settings /> Settings</button>
       <button role="menuitem" onClick={signOut}><LogOut /> Sign out</button>
     </Menu>
   );

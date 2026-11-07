@@ -1,4 +1,4 @@
-# InternHunt design system
+# Knockd design system
 
 One look for the landing page and the app. The landing page (`client/src/Landing.jsx`, `landing.css`) is the benchmark; the app (`client/src/app/`) reuses its tokens and pieces. The palette was taken from a `/taste` analysis of backdoorai.app (see `backdoorai.app.md`), the layout and copy are our own.
 
@@ -17,7 +17,8 @@ One look for the landing page and the app. The landing page (`client/src/Landing
 | `--muted` | `#6e6e72` | secondary text |
 | `--line` | `#e9e9eb` | hairlines, card borders |
 | `--bg2` / `--bg3` | `#f5f4f1` / `#ebe9e3` | chips, inactive controls, hover |
-| `--sky` | `#3aa5f6` | accent (logo, underline, focus of "primary blue" moments) |
+| `--brand` | `#5b50f0` (gradient `#8f88ff → #5b50f0 → #4338ca`) | the logo, draft counts, “why this fits” notes |
+| `--sky` | `#3aa5f6` | the hand-drawn underline (it matches the sky photo) |
 | `--t-peach/blue/butter/mint/lilac/pink/red` | pastel tints | tiles, tags, avatars |
 | `--green`, `--red` | `#1e8e3e`, `#d93025` | open / closing, Gmail-style highlights |
 | `--ease` | `cubic-bezier(.22,1,.36,1)` | all movement |
@@ -38,7 +39,13 @@ Type: Geist (variable) for everything, Geist Mono for code-like chips, Caveat on
 | Explore | every internship and job, worldwide | photo hero with a big search; one control deck (All / Internships / Jobs, Backed by YC or Techstars, Where, Role); results as company cards |
 | For you | roles ranked against your resume, GitHub or portfolio | sticky profile builder on the left (three sources, editable skills), matches with a fit score and reasons on the right, a dark selection tray |
 | Who's recruiting | coming soon | explanation, example list, early-access form |
-| Tracker | your applications | goal ring, streak, status tiles, list |
+| Drafts | review and approve emails | list on the left; editor on the right with recipient (labelled verified / on site / best guess), subject, body, live checks, the facts used, Approve and send |
+| Pipeline | everything you found, drafted, sent | stat tiles, a board with Found, Drafted, Sent, Replied, Interview (drag between columns) |
+| Settings | Telegram, Gmail, limits, data | one card per topic; delete needs typing “delete” |
+
+## Landing additions
+- The Telegram section (`#telegram`, `landing-tg.css`) plays an example chat: typing dots, a pick, a draft with SEND / EDIT / SKIP, then “sent”. It is labelled “Example chat”.
+- Reveal-on-scroll marks elements with both `.in` and `[data-in]`; React can drop the class on re-render but never the attribute, so nothing that has appeared can vanish again (the FAQ bug).
 
 ## Rules for new pages
 1. Start from `.hero` and a headline with one `mark` word.

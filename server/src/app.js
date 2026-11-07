@@ -343,6 +343,17 @@ app.get('/api/admin/stats', cronOnly, wrap(async (req, res) => {
 
 app.get('/api/categories', (req, res) => res.json(CATEGORIES));
 
+// Local development only (DEV_LOGIN=1, never on Vercel): sign in as a test user without Google.
+if (process.env.DEV_LOGIN === '1' && !process.env.VERCEL) {
+  app.post('/api/dev/login', wrap(async (req, res) => {
+    const { randomId, sha256 } = await import('./lib/secrets.js');
+    await q("INSERT INTO users (id, email, name) VALUES ('dev', 'dev@example.com', 'Riya Sharma') ON CONFLICT (id) DO NOTHING");
+    const token = randomId(24);
+    await q("INSERT INTO sessions (token_hash, user_id, expires_at) VALUES ($1, 'dev', now() + interval '7 days')", [sha256(token)]);
+    res.json({ token });
+  }));
+}
+
 app.use('/api', (req, res) => res.status(404).json({ error: 'Not found' }));
 app.use((err, req, res, next) => {
   if (res.headersSent) return console.error(err);

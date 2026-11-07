@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { BadgeCheck, Check, Newspaper, Radar, Rocket, Sparkles } from 'lucide-react';
+import { api } from '@/api';
 import { Avatar, Words, toast, useReveal } from '@/app/ui';
 
 // Planned features (see project.md). Honest previews, labelled as examples, plus the early-access list.
@@ -9,9 +10,9 @@ const CONTENT = {
     title: 'Who’s recruiting',
     words: 'Hiring directly, right here',
     mark: 'directly,',
-    lead: 'Founders and teams who post a role on InternHunt and hire without a middleman, plus startups that just raised or launched, before the role is on any job board.',
+    lead: 'Founders and teams who post a role on Knockd and hire without a middleman, plus startups that just raised or launched, before the role is on any job board.',
     points: [
-      [Rocket, 'Hiring directly on InternHunt', 'Founders post a role here and reach students straight away. No agencies, no fees for candidates.'],
+      [Rocket, 'Hiring directly on Knockd', 'Founders post a role here and reach students straight away. No agencies, no fees for candidates.'],
       [Newspaper, 'Fresh funding and launches', 'Funding roundups, Product Hunt launches, YC and GitHub, checked every day, anywhere in the world.'],
       [Sparkles, 'Matched to you', 'Ranked by your skills, with the reason shown. Apply, or approve a short email to the founder.'],
     ],
@@ -20,7 +21,7 @@ const CONTENT = {
 
 const PREVIEW = [
   ['Lumen Labs', 'Raised a seed round · 2 days ago', 'ML intern fit', 'mint'],
-  ['Orbit Pay', 'Posted a role on InternHunt · today', 'Backend fit', 'blue'],
+  ['Orbit Pay', 'Posted a role on Knockd · today', 'Backend fit', 'blue'],
   ['Paperkite', 'Launched on Product Hunt · this week', 'Design fit', 'butter'],
   ['Kiln', 'Raised a pre-seed · 4 days ago', 'Growth fit', 'peach'],
 ];
@@ -60,9 +61,11 @@ function Waitlist({ feature }) {
       onSubmit={(e) => {
         e.preventDefault();
         if (!/^\S+@\S+\.\S+$/.test(email)) return setErr('That email doesn’t look right.');
-        try { localStorage.setItem('ih.waitlist', email.trim()); } catch { /* private mode */ }
-        setSaved(email.trim());
-        toast('You’re on the list', { description: `We’ll email you when ${feature} opens.` });
+        api.waitlist(email.trim(), 'recruiting').then(() => {
+          try { localStorage.setItem('ih.waitlist', JSON.stringify(email.trim())); } catch { /* private mode */ }
+          setSaved(email.trim());
+          toast('You’re on the list', { description: `We’ll email you when ${feature} opens.` });
+        }).catch((x) => setErr(x.message));
       }}
     >
       <div className="wait">

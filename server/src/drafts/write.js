@@ -9,6 +9,8 @@ import { skillRe } from '../lib/skills.js';
 const SOURCE_NAME = { entrackr: 'Entrackr', inc42: 'Inc42', startuptalky: 'StartupTalky', yc: 'YC' };
 const pick = (arr, rand) => arr[Math.floor(rand() * arr.length)];
 const lc = (s) => (s ? s[0].toLowerCase() + s.slice(1) : s);
+// YC launch titles look like 'Runtime: Robots that think in simulation'; the part after the colon is the news.
+const launchTitle = (t = '') => { const m = /^([^:–—]{1,40})[:–—]\s*(.{8,})$/.exec(String(t).trim()); return m ? m[2] : t; };
 const roundWord = (r) => (/^series/i.test(r) ? r : r.toLowerCase());
 const trimDot = (s) => String(s || '').trim().replace(/[.\s]+$/, '');
 
@@ -66,7 +68,7 @@ export function templateEmail(facts, rand = Math.random) {
   const hello = `${pick(['Hi', 'Hey'], rand)} ${facts.to.firstName || 'there'},`;
   const opener = {
     funding: () => pick([`Saw on ${f.source} that ${co} raised ${f.amount || 'a new round'}${f.round ? ` in its ${roundWord(f.round)} round` : ''}. Congrats.`, `Congrats on the ${f.amount ? `${f.amount} ` : ''}${f.round ? `${roundWord(f.round)} round` : 'raise'}, I read about it on ${f.source}.`], rand),
-    launch: () => `Saw the launch: ${lc(trimDot(f.title))}. Nice work getting it out.`,
+    launch: () => `Saw the launch: ${lc(trimDot(launchTitle(f.title)))}. Nice work getting it out.`,
     yc: () => pick([`${co} caught my eye in the YC ${f.batch} list: ${lc(trimDot(f.oneLiner))}.`, `I've been reading about ${co} from YC ${f.batch}. ${trimDot(f.oneLiner)} is a problem worth working on.`], rand),
     role: () => `I saw ${co} is hiring for a ${f.title}.`,
     about: () => `${trimDot(f.oneLiner)} is the kind of product I'd like to help build.`,

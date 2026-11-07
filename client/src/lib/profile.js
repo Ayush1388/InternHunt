@@ -107,7 +107,7 @@ export async function skillsFromGithub(user) {
 
 /* ------------------------------------------------------------------ saved profile */
 const KEY = 'ih.profile';
-export const EMPTY_PROFILE = { skills: [], roles: [], kind: '', loc: [], github: '', portfolio: '', linkedin: '', summary: '', resumeName: '' };
+export const EMPTY_PROFILE = { skills: [], roles: [], kind: '', loc: [], github: '', portfolio: '', linkedin: '', summary: '', resumeName: '', proofs: [] };
 export const profileStore = {
   get: () => ({ ...EMPTY_PROFILE, ...store.get(KEY, {}) }),
   set: (p) => store.set(KEY, p),
