@@ -80,7 +80,7 @@ export async function downloadMyData() {
   const res = await fetch(api.me.exportUrl, { headers: { Authorization: `Bearer ${session.get()}` } });
   if (!res.ok) throw new Error('Couldn’t export your data');
   const url = URL.createObjectURL(await res.blob());
-  const a = Object.assign(document.createElement('a'), { href: url, download: 'knockd-my-data.json' });
+  const a = Object.assign(document.createElement('a'), { href: url, download: 'doorstep-my-data.json' });
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

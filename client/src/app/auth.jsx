@@ -4,7 +4,7 @@ import { api, session } from '@/api';
 import { Layer, Menu, toast } from '@/app/ui';
 
 // Google sign-in: Google Identity Services renders its own button and hands us a signed ID token,
-// which the server checks and swaps for an Knockd session token (kept in localStorage).
+// which the server checks and swaps for an Doorstep session token (kept in localStorage).
 const AuthContext = createContext(null);
 
 let gisLoading = null;
@@ -72,7 +72,7 @@ export function AuthProvider({ children }) {
       {children}
       <Layer open={dialog.open} onClose={() => setDialog((d) => ({ ...d, open: false }))} label="Sign in">
         <span className="m-ico"><UserRound /></span>
-        <h2>Sign in to Knockd</h2>
+        <h2>Sign in to Doorstep</h2>
         <p className="sub">{dialog.reason || 'Write to founders with emails you approve, and keep your pipeline on any device.'}</p>
         <div style={{ marginTop: 22 }}>
           {clientId ? (

@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 
 process.env.PGLITE_DIR = 'memory://';
 process.env.TELEGRAM_BOT_TOKEN = 'test-token';
-process.env.TELEGRAM_BOT_USERNAME = 'knockd_test_bot';
+process.env.TELEGRAM_BOT_USERNAME = 'doorstep_test_bot';
 process.env.DISABLE_AUTO_REFRESH = '1';
 delete process.env.GEMINI_API_KEY;
 delete process.env.DATABASE_URL;
@@ -203,7 +203,7 @@ test('Telegram: onboarding, picks, write the email, skip; webhook needs the secr
 
 test('linking Telegram to the web account folds in the chat account', async () => {
   const link = await call('/api/telegram/link', { method: 'POST' });
-  assert.match(link.body.url, /^https:\/\/t\.me\/knockd_test_bot\?start=L/);
+  assert.match(link.body.url, /^https:\/\/t\.me\/doorstep_test_bot\?start=L/);
   await call('/api/telegram/webhook', {
     method: 'POST', auth: false, headers: { 'X-Telegram-Bot-Api-Secret-Token': webhookSecret() },
     body: { message: { message_id: 2, chat: { id: 777, type: 'private' }, from: { id: 777 }, text: `/start ${link.body.code}` } },

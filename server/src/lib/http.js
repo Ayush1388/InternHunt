@@ -1,6 +1,6 @@
 // Small fetch wrapper: timeout, one retry on rate limits / server errors, polite User-Agent.
 
-const UA = 'Knockd/1.0 (startup job finder)';
+const UA = 'Doorstep/1.0 (startup job finder)';
 
 export class HttpError extends Error {
   constructor(status, url) {

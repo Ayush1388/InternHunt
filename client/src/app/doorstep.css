@@ -1,14 +1,14 @@
-/* Knockd additions to the app design (app.css): brand colour, drafts, pipeline board, settings, startup signals,
+/* Doorstep additions to the app design (app.css): brand colour, drafts, pipeline board, settings, startup signals,
    founders, Telegram. Same tokens, radii and motion as the rest. */
-.ih, .ih-layer { --brand: #5b50f0; --brand-ink: #3b32c4; --brand-t: #eeedff; --brand-g: linear-gradient(150deg, #8f88ff 0%, #5b50f0 55%, #4338ca 100%); }
+.ih, .ih-layer { --brand: #3aa5f6; --brand-ink: #0842a0; --brand-t: #eaf2fe; --brand-g: linear-gradient(#62bffb, #3aa5f6); }
 
 /* Reveal that survives re-renders (see markShown in ui.jsx). */
 .rv[data-in] { opacity: 1; transform: none; }
-.logo-mark { box-shadow: inset 0 1px 0 rgb(255 255 255 / .4), 0 6px 14px -6px rgb(91 80 240 / .8); }
+.logo-mark { box-shadow: inset 0 1px 0 rgb(255 255 255 / .4), 0 6px 14px -6px rgb(58 165 246 / .8); }
 
 .btn.mint { background: linear-gradient(#25a04a, #1a8a3c); color: #fff; box-shadow: inset 0 1px 0 rgb(255 255 255 / .22), 0 12px 24px -12px rgb(30 142 62 / .6); }
 .btn.mint:hover { box-shadow: inset 0 1px 0 rgb(255 255 255 / .26), 0 18px 30px -12px rgb(30 142 62 / .65); }
-.btn.brand { background: var(--brand-g); color: #fff; box-shadow: inset 0 1px 0 rgb(255 255 255 / .25), 0 12px 24px -12px rgb(91 80 240 / .6); }
+.btn.brand { background: var(--brand-g); color: #fff; box-shadow: inset 0 1px 0 rgb(255 255 255 / .25), 0 12px 24px -12px rgb(58 165 246 / .6); }
 .btn.tgb { height: 48px; padding: 0 22px; background: linear-gradient(#37b6f3, #229ed9); color: #fff; box-shadow: inset 0 1px 0 rgb(255 255 255 / .25), 0 12px 24px -12px rgb(34 158 217 / .6); }
 .btn.danger { background: linear-gradient(#e2483d, #c5221f); }
 .btn.ghost.red { color: var(--red); }
@@ -29,7 +29,7 @@ a.btn.off { opacity: .45; pointer-events: none; }
 
 /* signals on cards */
 .tag.sig { background: linear-gradient(90deg, #e9f8ee, #f3fbf5); color: var(--green-ink); box-shadow: inset 0 0 0 1px rgb(30 142 62 / .14); }
-.tag.sig.launch { background: var(--brand-t); color: var(--brand-ink); box-shadow: inset 0 0 0 1px rgb(91 80 240 / .15); }
+.tag.sig.launch { background: var(--brand-t); color: var(--brand-ink); box-shadow: inset 0 0 0 1px rgb(58 165 246 / .15); }
 .job-head .co > span { display: block; overflow: hidden; }
 .job-head .co .one { font-style: normal; display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fit { align-items: flex-start; flex-wrap: nowrap; gap: 10px; padding: 10px 12px; border-radius: 16px; background: #fff; border: 1px solid var(--line); }
@@ -122,7 +122,7 @@ a.btn.off { opacity: .45; pointer-events: none; }
 .why-note { display: flex; gap: 8px; align-items: flex-start; padding: 10px 14px; border-radius: 16px; background: var(--brand-t); color: var(--brand-ink); font-size: 13.5px; }
 .why-note svg { width: 15px; height: 15px; flex: none; margin-top: 3px; }
 .mailbox { border-radius: 22px; border: 1px solid var(--line); background: #fff; overflow: hidden; box-shadow: 0 30px 60px -44px rgb(0 0 0 / .45); transition: box-shadow .3s, border-color .2s; }
-.mailbox:focus-within { border-color: #cfcfd3; box-shadow: 0 0 0 4px rgb(91 80 240 / .07), 0 30px 60px -44px rgb(0 0 0 / .45); }
+.mailbox:focus-within { border-color: #cfcfd3; box-shadow: 0 0 0 4px rgb(58 165 246 / .07), 0 30px 60px -44px rgb(0 0 0 / .45); }
 .mrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 10px 16px; border-bottom: 1px solid var(--line); font-size: 14px; }
 .mrow .k { flex: none; width: 56px; font-size: 13px; color: var(--muted); }
 .mrow.to .who { height: 32px; padding: 0 10px; border-radius: 99px; border: 0; background: var(--bg2); font-weight: 500; font-size: 13.5px; outline: none; cursor: pointer; }
@@ -175,7 +175,7 @@ a.btn.off { opacity: .45; pointer-events: none; }
 @media (min-width: 760px) { .pstats { grid-template-columns: repeat(4, 1fr); } }
 .board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(262px, 1fr); gap: 12px; margin-top: 18px; overflow-x: auto; padding-bottom: 12px; scroll-snap-type: x proximity; scrollbar-width: thin; }
 .col { scroll-snap-align: start; min-height: 320px; padding: 12px; border-radius: 26px; background: #f7f7f5; border: 1px solid transparent; transition: background .2s, border-color .2s; display: flex; flex-direction: column; }
-.col.over { background: var(--brand-t); border-color: rgb(91 80 240 / .35); }
+.col.over { background: var(--brand-t); border-color: rgb(58 165 246 / .35); }
 .col header { display: flex; align-items: center; gap: 10px; padding: 4px 4px 12px; }
 .col header .ci { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; }
 .col header .ci svg { width: 15px; height: 15px; }

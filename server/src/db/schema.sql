@@ -1,4 +1,4 @@
--- Knockd database (Postgres + pgvector). Safe to run on every start: everything is IF NOT EXISTS.
+-- Doorstep database (Postgres + pgvector). Safe to run on every start: everything is IF NOT EXISTS.
 -- Tables follow the plan: companies, jobs, contacts, users, drafts, sends (+ the bits around them).
 CREATE EXTENSION IF NOT EXISTS vector;
 

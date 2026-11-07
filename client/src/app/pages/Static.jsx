@@ -33,9 +33,9 @@ const PRIVACY = [
 ];
 
 const TERMS = [
-  ['What Knockd is', ['A free, invite-only tool that finds startups that are hiring or just raised money, writes a short email to a founder for you to review, and helps you keep track of what you sent.']],
+  ['What Doorstep is', ['A free, invite-only tool that finds startups that are hiring or just raised money, writes a short email to a founder for you to review, and helps you keep track of what you sent.']],
   ['Your emails are yours', [
-    'You approve every email, and it goes out from your own account. Be honest, write to one person at a time, and take no for an answer. Don’t use Knockd for bulk or unrelated outreach.',
+    'You approve every email, and it goes out from your own account. Be honest, write to one person at a time, and take no for an answer. Don’t use Doorstep for bulk or unrelated outreach.',
     'Check names and email addresses before you send. Guesses are labelled as guesses.',
   ]],
   ['Listings', [
@@ -49,7 +49,7 @@ function Bar() {
   return (
     <header className="nav">
       <div className="nav-in">
-        <a href="#/" className="logo" aria-label="Knockd home"><span className="logo-mark"><LogoMark /></span><span className="t">Knockd</span></a>
+        <a href="#/" className="logo" aria-label="Doorstep home"><span className="logo-mark"><LogoMark /></span><span className="t">Doorstep</span></a>
         <div className="nav-side"><a className="nav-cta" href="#/app">Open the app <ArrowRight size={15} /></a></div>
       </div>
     </header>
@@ -60,7 +60,7 @@ export function Legal({ kind }) {
   const privacy = kind === 'privacy';
   const ref = useReveal(kind);
   useEffect(() => {
-    document.title = `${privacy ? 'Privacy' : 'Terms'} · Knockd`;
+    document.title = `${privacy ? 'Privacy' : 'Terms'} · Doorstep`;
     window.scrollTo(0, 0);
   }, [privacy]);
   return (
@@ -87,7 +87,7 @@ export function Legal({ kind }) {
 }
 
 export function NotFound() {
-  useEffect(() => { document.title = 'Page not found · Knockd'; }, []);
+  useEffect(() => { document.title = 'Page not found · Doorstep'; }, []);
   return (
     <div className="ih">
       <Bar />

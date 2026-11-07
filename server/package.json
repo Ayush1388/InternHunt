@@ -1,9 +1,9 @@
 {
-  "name": "knockd-server",
+  "name": "doorstep-server",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Knockd backend: startups that are hiring, founders to write to, drafts you approve, Gmail and Telegram.",
+  "description": "Doorstep backend: startups that are hiring, founders to write to, drafts you approve, Gmail and Telegram.",
   "engines": {
     "node": ">=22.13"
   },

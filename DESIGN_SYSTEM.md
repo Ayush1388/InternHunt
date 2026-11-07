@@ -1,4 +1,4 @@
-# Knockd design system
+# Doorstep design system
 
 One look for the landing page and the app. The landing page (`client/src/Landing.jsx`, `landing.css`) is the benchmark; the app (`client/src/app/`) reuses its tokens and pieces. The palette was taken from a `/taste` analysis of backdoorai.app (see `backdoorai.app.md`), the layout and copy are our own.
 
@@ -17,7 +17,7 @@ One look for the landing page and the app. The landing page (`client/src/Landing
 | `--muted` | `#6e6e72` | secondary text |
 | `--line` | `#e9e9eb` | hairlines, card borders |
 | `--bg2` / `--bg3` | `#f5f4f1` / `#ebe9e3` | chips, inactive controls, hover |
-| `--brand` | `#5b50f0` (gradient `#8f88ff → #5b50f0 → #4338ca`) | the logo, draft counts, “why this fits” notes |
+| `--brand` | `#3aa5f6` (gradient `#62bffb → #3aa5f6`) | the logo, draft counts, “why this fits” notes |
 | `--sky` | `#3aa5f6` | the hand-drawn underline (it matches the sky photo) |
 | `--t-peach/blue/butter/mint/lilac/pink/red` | pastel tints | tiles, tags, avatars |
 | `--green`, `--red` | `#1e8e3e`, `#d93025` | open / closing, Gmail-style highlights |

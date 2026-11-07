@@ -9,11 +9,11 @@ export const cx = (...a) => a.filter(Boolean).join(' ');
 export const reduced = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ------------------------------------------------------------------ brand */
-/** The Knockd "K": a door frame (the stem) and two strokes knocking on it. */
+/** The Doorstep "D": a doorway. */
 export function LogoMark({ size = 15 }) {
   return (
     <svg viewBox="0 0 32 32" width={size} height={size} aria-hidden="true">
-      <path d="M9 7.5h3.4v7.2L19.3 7.5h4.5l-7.4 7.6 7.8 9.4h-4.5l-5.7-7-1.6 1.7v5.3H9z" fill="currentColor" />
+      <path d="M9 7.5h6.2c4.6 0 7.8 3.1 7.8 8.5s-3.2 8.5-7.8 8.5H9zm3.4 3.2v10.6h2.6c2.6 0 4.5-2 4.5-5.3s-1.9-5.3-4.5-5.3z" fillRule="evenodd" fill="currentColor" />
     </svg>
   );
 }

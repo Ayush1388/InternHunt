@@ -8,7 +8,7 @@ import { AuthProvider } from '@/app/auth';
 import { Legal, NotFound } from '@/app/pages/Static';
 import { Toaster } from '@/app/ui';
 import '@/app/app.css';
-import '@/app/knockd.css';
+import '@/app/doorstep.css';
 
 // Hash routes:  #/                 landing (also #how, #faq… section anchors)
 //               #/app[/page[/arg]]  the app: explore | foryou | drafts[/id] | pipeline | settings | recruiting

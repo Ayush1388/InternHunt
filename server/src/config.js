@@ -3,7 +3,7 @@ import './env.js';
 
 const env = process.env;
 
-export const BRAND = 'Knockd';
+export const BRAND = 'Doorstep';
 export const PUBLIC_URL = (env.PUBLIC_URL || (env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${env.VERCEL_PROJECT_PRODUCTION_URL}` : 'http://localhost:5199')).replace(/\/$/, '');
 
 export const config = {

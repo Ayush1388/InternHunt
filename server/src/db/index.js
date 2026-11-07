@@ -49,7 +49,7 @@ async function connect() {
 
   const { PGlite } = await import('@electric-sql/pglite');
   const { vector } = await import('@electric-sql/pglite/vector');
-  let dataDir = process.env.PGLITE_DIR || (ON_VERCEL ? path.join(os.tmpdir(), 'knockd-pg') : path.join(here, '..', '..', 'data', 'pg'));
+  let dataDir = process.env.PGLITE_DIR || (ON_VERCEL ? path.join(os.tmpdir(), 'doorstep-pg') : path.join(here, '..', '..', 'data', 'pg'));
   if (dataDir !== 'memory://') mkdirSync(dataDir, { recursive: true });
   else dataDir = undefined;
   const pg = await PGlite.create({ ...(dataDir ? { dataDir } : {}), extensions: { vector } });

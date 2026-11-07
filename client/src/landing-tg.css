@@ -3,7 +3,7 @@
 .lp .btn.tg { background: linear-gradient(#37b6f3, #229ed9); color: #fff; box-shadow: inset 0 1px 0 rgb(255 255 255 / .25), 0 14px 28px -12px rgb(34 158 217 / .55); }
 .lp .btn.tg:hover { box-shadow: inset 0 1px 0 rgb(255 255 255 / .3), 0 22px 34px -14px rgb(34 158 217 / .6); }
 .lp .btn.light svg { color: #229ed9; }
-.lp-logo-mark { box-shadow: inset 0 1px 0 rgb(255 255 255 / .4), 0 6px 14px -6px rgb(91 80 240 / .8); }
+.lp-logo-mark { box-shadow: inset 0 1px 0 rgb(255 255 255 / .4), 0 6px 14px -6px rgb(58 165 246 / .8); }
 
 .lp-tg { display: grid; gap: 48px; align-items: center; }
 @media (min-width: 980px) { .lp-tg { grid-template-columns: 1.05fr 1fr; gap: 64px; } }
@@ -28,7 +28,7 @@
 .tg-top div { line-height: 1.2; color: #111; }
 .tg-top b { display: block; font-size: 15px; font-weight: 600; }
 .tg-top small { font-size: 12px; color: #229ed9; }
-.tg-av { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(150deg, #8f88ff 0%, #5b50f0 55%, #4338ca 100%); color: #fff; }
+.tg-av { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: linear-gradient(#62bffb, #3aa5f6); color: #fff; }
 .tg-chat { flex: 1; overflow-y: auto; scrollbar-width: none; padding: 12px 10px 14px; display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; line-height: 1.45; color: #111;
   background-color: #cfe4c4;
   background-image: radial-gradient(circle at 20% 30%, rgb(255 255 255 / .35) 0 2px, transparent 3px), radial-gradient(circle at 70% 80%, rgb(255 255 255 / .3) 0 1.5px, transparent 2.5px), linear-gradient(160deg, #d8ecc8, #b9dcc2 55%, #a9d3cf);

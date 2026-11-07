@@ -47,7 +47,7 @@ export async function ycHiring() {
 export async function ycCompanyPage(slug) {
   if (!SLUG_RE.test(slug)) throw new Error('Bad YC slug');
   const url = `https://www.ycombinator.com/companies/${slug}`;
-  const html = await getText(url, { timeoutMs: 12000, retries: 0, headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Knockd/1.0)' } });
+  const html = await getText(url, { timeoutMs: 12000, retries: 0, headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Doorstep/1.0)' } });
   const m = /data-page="([^"]*)"/.exec(html || '');
   if (!m) throw new Error('No company data on the YC page');
   const props = JSON.parse(decodeEntities(m[1]))?.props || {};

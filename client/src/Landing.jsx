@@ -75,7 +75,7 @@ const FAQ = [
 function LogoMark({ size = 16, color = '#fff' }) {
   return (
     <svg viewBox="0 0 32 32" width={size} height={size} aria-hidden="true">
-      <path d="M9 7.5h3.4v7.2L19.3 7.5h4.5l-7.4 7.6 7.8 9.4h-4.5l-5.7-7-1.6 1.7v5.3H9z" fill={color} />
+      <path d="M9 7.5h6.2c4.6 0 7.8 3.1 7.8 8.5s-3.2 8.5-7.8 8.5H9zm3.4 3.2v10.6h2.6c2.6 0 4.5-2 4.5-5.3s-1.9-5.3-4.5-5.3z" fillRule="evenodd" fill={color} />
     </svg>
   );
 }
@@ -121,7 +121,7 @@ function Dashboard() {
       <div className="lp-dash" role="img" aria-label="Example product screen showing today's startup matches, a fit breakdown and a drafted email">
         <div className="lp-win">
           <aside className="lp-side">
-            <div className="brand"><i /> Knockd</div>
+            <div className="brand"><i /> Doorstep</div>
             {[[LayoutGrid, 'Today', 1], [Sparkles, 'Matches'], [Mail, 'Drafts'], [KanbanSquare, 'Pipeline'], [Inbox, 'Replies'], [Settings, 'Settings']].map(([I, t, on]) => (
               <div key={t} className={`it ${on ? 'on' : ''}`}><I size={15} aria-hidden="true" /> {t}</div>
             ))}
@@ -581,7 +581,7 @@ export default function Landing() {
 
       <header className={`lp-nav ${hide ? 'hide' : ''}`}>
         <div className="lp-nav-in">
-          <a href="#top" className="lp-logo" aria-label="Knockd home"><span className="lp-logo-mark"><LogoMark size={15} /></span><span className="t">Knockd</span></a>
+          <a href="#top" className="lp-logo" aria-label="Doorstep home"><span className="lp-logo-mark"><LogoMark size={15} /></span><span className="t">Doorstep</span></a>
           <nav className="lp-nav-links" aria-label="Sections">
             {links.map(([id, t]) => <a key={id} href={`#${id}`} className={spy === id ? 'on' : ''}>{t}</a>)}
           </nav>
@@ -761,7 +761,7 @@ export default function Landing() {
 
       <footer className="lp-foot">
         <div className="lp-wrap lp-foot-in">
-          <span>© {new Date().getFullYear()} Knockd · Made for Indian students</span>
+          <span>© {new Date().getFullYear()} Doorstep · Made for Indian students</span>
           <nav aria-label="Footer"><a href="#/privacy">Privacy</a><a href="#/terms">Terms</a><a href="#/app/settings">Delete my data</a><a href={APP_HREF}>Open the app</a><a href="https://unsplash.com/photos/cloudy-sky-at-daytime-v9bnfMCyKbg" target="_blank" rel="noopener noreferrer">Photo: billy_huy / Unsplash</a></nav>
         </div>
       </footer>

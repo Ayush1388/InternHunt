@@ -45,7 +45,7 @@ export async function finishConnect({ code, state }) {
   const s = await verify(state);
   if (!s?.uid) throw new Error('This Gmail link expired. Try connecting again.');
   const t = await tokenRequest({ code, redirect_uri: REDIRECT(), grant_type: 'authorization_code' });
-  if (!t.refresh_token) throw new Error('Google didn’t return a refresh token. Remove Knockd from your Google account permissions and try again.');
+  if (!t.refresh_token) throw new Error('Google didn’t return a refresh token. Remove Doorstep from your Google account permissions and try again.');
   const granted = String(t.scope || '').split(' ');
   if (!granted.includes('https://www.googleapis.com/auth/gmail.compose')) throw new Error('Gmail permission wasn’t granted, so we can’t create drafts.');
   const claims = JSON.parse(Buffer.from(String(t.id_token || '').split('.')[1] || 'e30', 'base64url').toString('utf8'));

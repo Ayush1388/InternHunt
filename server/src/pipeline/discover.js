@@ -94,7 +94,7 @@ const NOT_COMPANY_HOSTS = /(entrackr|inc42|startuptalky|yourstory|twitter|x\.com
 export async function websiteFromArticle(articleUrl, name) {
   let html;
   try {
-    html = await getText(articleUrl, { ...opts, headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Knockd/1.0)' } });
+    html = await getText(articleUrl, { ...opts, headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Doorstep/1.0)' } });
   } catch {
     return '';
   }

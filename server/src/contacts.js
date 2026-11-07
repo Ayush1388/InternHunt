@@ -57,7 +57,7 @@ export async function siteEmails(website, domain) {
   for (const path of ['', '/contact', '/about']) {
     let body = '';
     try {
-      body = await getText(base + path, { timeoutMs: 5000, retries: 0, headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Knockd/1.0)' } });
+      body = await getText(base + path, { timeoutMs: 5000, retries: 0, headers: { 'User-Agent': 'Mozilla/5.0 (compatible; Doorstep/1.0)' } });
     } catch {
       continue;
     }

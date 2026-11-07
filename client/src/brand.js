@@ -1,6 +1,6 @@
 // The name and the few brand values the whole site shares. Rename here.
-export const BRAND = 'Knockd';
-export const TAGLINE = 'Knock on the right startup’s door';
+export const BRAND = 'Doorstep';
+export const TAGLINE = 'Show up at the right startup’s door';
 
 /** Telegram bot link. The username comes from the server (/api/config); this is only the fallback. */
 export const telegramUrl = (bot) => (bot ? `https://t.me/${bot}` : null);

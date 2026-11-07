@@ -10,9 +10,9 @@ const CONTENT = {
     title: 'Who’s recruiting',
     words: 'Hiring directly, right here',
     mark: 'directly,',
-    lead: 'Founders and teams who post a role on Knockd and hire without a middleman, plus startups that just raised or launched, before the role is on any job board.',
+    lead: 'Founders and teams who post a role on Doorstep and hire without a middleman, plus startups that just raised or launched, before the role is on any job board.',
     points: [
-      [Rocket, 'Hiring directly on Knockd', 'Founders post a role here and reach students straight away. No agencies, no fees for candidates.'],
+      [Rocket, 'Hiring directly on Doorstep', 'Founders post a role here and reach students straight away. No agencies, no fees for candidates.'],
       [Newspaper, 'Fresh funding and launches', 'Funding roundups, Product Hunt launches, YC and GitHub, checked every day, anywhere in the world.'],
       [Sparkles, 'Matched to you', 'Ranked by your skills, with the reason shown. Apply, or approve a short email to the founder.'],
     ],
@@ -21,7 +21,7 @@ const CONTENT = {
 
 const PREVIEW = [
   ['Lumen Labs', 'Raised a seed round · 2 days ago', 'ML intern fit', 'mint'],
-  ['Orbit Pay', 'Posted a role on Knockd · today', 'Backend fit', 'blue'],
+  ['Orbit Pay', 'Posted a role on Doorstep · today', 'Backend fit', 'blue'],
   ['Paperkite', 'Launched on Product Hunt · this week', 'Design fit', 'butter'],
   ['Kiln', 'Raised a pre-seed · 4 days ago', 'Growth fit', 'peach'],
 ];
